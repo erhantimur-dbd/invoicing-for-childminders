@@ -28,8 +28,9 @@ export async function proxy(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/signup')
   const isPublicInvoice = request.nextUrl.pathname.startsWith('/pay/')
+  const isOnboarding = request.nextUrl.pathname.startsWith('/onboarding')
 
-  if (!user && !isAuthPage && !isPublicInvoice) {
+  if (!user && !isAuthPage && !isPublicInvoice && !isOnboarding) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

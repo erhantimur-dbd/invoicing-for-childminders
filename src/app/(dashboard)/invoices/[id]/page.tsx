@@ -188,9 +188,9 @@ export default function InvoicePage() {
   const child = (invoice as any).children
 
   return (
-    <div className="space-y-4">
+    <div>
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-5">
         <Link href="/invoices" className="text-gray-400 hover:text-gray-600">
           <ChevronLeft className="h-6 w-6" />
         </Link>
@@ -204,7 +204,29 @@ export default function InvoicePage() {
             {' · '}{format(new Date(invoice.issue_date), 'd MMM yyyy')}
           </p>
         </div>
+        {/* Desktop action buttons in header */}
+        <div className="hidden md:flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
+            <Printer className="h-4 w-4" /> Print
+          </Button>
+          {invoice.status !== 'paid' && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setShowMarkPaid(true)} className="gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                <CheckCircle className="h-4 w-4" /> Mark paid
+              </Button>
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2" onClick={() => setShowShareOptions(true)}>
+                <Mail className="h-4 w-4" /> Share
+              </Button>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Desktop two-column layout */}
+      <div className="flex flex-col md:flex-row gap-6">
+
+        {/* Left column: details + actions */}
+        <div className="flex-1 space-y-4 md:max-w-sm">
 
       {/* Summary card */}
       <Card className="border-0 shadow-sm bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
@@ -224,8 +246,8 @@ export default function InvoicePage() {
         </CardContent>
       </Card>
 
-      {/* Action buttons */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Mobile action buttons */}
+      <div className="grid grid-cols-2 gap-3 md:hidden">
         <Button
           variant="outline"
           className="h-14 flex-col gap-1 text-xs border-gray-200"
@@ -370,7 +392,23 @@ export default function InvoicePage() {
         </CardContent>
       </Card>
 
-      {/* Preview dialog */}
+        </div>{/* end left column */}
+
+        {/* Right column: live invoice preview (desktop only) */}
+        <div className="hidden md:block flex-1">
+          <div className="sticky top-6">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Invoice preview</p>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 overflow-auto max-h-[calc(100vh-10rem)]">
+                <InvoicePreview invoice={invoice} profile={profile} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>{/* end two-column */}
+
+      {/* Preview dialog (mobile) */}
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
           <div className="p-4 border-b flex items-center justify-between">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -10,9 +10,29 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { Loader2, User, Phone, Landmark, Baby } from 'lucide-react'
+import { Loader2, User, Phone, Landmark, Baby, Calendar } from 'lucide-react'
 import type { Child } from '@/lib/types'
+
+type SavedBank = {
+  label: string
+  bank_name: string
+  bank_account_name: string
+  bank_sort_code: string
+  bank_account_number: string
+}
+
+type ScheduleDay = { day: string; type: 'full' | 'half' }
+
+const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+const DAY_LABELS: Record<string, string> = {
+  monday: 'Mon',
+  tuesday: 'Tue',
+  wednesday: 'Wed',
+  thursday: 'Thu',
+  friday: 'Fri',
+}
 
 type ChildFormData = Omit<Child, 'id' | 'childminder_id' | 'created_at' | 'updated_at'>
 
@@ -30,6 +50,9 @@ const emptyForm: ChildFormData = {
   bank_name: '',
   notes: '',
   is_active: true,
+  half_day_rate: null,
+  schedule_days: null,
+  schedule_note: null,
 }
 
 type Props = {
@@ -41,6 +64,62 @@ export default function ChildForm({ child, mode }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [saving, setSaving] = useState(false)
+  const [savedBanks, setSavedBanks] = useState<SavedBank[]>([])
+
+  useEffect(() => {
+    async function loadSavedBanks() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const banks: SavedBank[] = []
+      const seen = new Set<string>()
+
+      // Default bank from profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('default_bank_name, default_bank_account_name, default_bank_sort_code, default_bank_account_number')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.default_bank_account_number) {
+        const key = profile.default_bank_account_number
+        seen.add(key)
+        banks.push({
+          label: `${profile.default_bank_account_name} (${profile.default_bank_name || 'Default'})`,
+          bank_name: profile.default_bank_name || '',
+          bank_account_name: profile.default_bank_account_name || '',
+          bank_sort_code: profile.default_bank_sort_code || '',
+          bank_account_number: profile.default_bank_account_number,
+        })
+      }
+
+      // Bank details from existing children
+      const { data: children } = await supabase
+        .from('children')
+        .select('bank_name, bank_account_name, bank_sort_code, bank_account_number')
+        .eq('childminder_id', user.id)
+        .not('bank_account_number', 'is', null)
+
+      for (const c of children || []) {
+        if (!c.bank_account_number || seen.has(c.bank_account_number)) continue
+        seen.add(c.bank_account_number)
+        banks.push({
+          label: `${c.bank_account_name} (${c.bank_name || 'saved'})`,
+          bank_name: c.bank_name || '',
+          bank_account_name: c.bank_account_name || '',
+          bank_sort_code: c.bank_sort_code || '',
+          bank_account_number: c.bank_account_number,
+        })
+      }
+
+      setSavedBanks(banks)
+    }
+    loadSavedBanks()
+  }, [])
+
+  const [hasSchedule, setHasSchedule] = useState(
+    !!(child?.schedule_days && child.schedule_days.length > 0)
+  )
   const [form, setForm] = useState<ChildFormData>(
     child ? {
       first_name: child.first_name,
@@ -56,11 +135,44 @@ export default function ChildForm({ child, mode }: Props) {
       bank_name: child.bank_name,
       notes: child.notes,
       is_active: child.is_active,
+      half_day_rate: child.half_day_rate,
+      schedule_days: child.schedule_days,
+      schedule_note: child.schedule_note,
     } : emptyForm
   )
 
-  function set(field: keyof ChildFormData, value: string | number | boolean | null) {
+  function set(field: keyof ChildFormData, value: string | number | boolean | null | ScheduleDay[]) {
     setForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  function toggleScheduleDay(day: string) {
+    const current: ScheduleDay[] = form.schedule_days || []
+    const exists = current.find(d => d.day === day)
+    if (exists) {
+      set('schedule_days', current.filter(d => d.day !== day))
+    } else {
+      set('schedule_days', [...current, { day, type: 'full' }])
+    }
+  }
+
+  function setDayType(day: string, type: 'full' | 'half') {
+    const current: ScheduleDay[] = form.schedule_days || []
+    set('schedule_days', current.map(d => d.day === day ? { ...d, type } : d))
+  }
+
+  function getScheduledDay(day: string): ScheduleDay | undefined {
+    return (form.schedule_days || []).find(d => d.day === day)
+  }
+
+  function weeklyTotal() {
+    const days = form.schedule_days || []
+    return days.reduce((sum, d) => {
+      if (d.type === 'half') {
+        const halfRate = form.half_day_rate || (Number(form.daily_rate) / 2)
+        return sum + halfRate
+      }
+      return sum + Number(form.daily_rate)
+    }, 0)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -69,10 +181,17 @@ export default function ChildForm({ child, mode }: Props) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
+    const payload = {
+      ...form,
+      daily_rate: Number(form.daily_rate),
+      half_day_rate: form.half_day_rate ? Number(form.half_day_rate) : null,
+      schedule_days: hasSchedule ? (form.schedule_days || []) : [],
+      schedule_note: hasSchedule ? form.schedule_note : null,
+    }
+
     if (mode === 'new') {
       const { error } = await supabase.from('children').insert({
-        ...form,
-        daily_rate: Number(form.daily_rate),
+        ...payload,
         childminder_id: user.id,
       })
       if (error) {
@@ -85,7 +204,7 @@ export default function ChildForm({ child, mode }: Props) {
     } else {
       const { error } = await supabase
         .from('children')
-        .update({ ...form, daily_rate: Number(form.daily_rate), updated_at: new Date().toISOString() })
+        .update({ ...payload, updated_at: new Date().toISOString() })
         .eq('id', child!.id)
       if (error) {
         toast.error('Failed to update child')
@@ -108,6 +227,8 @@ export default function ChildForm({ child, mode }: Props) {
     toast.success('Child removed')
     router.push('/children')
   }
+
+  const scheduledDays = form.schedule_days || []
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -151,19 +272,138 @@ export default function ChildForm({ child, mode }: Props) {
               className="h-12 text-base"
             />
           </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Daily rate (£)</Label>
-            <Input
-              type="number"
-              min="0"
-              step="0.50"
-              value={form.daily_rate || ''}
-              onChange={e => set('daily_rate', e.target.value)}
-              placeholder="45.00"
-              className="h-12 text-base"
-              required
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Daily rate (£)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.50"
+                value={form.daily_rate || ''}
+                onChange={e => set('daily_rate', e.target.value)}
+                placeholder="45.00"
+                className="h-12 text-base"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Half day rate (£)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.50"
+                value={form.half_day_rate || ''}
+                onChange={e => set('half_day_rate', e.target.value ? Number(e.target.value) : null)}
+                placeholder="25.00"
+                className="h-12 text-base"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Fixed schedule */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-emerald-600" />
+            Fixed weekly schedule
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Has fixed schedule</p>
+              <p className="text-xs text-gray-500">Pre-fills invoice dates automatically</p>
+            </div>
+            <Switch
+              checked={hasSchedule}
+              onCheckedChange={val => {
+                setHasSchedule(val)
+                if (!val) set('schedule_days', [])
+              }}
             />
           </div>
+
+          {hasSchedule && (
+            <>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Select days</Label>
+                <div className="flex gap-2">
+                  {DAYS.map(day => {
+                    const scheduled = getScheduledDay(day)
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleScheduleDay(day)}
+                        className={`flex-1 h-10 rounded-lg text-sm font-medium transition-colors ${
+                          scheduled
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        {DAY_LABELS[day]}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {scheduledDays.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Full or half day?</Label>
+                  <div className="space-y-2">
+                    {scheduledDays.map(sd => (
+                      <div key={sd.day} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                        <span className="text-sm font-medium capitalize">{sd.day}</span>
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setDayType(sd.day, 'full')}
+                            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                              sd.type === 'full'
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-white border border-gray-200 text-gray-600'
+                            }`}
+                          >
+                            Full
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDayType(sd.day, 'half')}
+                            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                              sd.type === 'half'
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-white border border-gray-200 text-gray-600'
+                            }`}
+                          >
+                            Half
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-emerald-50 rounded-lg p-3">
+                    <p className="text-xs text-emerald-700 font-medium">
+                      Weekly total: £{weeklyTotal().toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Schedule notes (optional)</Label>
+                <Textarea
+                  value={form.schedule_note || ''}
+                  onChange={e => set('schedule_note', e.target.value || null)}
+                  placeholder="e.g. Term time only, or any exceptions..."
+                  className="text-base resize-none"
+                  rows={2}
+                />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -220,6 +460,31 @@ export default function ChildForm({ child, mode }: Props) {
           <p className="text-xs text-gray-500">These bank details will appear on invoices for {form.first_name || 'this child'}</p>
         </CardHeader>
         <CardContent className="space-y-4">
+          {savedBanks.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Use saved account</Label>
+              <Select onValueChange={v => {
+                const bank = savedBanks.find(b => b.bank_account_number === v)
+                if (bank) {
+                  set('bank_name', bank.bank_name)
+                  set('bank_account_name', bank.bank_account_name)
+                  set('bank_sort_code', bank.bank_sort_code)
+                  set('bank_account_number', bank.bank_account_number)
+                }
+              }}>
+                <SelectTrigger className="h-12 text-base">
+                  <SelectValue placeholder="Pick a saved account…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {savedBanks.map(b => (
+                    <SelectItem key={b.bank_account_number} value={b.bank_account_number}>
+                      {b.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Bank name</Label>
             <Input

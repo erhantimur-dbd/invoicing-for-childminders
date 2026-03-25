@@ -50,33 +50,40 @@ export default async function ChildrenPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {children.map((child) => (
             <Link key={child.id} href={`/children/${child.id}`}>
-              <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-emerald-700 font-bold text-sm">
+              <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:-translate-y-0.5">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="w-11 h-11 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-emerald-700 font-bold">
                         {child.first_name[0]}{child.last_name[0]}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900">
-                        {child.first_name} {child.last_name}
-                      </p>
-                      <p className="text-gray-500 text-sm truncate">{child.parent_name}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <p className="font-bold text-gray-900 text-sm">{formatGBP(Number(child.daily_rate))}</p>
-                        <p className="text-xs text-gray-400">per day</p>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="font-semibold text-gray-900">
+                          {child.first_name} {child.last_name}
+                        </p>
+                        {!child.is_active && (
+                          <Badge className="bg-gray-100 text-gray-500 text-xs">Inactive</Badge>
+                        )}
                       </div>
-                      {!child.is_active && (
-                        <Badge className="bg-gray-100 text-gray-500">Inactive</Badge>
-                      )}
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                      <p className="text-gray-500 text-sm truncate">{child.parent_name}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">{formatGBP(Number(child.daily_rate))}</p>
+                          <p className="text-xs text-gray-400">per day</p>
+                        </div>
+                        {(child as any).schedule_days?.length > 0 && (
+                          <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">
+                            {(child as any).schedule_days.length}d/week
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    <ChevronRight className="h-4 w-4 text-gray-300 flex-shrink-0 mt-1" />
                   </div>
                 </CardContent>
               </Card>

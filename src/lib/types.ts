@@ -27,6 +27,9 @@ export type Child = {
   bank_name: string
   notes: string
   is_active: boolean
+  half_day_rate: number | null
+  schedule_days: { day: string; type: 'full' | 'half' }[] | null
+  schedule_note: string | null
   created_at: string
   updated_at: string
 }
@@ -77,6 +80,28 @@ export type Reminder = {
   is_active: boolean
   created_at: string
 }
+
+export type Expense = {
+  id: string
+  childminder_id: string
+  date: string
+  description: string
+  category: string
+  amount: number
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export const EXPENSE_CATEGORIES = [
+  'Supplies',
+  'Food & drink',
+  'Outings',
+  'Training',
+  'Equipment',
+  'Travel',
+  'Other',
+] as const
 
 export type DashboardStats = {
   totalEarnedThisMonth: number

@@ -36,7 +36,7 @@ export default function SignupPage() {
       setLoading(false)
     } else {
       toast.success('Account created! Welcome aboard.')
-      router.push('/profile?setup=true')
+      router.push('/onboarding')
       router.refresh()
     }
   }

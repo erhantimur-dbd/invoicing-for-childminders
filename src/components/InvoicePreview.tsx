@@ -15,152 +15,158 @@ export default function InvoicePreview({ invoice, profile }: Props) {
   const items = invoice.invoice_line_items || []
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm print:shadow-none print:rounded-none print:p-8 font-sans">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-8">
+    <div className="invoice-print-content bg-white font-sans text-gray-900" style={{ fontFamily: 'Georgia, serif' }}>
+
+      {/* Top accent bar */}
+      <div style={{ height: '6px', background: '#059669', marginBottom: '40px' }} />
+
+      {/* Header: INVOICE + childminder details */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', padding: '0 40px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">INVOICE</h1>
-          <p className="text-emerald-600 font-semibold text-lg mt-1">{invoice.invoice_number}</p>
+          <div style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '4px', color: '#111827', fontFamily: 'Arial, sans-serif' }}>INVOICE</div>
+          <div style={{ fontSize: '16px', color: '#059669', fontWeight: '600', marginTop: '4px', fontFamily: 'Arial, sans-serif' }}>{invoice.invoice_number}</div>
         </div>
-        <div className="text-right text-sm text-gray-600">
-          <p className="font-bold text-gray-900 text-base">{profile.full_name}</p>
-          {profile.address_line1 && <p>{profile.address_line1}</p>}
-          {profile.address_line2 && <p>{profile.address_line2}</p>}
-          {(profile.city || profile.postcode) && (
-            <p>{[profile.city, profile.postcode].filter(Boolean).join(', ')}</p>
-          )}
-          {profile.phone && <p>{profile.phone}</p>}
-          {profile.email && <p>{profile.email}</p>}
+        <div style={{ textAlign: 'right', fontSize: '13px', color: '#4B5563', lineHeight: '1.7', fontFamily: 'Arial, sans-serif' }}>
+          <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginBottom: '2px' }}>{profile.full_name}</div>
+          {profile.address_line1 && <div>{profile.address_line1}</div>}
+          {profile.address_line2 && <div>{profile.address_line2}</div>}
+          {(profile.city || profile.postcode) && <div>{[profile.city, profile.postcode].filter(Boolean).join(', ')}</div>}
+          {profile.phone && <div>{profile.phone}</div>}
+          {profile.email && <div style={{ color: '#059669' }}>{profile.email}</div>}
         </div>
       </div>
 
-      {/* Invoice meta */}
-      <div className="grid grid-cols-2 gap-6 mb-8">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Bill to</p>
-          {child && (
+      {/* Divider */}
+      <div style={{ borderTop: '1px solid #E5E7EB', margin: '0 40px 32px' }} />
+
+      {/* Bill To + Invoice Details */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', margin: '0 40px 40px', gap: '40px', fontFamily: 'Arial, sans-serif' }}>
+        {/* Bill To */}
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '10px' }}>Bill To</div>
+          {child ? (
             <>
-              <p className="font-semibold text-gray-900">{child.parent_name}</p>
-              <p className="text-gray-600 text-sm">{child.parent_email}</p>
-              {child.parent_phone && <p className="text-gray-600 text-sm">{child.parent_phone}</p>}
-              <p className="text-gray-500 text-sm mt-1">
-                Child: <span className="font-medium text-gray-700">{child.first_name} {child.last_name}</span>
-              </p>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>{child.parent_name}</div>
+              <div style={{ fontSize: '13px', color: '#6B7280', marginBottom: '2px' }}>{child.parent_email}</div>
+              {child.parent_phone && <div style={{ fontSize: '13px', color: '#6B7280', marginBottom: '6px' }}>{child.parent_phone}</div>}
+              <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>
+                Re: {child.first_name} {child.last_name}
+              </div>
             </>
+          ) : (
+            <div style={{ fontSize: '13px', color: '#6B7280' }}>—</div>
           )}
         </div>
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-500">Invoice date</span>
-              <span className="font-medium">{format(new Date(invoice.issue_date), 'd MMM yyyy')}</span>
-            </div>
-            {invoice.due_date && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Due date</span>
-                <span className="font-medium text-amber-700">{format(new Date(invoice.due_date), 'd MMM yyyy')}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-gray-500">Status</span>
-              <span className={`font-semibold capitalize ${
-                invoice.status === 'paid' ? 'text-emerald-600' :
-                invoice.status === 'overdue' ? 'text-red-600' :
-                invoice.status === 'sent' ? 'text-amber-600' : 'text-gray-600'
-              }`}>{invoice.status}</span>
-            </div>
-          </div>
+
+        {/* Invoice details */}
+        <div style={{ minWidth: '180px' }}>
+          <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#9CA3AF', textTransform: 'uppercase', marginBottom: '10px' }}>Details</div>
+          <table style={{ fontSize: '13px', borderCollapse: 'collapse', width: '100%' }}>
+            <tbody>
+              <tr>
+                <td style={{ color: '#9CA3AF', paddingBottom: '6px', paddingRight: '16px' }}>Invoice date</td>
+                <td style={{ fontWeight: '600', paddingBottom: '6px', textAlign: 'right' }}>{format(new Date(invoice.issue_date), 'd MMM yyyy')}</td>
+              </tr>
+              {invoice.due_date && (
+                <tr>
+                  <td style={{ color: '#9CA3AF', paddingBottom: '6px', paddingRight: '16px' }}>Due date</td>
+                  <td style={{ fontWeight: '600', paddingBottom: '6px', textAlign: 'right', color: '#D97706' }}>{format(new Date(invoice.due_date), 'd MMM yyyy')}</td>
+                </tr>
+              )}
+              <tr>
+                <td style={{ color: '#9CA3AF', paddingRight: '16px' }}>Reference</td>
+                <td style={{ fontWeight: '600', textAlign: 'right' }}>{invoice.invoice_number}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Line items */}
-      <div className="mb-6">
-        <div className="bg-gray-800 text-white rounded-t-lg grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium uppercase tracking-wide">
-          <div className="col-span-6">Description</div>
-          <div className="col-span-2 text-center">Days</div>
-          <div className="col-span-2 text-right">Rate</div>
-          <div className="col-span-2 text-right">Amount</div>
-        </div>
-        {items.map((item, idx) => (
-          <div
-            key={item.id}
-            className={`grid grid-cols-12 gap-2 px-4 py-3 text-sm border-b border-gray-100 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
-          >
-            <div className="col-span-6 text-gray-800">{item.description}</div>
-            <div className="col-span-2 text-center text-gray-600">{item.quantity}</div>
-            <div className="col-span-2 text-right text-gray-600">{formatGBP(Number(item.unit_price))}</div>
-            <div className="col-span-2 text-right font-medium text-gray-900">{formatGBP(Number(item.amount))}</div>
-          </div>
-        ))}
-        <div className="flex justify-end mt-2">
-          <div className="bg-emerald-600 text-white rounded-lg px-6 py-3 min-w-40">
-            <div className="flex justify-between items-center">
-              <span className="font-medium">Total</span>
-              <span className="text-xl font-bold">{formatGBP(Number(invoice.total))}</span>
-            </div>
+      {/* Line items table */}
+      <div style={{ margin: '0 40px 40px', fontFamily: 'Arial, sans-serif' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <thead>
+            <tr style={{ background: '#111827', color: 'white' }}>
+              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase' }}>Description</th>
+              <th style={{ padding: '10px 16px', textAlign: 'center', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', width: '60px' }}>Days</th>
+              <th style={{ padding: '10px 16px', textAlign: 'right', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', width: '80px' }}>Rate</th>
+              <th style={{ padding: '10px 16px', textAlign: 'right', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', width: '90px' }}>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, idx) => (
+              <tr key={item.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                <td style={{ padding: '12px 16px', color: '#374151' }}>{item.description}</td>
+                <td style={{ padding: '12px 16px', textAlign: 'center', color: '#6B7280' }}>{item.quantity}</td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', color: '#6B7280' }}>{formatGBP(Number(item.unit_price))}</td>
+                <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: '#111827' }}>{formatGBP(Number(item.amount))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Total */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
+          <div style={{ background: '#059669', color: 'white', padding: '12px 24px', borderRadius: '8px', display: 'flex', gap: '32px', alignItems: 'center', minWidth: '200px', justifyContent: 'space-between' }}>
+            <span style={{ fontWeight: '600', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>Total</span>
+            <span style={{ fontWeight: '800', fontSize: '20px', fontFamily: 'Arial, sans-serif' }}>{formatGBP(Number(invoice.total))}</span>
           </div>
         </div>
       </div>
 
       {/* Notes */}
       {invoice.notes && (
-        <div className="mb-6 p-4 bg-amber-50 rounded-lg border border-amber-100">
-          <p className="text-xs text-amber-700 font-medium uppercase mb-1">Notes</p>
-          <p className="text-sm text-gray-700">{invoice.notes}</p>
+        <div style={{ margin: '0 40px 32px', padding: '14px 16px', background: '#FFFBEB', borderLeft: '3px solid #F59E0B', borderRadius: '4px', fontFamily: 'Arial, sans-serif' }}>
+          <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#D97706', textTransform: 'uppercase', marginBottom: '6px' }}>Notes</div>
+          <div style={{ fontSize: '13px', color: '#374151' }}>{invoice.notes}</div>
         </div>
       )}
 
       {/* Payment details */}
       {child && (child.bank_account_number || child.bank_sort_code) && (
-        <div className="border border-emerald-200 rounded-lg p-4 bg-emerald-50">
-          <p className="text-xs text-emerald-700 font-medium uppercase tracking-wide mb-2">Payment details</p>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+        <div style={{ margin: '0 40px 32px', padding: '18px 20px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', fontFamily: 'Arial, sans-serif' }}>
+          <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#059669', textTransform: 'uppercase', marginBottom: '12px' }}>Payment details</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 32px', fontSize: '13px' }}>
             {child.bank_name && (
-              <div>
-                <span className="text-gray-500">Bank: </span>
-                <span className="font-medium">{child.bank_name}</span>
-              </div>
+              <div><span style={{ color: '#9CA3AF' }}>Bank  </span><span style={{ fontWeight: '600' }}>{child.bank_name}</span></div>
             )}
             {child.bank_account_name && (
-              <div>
-                <span className="text-gray-500">Account name: </span>
-                <span className="font-medium">{child.bank_account_name}</span>
-              </div>
+              <div><span style={{ color: '#9CA3AF' }}>Account name  </span><span style={{ fontWeight: '600' }}>{child.bank_account_name}</span></div>
             )}
             {child.bank_sort_code && (
-              <div>
-                <span className="text-gray-500">Sort code: </span>
-                <span className="font-medium">{child.bank_sort_code}</span>
-              </div>
+              <div><span style={{ color: '#9CA3AF' }}>Sort code  </span><span style={{ fontWeight: '600' }}>{child.bank_sort_code}</span></div>
             )}
             {child.bank_account_number && (
-              <div>
-                <span className="text-gray-500">Account number: </span>
-                <span className="font-medium">{child.bank_account_number}</span>
-              </div>
+              <div><span style={{ color: '#9CA3AF' }}>Account number  </span><span style={{ fontWeight: '600' }}>{child.bank_account_number}</span></div>
             )}
           </div>
-          <p className="text-xs text-gray-500 mt-2">Reference: {invoice.invoice_number}</p>
-        </div>
-      )}
-
-      {/* Stripe payment link */}
-      {invoice.stripe_payment_link && (
-        <div className="mt-4 border border-blue-200 rounded-lg p-4 bg-blue-50">
-          <p className="text-xs text-blue-700 font-medium uppercase tracking-wide mb-1">Pay online</p>
-          <p className="text-sm text-gray-600">Pay securely by card or Apple Pay:</p>
-          <p className="text-sm text-blue-600 font-medium break-all">{invoice.stripe_payment_link}</p>
-        </div>
-      )}
-
-      {/* Paid stamp */}
-      {invoice.status === 'paid' && (
-        <div className="mt-6 flex justify-center">
-          <div className="border-4 border-emerald-500 rounded-xl px-8 py-3 rotate-[-8deg] opacity-70">
-            <p className="text-emerald-600 text-3xl font-black tracking-widest">PAID</p>
+          <div style={{ marginTop: '10px', fontSize: '12px', color: '#6B7280' }}>
+            Please use reference: <strong>{invoice.invoice_number}</strong>
           </div>
         </div>
       )}
+
+      {/* Stripe pay online */}
+      {invoice.stripe_payment_link && (
+        <div style={{ margin: '0 40px 32px', padding: '14px 16px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', fontFamily: 'Arial, sans-serif' }}>
+          <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#2563EB', textTransform: 'uppercase', marginBottom: '6px' }}>Pay online</div>
+          <div style={{ fontSize: '13px', color: '#1D4ED8', wordBreak: 'break-all' }}>{invoice.stripe_payment_link}</div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div style={{ borderTop: '1px solid #E5E7EB', margin: '0 40px', paddingTop: '16px', paddingBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ fontSize: '11px', color: '#9CA3AF' }}>Thank you for your business</div>
+        {invoice.status === 'paid' && (
+          <div style={{ border: '3px solid #059669', borderRadius: '6px', padding: '4px 14px', transform: 'rotate(-4deg)', opacity: 0.6 }}>
+            <span style={{ color: '#059669', fontSize: '18px', fontWeight: '900', letterSpacing: '4px' }}>PAID</span>
+          </div>
+        )}
+        <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{invoice.invoice_number}</div>
+      </div>
+
+      {/* Bottom accent bar */}
+      <div style={{ height: '4px', background: '#059669' }} />
     </div>
   )
 }

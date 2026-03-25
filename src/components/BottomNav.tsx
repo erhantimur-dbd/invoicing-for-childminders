@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, FileText, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, FileText, BarChart3, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/children', label: 'Children', icon: Users },
   { href: '/invoices', label: 'Invoices', icon: FileText },
+  { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/profile', label: 'Settings', icon: Settings },
 ]
 
@@ -16,7 +17,7 @@ export default function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 print:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 print:hidden md:hidden">
       <div className="flex items-stretch h-16 max-w-lg mx-auto">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
@@ -29,7 +30,7 @@ export default function BottomNav() {
                 active ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'
               )}
             >
-              <Icon className={cn('h-6 w-6', active && 'stroke-emerald-600')} />
+              <Icon className="h-5 w-5" />
               <span>{label}</span>
             </Link>
           )
