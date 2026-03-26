@@ -5,8 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BarChart3, TrendingUp, TrendingDown, Download } from 'lucide-react'
+import { BarChart3, TrendingUp, TrendingDown, Download, Receipt } from 'lucide-react'
 import type { Expense } from '@/lib/types'
+import { EXPENSE_CATEGORY_EMOJI } from '@/lib/types'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
@@ -35,14 +36,85 @@ function generateTaxYearOptions() {
 const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
 
 function getMonthKey(date: Date, taxYearStart: number): number {
-  // Returns 0–11 where 0 = April of taxYearStart, 11 = March of taxYearStart+1
-  const m = date.getMonth() // 0=Jan...11=Dec
+  const m = date.getMonth()
   const y = date.getFullYear()
-  // April=3, so offset by -3, wrapping
   const offset = ((m - 3) + 12) % 12
   const taxYear = m >= 3 ? y : y - 1
   if (taxYear !== taxYearStart) return -1
   return offset
+}
+
+// Palette for pie slices
+const PIE_COLOURS = [
+  '#059669', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6',
+  '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
+  '#06b6d4', '#d946ef', '#78716c', '#64748b',
+]
+
+// Build SVG arc path for a pie slice
+function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number): string {
+  const toRad = (deg: number) => (deg - 90) * (Math.PI / 180)
+  const x1 = cx + r * Math.cos(toRad(startAngle))
+  const y1 = cy + r * Math.sin(toRad(startAngle))
+  const x2 = cx + r * Math.cos(toRad(endAngle))
+  const y2 = cy + r * Math.sin(toRad(endAngle))
+  const largeArc = endAngle - startAngle > 180 ? 1 : 0
+  return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`
+}
+
+function PieChart({ data }: { data: { label: string; value: number; colour: string }[] }) {
+  const [hovered, setHovered] = useState<number | null>(null)
+  const total = data.reduce((s, d) => s + d.value, 0)
+  if (total === 0) return null
+
+  const cx = 80
+  const cy = 80
+  const r = 70
+
+  let cumAngle = 0
+  const slices = data.map((d, i) => {
+    const angle = (d.value / total) * 360
+    const start = cumAngle
+    cumAngle += angle
+    return { ...d, start, end: cumAngle, angle, index: i }
+  })
+
+  return (
+    <svg viewBox="0 0 160 160" className="w-full max-w-[160px]">
+      {slices.map((s) => (
+        <path
+          key={s.label}
+          d={describeArc(cx, cy, hovered === s.index ? r + 5 : r, s.start, s.end)}
+          fill={s.colour}
+          opacity={hovered !== null && hovered !== s.index ? 0.55 : 1}
+          className="transition-all duration-150 cursor-pointer"
+          onMouseEnter={() => setHovered(s.index)}
+          onMouseLeave={() => setHovered(null)}
+        />
+      ))}
+      {/* Centre hole */}
+      <circle cx={cx} cy={cy} r={36} fill="white" />
+      {/* Centre label */}
+      {hovered !== null ? (
+        <>
+          <text x={cx} y={cy - 6} textAnchor="middle" fontSize="10" fill="#374151" fontWeight="700">
+            {((slices[hovered].value / total) * 100).toFixed(0)}%
+          </text>
+          <text x={cx} y={cy + 8} textAnchor="middle" fontSize="7" fill="#9CA3AF">
+            {slices[hovered].label.slice(0, 10)}
+          </text>
+        </>
+      ) : (
+        <>
+          <text x={cx} y={cy - 4} textAnchor="middle" fontSize="9" fill="#6B7280">Total</text>
+          <text x={cx} y={cy + 9} textAnchor="middle" fontSize="9" fill="#374151" fontWeight="700">
+            {data.length}
+          </text>
+          <text x={cx} y={cy + 20} textAnchor="middle" fontSize="7" fill="#9CA3AF">categories</text>
+        </>
+      )}
+    </svg>
+  )
 }
 
 export default function ReportsPage() {
@@ -77,7 +149,7 @@ export default function ReportsPage() {
     setInvoices(invData || [])
     setExpenses(expData || [])
     setLoading(false)
-  }, [selectedYear])
+  }, [selectedYear]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { load() }, [load])
 
@@ -114,6 +186,17 @@ export default function ReportsPage() {
   expenses.forEach(exp => {
     byCategory[exp.category] = (byCategory[exp.category] || 0) + Number(exp.amount)
   })
+  const categoryEntries = Object.entries(byCategory).sort((a, b) => b[1] - a[1])
+
+  // Pie chart data
+  const pieData = categoryEntries.map(([label, value], i) => ({
+    label,
+    value,
+    colour: PIE_COLOURS[i % PIE_COLOURS.length],
+  }))
+
+  const avgExpense = expenses.length > 0 ? totalExpenses / expenses.length : 0
+  const topCategory = categoryEntries[0]
 
   const maxMonthly = Math.max(...monthlyIncome, ...monthlyExpenses, 1)
 
@@ -152,7 +235,7 @@ export default function ReportsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
+          {[1,2,3,4].map(i => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
       ) : (
         <>
@@ -215,6 +298,102 @@ export default function ReportsPage() {
             </CardContent>
           </Card>
 
+          {/* ── Expense breakdown ──────────────────────────────── */}
+          {expenses.length > 0 && (
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <div className="w-7 h-7 bg-rose-100 rounded-lg flex items-center justify-center">
+                    <Receipt className="h-4 w-4 text-rose-600" />
+                  </div>
+                  Expense breakdown
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-5">
+
+                {/* Expense stats row */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-gray-50 rounded-xl p-3 text-center">
+                    <p className="text-lg font-bold text-gray-900">{expenses.length}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Total expenses</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-3 text-center">
+                    <p className="text-lg font-bold text-gray-900">{formatGBP(avgExpense)}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Avg per expense</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-3 text-center">
+                    <p className="text-sm font-bold text-gray-900 leading-tight">
+                      {topCategory ? (EXPENSE_CATEGORY_EMOJI[topCategory[0]] ?? '') + ' ' + topCategory[0].split(' ')[0] : '—'}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">Top category</p>
+                  </div>
+                </div>
+
+                {/* Pie chart + legend */}
+                <div className="flex items-start gap-5">
+                  {/* Pie */}
+                  <div className="flex-shrink-0 w-36">
+                    <PieChart data={pieData} />
+                  </div>
+
+                  {/* Legend */}
+                  <div className="flex-1 space-y-2 min-w-0">
+                    {pieData.map((slice) => {
+                      const pct = totalExpenses > 0 ? ((slice.value / totalExpenses) * 100).toFixed(1) : '0'
+                      const emoji = EXPENSE_CATEGORY_EMOJI[slice.label] ?? '📦'
+                      return (
+                        <div key={slice.label} className="flex items-center gap-2 min-w-0">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: slice.colour }}
+                          />
+                          <span className="text-xs text-gray-700 truncate flex-1">
+                            {emoji} {slice.label}
+                          </span>
+                          <span className="text-xs font-semibold text-gray-900 flex-shrink-0">
+                            {pct}%
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Category bar breakdown */}
+                <div className="space-y-3 pt-1 border-t border-gray-50">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">By category</p>
+                  {categoryEntries.map(([cat, amount], i) => {
+                    const emoji = EXPENSE_CATEGORY_EMOJI[cat] ?? '📦'
+                    const colour = PIE_COLOURS[i % PIE_COLOURS.length]
+                    return (
+                      <div key={cat}>
+                        <div className="flex justify-between text-sm mb-1.5">
+                          <span className="text-gray-700 font-medium">{emoji} {cat}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400">
+                              {totalExpenses > 0 ? ((amount / totalExpenses) * 100).toFixed(1) : '0'}%
+                            </span>
+                            <span className="font-bold" style={{ color: colour }}>{formatGBP(amount)}</span>
+                          </div>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${(amount / totalExpenses) * 100}%`,
+                              backgroundColor: colour,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+              </CardContent>
+            </Card>
+          )}
+
           {/* Per child */}
           {childBreakdown.length > 0 && (
             <Card className="border-0 shadow-sm">
@@ -232,31 +411,6 @@ export default function ReportsPage() {
                       <div
                         className="h-full bg-emerald-500 rounded-full"
                         style={{ width: `${(total / totalIncome) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Expenses by category */}
-          {Object.keys(byCategory).length > 0 && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">Expenses by category</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {Object.entries(byCategory).sort((a, b) => b[1] - a[1]).map(([cat, amount]) => (
-                  <div key={cat}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-700 font-medium">{cat}</span>
-                      <span className="text-rose-600 font-bold">{formatGBP(amount)}</span>
-                    </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-rose-400 rounded-full"
-                        style={{ width: `${(amount / totalExpenses) * 100}%` }}
                       />
                     </div>
                   </div>
