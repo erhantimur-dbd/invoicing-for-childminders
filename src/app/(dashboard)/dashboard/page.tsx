@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import StatusBadge from '@/components/StatusBadge'
-import { Plus, TrendingUp, Clock, AlertCircle, CheckCircle, Sparkles, Zap, ChevronRight } from 'lucide-react'
+import { Plus, TrendingUp, Clock, AlertCircle, CheckCircle, Sparkles, Zap, ChevronRight, Receipt } from 'lucide-react'
 import type { Invoice } from '@/lib/types'
 import { format } from 'date-fns'
 
@@ -60,6 +60,13 @@ export default async function DashboardPage() {
 
   const overdueCount = allInvoices.filter(i => i.status === 'overdue').length
   const recentInvoices = allInvoices.slice(0, 5)
+
+  const { data: expensesData } = await supabase
+    .from('expenses')
+    .select('amount, date')
+    .eq('childminder_id', user.id)
+    .gte('date', startOfMonth)
+  const totalExpensesThisMonth = (expensesData || []).reduce((sum, e) => sum + Number(e.amount), 0)
 
   const autoDrafts = allInvoices.filter(
     (i: any) => i.status === 'draft' && (i.generated_by === 'cron' || i.generated_by === 'bulk')
@@ -135,7 +142,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
 
         <Link href="/invoices?filter=month">
           <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group overflow-hidden">
@@ -193,6 +200,21 @@ export default async function DashboardPage() {
               </div>
               <p className={`text-2xl font-bold tracking-tight ${overdueCount > 0 ? 'text-red-600' : 'text-gray-900'}`}>{overdueCount}</p>
               <p className="text-xs text-gray-400 mt-1 font-medium">Overdue</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/expenses">
+          <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group overflow-hidden col-span-2 md:col-span-1">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 bg-rose-100 rounded-xl flex items-center justify-center group-hover:bg-rose-200 transition-colors">
+                  <Receipt className="h-4 w-4 text-rose-600" />
+                </div>
+                <ChevronRight className="h-4 w-4 text-gray-200 group-hover:text-rose-400 transition-colors" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900 tracking-tight">{formatGBP(totalExpensesThisMonth)}</p>
+              <p className="text-xs text-gray-400 mt-1 font-medium">Expenses this month</p>
             </CardContent>
           </Card>
         </Link>

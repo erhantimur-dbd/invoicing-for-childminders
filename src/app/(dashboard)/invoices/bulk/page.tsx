@@ -60,6 +60,7 @@ export default function BulkInvoicePage() {
       .from('children')
       .select('id, first_name, last_name, parent_name')
       .eq('is_active', true)
+      .is('archived_at', null)
       .then(({ data }) => {
         if (!data) return
         const map: Record<string, { name: string; parent: string }> = {}

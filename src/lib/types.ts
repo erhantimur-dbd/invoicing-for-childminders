@@ -7,6 +7,14 @@ export type Profile = {
   address_line2: string
   city: string
   postcode: string
+  // Bank details (default, used for invoices)
+  default_bank_name: string
+  default_bank_account_name: string
+  default_bank_sort_code: string
+  default_bank_account_number: string
+  // Ofsted
+  ofsted_number: string | null
+  show_ofsted_on_invoice: boolean
   created_at: string
   updated_at: string
 }
@@ -30,6 +38,7 @@ export type Child = {
   half_day_rate: number | null
   schedule_days: { day: string; type: 'full' | 'half' }[] | null
   schedule_note: string | null
+  archived_at: string | null
   created_at: string
   updated_at: string
 }

@@ -67,7 +67,7 @@ export default function NewInvoicePage() {
   const [useSchedule, setUseSchedule] = useState(true)
 
   useEffect(() => {
-    supabase.from('children').select('*').eq('is_active', true).order('first_name')
+    supabase.from('children').select('*').eq('is_active', true).is('archived_at', null).order('first_name')
       .then(({ data }) => setChildren(data || []))
   }, [])
 

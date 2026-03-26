@@ -50,6 +50,7 @@ export async function GET(request: NextRequest) {
       .select('id, first_name, last_name, parent_name, daily_rate, half_day_rate, schedule_days, schedule_note')
       .eq('childminder_id', profile.id)
       .eq('is_active', true)
+      .is('archived_at', null)
       .not('schedule_days', 'eq', '[]')
       .not('schedule_days', 'is', null)
 

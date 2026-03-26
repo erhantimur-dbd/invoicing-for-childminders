@@ -33,6 +33,11 @@ export default function InvoicePreview({ invoice, profile }: Props) {
           {(profile.city || profile.postcode) && <div>{[profile.city, profile.postcode].filter(Boolean).join(', ')}</div>}
           {profile.phone && <div>{profile.phone}</div>}
           {profile.email && <div style={{ color: '#059669' }}>{profile.email}</div>}
+          {profile.show_ofsted_on_invoice && profile.ofsted_number && (
+            <div style={{ marginTop: '6px', fontSize: '11px', color: '#9CA3AF' }}>
+              Ofsted Reg: <span style={{ fontWeight: '600', color: '#6B7280' }}>{profile.ofsted_number}</span>
+            </div>
+          )}
         </div>
       </div>
 
