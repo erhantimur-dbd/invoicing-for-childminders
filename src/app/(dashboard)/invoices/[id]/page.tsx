@@ -17,8 +17,9 @@ import InvoicePreview from '@/components/InvoicePreview'
 import { toast } from 'sonner'
 import {
   ChevronLeft, Printer, Mail, MessageCircle, CheckCircle,
-  Bell, Loader2, Share2, ChevronDown, ChevronUp
+  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X
 } from 'lucide-react'
+import InvoiceLineItemEditor from '@/components/InvoiceLineItemEditor'
 import type { Invoice, Profile, BankAccount } from '@/lib/types'
 import { format } from 'date-fns'
 
@@ -48,6 +49,7 @@ export default function InvoicePage() {
   const [existingReminder, setExistingReminder] = useState<any>(null)
   const [savingReminder, setSavingReminder] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
+  const [editingLineItems, setEditingLineItems] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -371,7 +373,19 @@ export default function InvoicePage() {
       {/* Invoice details */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Invoice details</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Invoice details</CardTitle>
+            <button
+              onClick={() => setEditingLineItems(e => !e)}
+              className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg transition-all ${
+                editingLineItems
+                  ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              }`}
+            >
+              {editingLineItems ? <><X className="h-3 w-3" /> Close</> : <><Pencil className="h-3 w-3" /> Edit items</>}
+            </button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           {child && (
@@ -397,17 +411,39 @@ export default function InvoicePage() {
             </div>
           )}
           <Separator />
-          {(invoice.invoice_line_items || []).map(item => (
-            <div key={item.id} className="flex justify-between py-1">
-              <span className="text-gray-600 flex-1 pr-2 text-xs">{item.description}</span>
-              <span className="font-medium flex-shrink-0">{formatGBP(Number(item.amount))}</span>
-            </div>
-          ))}
-          <Separator />
-          <div className="flex justify-between py-1 font-bold text-base">
-            <span>Total</span>
-            <span className="text-emerald-600">{formatGBP(Number(invoice.total))}</span>
-          </div>
+
+          {editingLineItems ? (
+            /* ── Edit mode ── */
+            <InvoiceLineItemEditor
+              invoiceId={invoice.id}
+              initialItems={invoice.invoice_line_items || []}
+              childDailyRate={Number(child?.daily_rate ?? 0)}
+              childHalfDayRate={child?.half_day_rate ? Number(child.half_day_rate) : null}
+              onSaved={(newItems, newTotal) => {
+                setInvoice(prev => prev ? {
+                  ...prev,
+                  total: newTotal,
+                  invoice_line_items: newItems as any,
+                } : prev)
+                setEditingLineItems(false)
+              }}
+            />
+          ) : (
+            /* ── Read mode ── */
+            <>
+              {(invoice.invoice_line_items || []).map(item => (
+                <div key={item.id} className="flex justify-between py-1">
+                  <span className="text-gray-600 flex-1 pr-2 text-xs">{item.description}</span>
+                  <span className="font-medium flex-shrink-0">{formatGBP(Number(item.amount))}</span>
+                </div>
+              ))}
+              <Separator />
+              <div className="flex justify-between py-1 font-bold text-base">
+                <span>Total</span>
+                <span className="text-emerald-600">{formatGBP(Number(invoice.total))}</span>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
