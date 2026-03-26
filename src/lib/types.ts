@@ -89,19 +89,46 @@ export type Expense = {
   category: string
   amount: number
   notes: string | null
+  receipt_url: string | null
+  merchant_name: string | null
+  ai_extracted: boolean | null
   created_at: string
   updated_at: string
 }
 
 export const EXPENSE_CATEGORIES = [
-  'Supplies',
-  'Food & drink',
-  'Outings',
-  'Training',
-  'Equipment',
-  'Travel',
+  'Food & Drink',
+  'Outings & Trips',
+  "Children's Groups & Classes",
+  'Arts, Crafts & Activities',
+  'Books & Educational Materials',
+  'Toys & Play Equipment',
+  'Nappies & Consumables',
+  'Travel & Transport',
+  'Home & Premises',
+  'Clothing & Uniforms',
+  'Insurance & Professional Fees',
+  'First Aid & Medical',
+  'Office & Admin',
   'Other',
 ] as const
+
+export const EXPENSE_CATEGORY_EMOJI: Record<string, string> = {
+  'Food & Drink': '🍎',
+  'Outings & Trips': '🎭',
+  "Children's Groups & Classes": '👶',
+  'Arts, Crafts & Activities': '🎨',
+  'Books & Educational Materials': '📚',
+  'Toys & Play Equipment': '🧸',
+  'Nappies & Consumables': '🧴',
+  'Travel & Transport': '🚗',
+  'Home & Premises': '🏠',
+  'Clothing & Uniforms': '👕',
+  'Insurance & Professional Fees': '📋',
+  'First Aid & Medical': '🏥',
+  'Office & Admin': '💻',
+  'Other': '📦',
+}
 
 export type DashboardStats = {
   totalEarnedThisMonth: number
