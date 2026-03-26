@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, FileText, BarChart3, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, FileText, BarChart3, Settings, Receipt } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/children', label: 'Children', icon: Users },
   { href: '/invoices', label: 'Invoices', icon: FileText },
+  { href: '/expenses', label: 'Expenses', icon: Receipt },
   { href: '/reports', label: 'Reports', icon: BarChart3 },
   { href: '/profile', label: 'Settings', icon: Settings },
 ]
@@ -21,12 +22,12 @@ export default function SideNav({ name }: { name?: string }) {
       {/* Brand */}
       <div className="px-5 py-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-base">C</span>
+          <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-xl flex items-center justify-center shadow-sm">
+            <span className="text-white font-bold text-base">EI</span>
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm leading-tight">Childminder</p>
-            <p className="text-xs text-gray-400 leading-tight">Invoicing</p>
+            <p className="font-bold text-gray-900 text-sm leading-tight">Easy Invoicing</p>
+            <p className="text-xs text-gray-400 leading-tight">Childcare professionals</p>
           </div>
         </div>
       </div>
