@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, FileText, BarChart3, Settings, Receipt } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { LayoutDashboard, Users, FileText, BarChart3, Settings, Receipt, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 
 const navItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
@@ -16,6 +17,13 @@ const navItems = [
 
 export default function SideNav({ name }: { name?: string }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
+
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-full w-60 bg-white border-r border-gray-100 flex-col z-40 print:hidden">
@@ -63,9 +71,9 @@ export default function SideNav({ name }: { name?: string }) {
         })}
       </nav>
 
-      {/* User */}
+      {/* User + Sign out */}
       {name && (
-        <div className="px-3 py-3 border-t border-gray-100">
+        <div className="px-3 py-3 border-t border-gray-100 space-y-0.5">
           <Link
             href="/profile"
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors group"
@@ -80,6 +88,13 @@ export default function SideNav({ name }: { name?: string }) {
               <p className="text-xs text-gray-400">View profile</p>
             </div>
           </Link>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all w-full"
+          >
+            <LogOut style={{ width: '1.1rem', height: '1.1rem' }} className="flex-shrink-0" />
+            Sign out
+          </button>
         </div>
       )}
     </aside>

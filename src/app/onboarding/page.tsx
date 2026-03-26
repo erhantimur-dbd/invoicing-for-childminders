@@ -161,11 +161,49 @@ export default function OnboardingPage() {
 
   async function saveStep2() {
     setSaving(true)
-    const { error } = await supabase.from('profiles')
+    // Save to legacy profile columns for backward compat
+    await supabase.from('profiles')
       .update({ ...bank, updated_at: new Date().toISOString() })
       .eq('id', userId)
+
+    // Also save into bank_accounts table (upsert based on childminder + nickname)
+    if (bank.default_bank_account_number) {
+      // Check if one already exists
+      const { data: existing } = await supabase
+        .from('bank_accounts')
+        .select('id')
+        .eq('childminder_id', userId)
+        .limit(1)
+        .single()
+
+      if (existing) {
+        // Update the first account
+        await supabase.from('bank_accounts').update({
+          bank_name: bank.default_bank_name || '',
+          account_name: bank.default_bank_account_name || '',
+          sort_code: bank.default_bank_sort_code || '',
+          account_number: bank.default_bank_account_number || '',
+          updated_at: new Date().toISOString(),
+        }).eq('id', existing.id)
+      } else {
+        // Insert new and set as primary
+        const { data: newBank } = await supabase.from('bank_accounts').insert({
+          childminder_id: userId,
+          nickname: 'Default',
+          bank_name: bank.default_bank_name || '',
+          account_name: bank.default_bank_account_name || '',
+          sort_code: bank.default_bank_sort_code || '',
+          account_number: bank.default_bank_account_number || '',
+        }).select().single()
+        if (newBank) {
+          await supabase.from('profiles')
+            .update({ primary_bank_account_id: newBank.id })
+            .eq('id', userId)
+        }
+      }
+    }
+
     setSaving(false)
-    if (error) { toast.error('Could not save bank details'); return false }
     return true
   }
 

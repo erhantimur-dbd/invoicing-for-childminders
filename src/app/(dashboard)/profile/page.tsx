@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { Loader2, LogOut, User, MapPin, Landmark, ShieldCheck } from 'lucide-react'
+import { Loader2, LogOut, User, MapPin, ShieldCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { Profile } from '@/lib/types'
+import BankAccountsSection from '@/components/BankAccountsSection'
 
 type ProfileForm = Partial<Profile>
 
@@ -20,6 +21,8 @@ export default function ProfilePage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [userId, setUserId] = useState<string>('')
+  const [primaryBankId, setPrimaryBankId] = useState<string | null>(null)
   const [profile, setProfile] = useState<ProfileForm>({
     full_name: '',
     email: '',
@@ -28,10 +31,6 @@ export default function ProfilePage() {
     address_line2: '',
     city: '',
     postcode: '',
-    default_bank_name: '',
-    default_bank_account_name: '',
-    default_bank_sort_code: '',
-    default_bank_account_number: '',
     ofsted_number: '',
     show_ofsted_on_invoice: false,
   })
@@ -40,12 +39,16 @@ export default function ProfilePage() {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+      setUserId(user.id)
       const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-      if (data) setProfile(data)
+      if (data) {
+        setProfile(data)
+        setPrimaryBankId(data.primary_bank_account_id ?? null)
+      }
       setLoading(false)
     }
     load()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function set(field: keyof ProfileForm, value: string | boolean) {
     setProfile(prev => ({ ...prev, [field]: value }))
@@ -65,10 +68,6 @@ export default function ProfilePage() {
         address_line2: profile.address_line2,
         city: profile.city,
         postcode: profile.postcode,
-        default_bank_name: profile.default_bank_name,
-        default_bank_account_name: profile.default_bank_account_name,
-        default_bank_sort_code: profile.default_bank_sort_code,
-        default_bank_account_number: profile.default_bank_account_number,
         ofsted_number: profile.ofsted_number || null,
         show_ofsted_on_invoice: profile.show_ofsted_on_invoice ?? false,
         updated_at: new Date().toISOString(),
@@ -210,65 +209,6 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* ── Bank details ─────────────────────────────────────── */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <div className="w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center">
-                <Landmark className="h-4 w-4 text-violet-600" />
-              </div>
-              Bank details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-xs text-gray-500 bg-gray-50 rounded-xl px-3 py-2.5 leading-relaxed">
-              These are your default bank details printed on invoices. You can override them per child if needed.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="default_bank_name" className="text-sm font-medium">Bank name</Label>
-                <Input
-                  id="default_bank_name"
-                  value={profile.default_bank_name || ''}
-                  onChange={e => set('default_bank_name', e.target.value)}
-                  placeholder="Barclays"
-                  className="h-11"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="default_bank_account_name" className="text-sm font-medium">Account name</Label>
-                <Input
-                  id="default_bank_account_name"
-                  value={profile.default_bank_account_name || ''}
-                  onChange={e => set('default_bank_account_name', e.target.value)}
-                  placeholder="Jane Smith"
-                  className="h-11"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="default_bank_sort_code" className="text-sm font-medium">Sort code</Label>
-                <Input
-                  id="default_bank_sort_code"
-                  value={profile.default_bank_sort_code || ''}
-                  onChange={e => set('default_bank_sort_code', e.target.value)}
-                  placeholder="00-00-00"
-                  className="h-11 font-mono"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="default_bank_account_number" className="text-sm font-medium">Account number</Label>
-                <Input
-                  id="default_bank_account_number"
-                  value={profile.default_bank_account_number || ''}
-                  onChange={e => set('default_bank_account_number', e.target.value)}
-                  placeholder="12345678"
-                  className="h-11 font-mono"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* ── Ofsted & invoicing ───────────────────────────────── */}
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-3">
@@ -318,6 +258,11 @@ export default function ProfilePage() {
           {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save settings'}
         </Button>
       </form>
+
+      {/* ── Bank accounts ─────────────────────────────────────── */}
+      {userId && (
+        <BankAccountsSection userId={userId} initialPrimaryId={primaryBankId} />
+      )}
 
       <Separator />
 

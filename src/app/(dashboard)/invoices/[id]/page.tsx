@@ -19,7 +19,7 @@ import {
   ChevronLeft, Printer, Mail, MessageCircle, CheckCircle,
   Bell, Loader2, Share2, ChevronDown, ChevronUp
 } from 'lucide-react'
-import type { Invoice, Profile } from '@/lib/types'
+import type { Invoice, Profile, BankAccount } from '@/lib/types'
 import { format } from 'date-fns'
 
 function formatGBP(amount: number) {
@@ -34,6 +34,7 @@ export default function InvoicePage() {
 
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [primaryBankAccount, setPrimaryBankAccount] = useState<BankAccount | null>(null)
   const [loading, setLoading] = useState(true)
   const [sharing, setSharing] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
@@ -65,7 +66,18 @@ export default function InvoicePage() {
       ])
 
       if (inv) setInvoice(inv)
-      if (prof) setProfile(prof)
+      if (prof) {
+        setProfile(prof)
+        // Fetch primary bank account if set
+        if (prof.primary_bank_account_id) {
+          const { data: bank } = await supabase
+            .from('bank_accounts')
+            .select('*')
+            .eq('id', prof.primary_bank_account_id)
+            .single()
+          if (bank) setPrimaryBankAccount(bank)
+        }
+      }
       if (reminder) {
         setExistingReminder(reminder)
         setReminderDays(String(reminder.frequency_days))
@@ -193,7 +205,7 @@ export default function InvoicePage() {
     <div>
       {/* Hidden print-only area — always in the DOM, shown only on print */}
       <div id="invoice-print-area" style={{ display: 'none' }}>
-        <InvoicePreview invoice={invoice} profile={profile} />
+        <InvoicePreview invoice={invoice} profile={profile} primaryBankAccount={primaryBankAccount} />
       </div>
 
       {/* Header */}
@@ -407,7 +419,7 @@ export default function InvoicePage() {
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Invoice preview</p>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-6 overflow-auto max-h-[calc(100vh-10rem)]">
-                <InvoicePreview invoice={invoice} profile={profile} />
+                <InvoicePreview invoice={invoice} profile={profile} primaryBankAccount={primaryBankAccount} />
               </div>
             </div>
           </div>
@@ -439,7 +451,7 @@ export default function InvoicePage() {
             </div>
           </div>
           <div className="p-4">
-            <InvoicePreview invoice={invoice} profile={profile} />
+            <InvoicePreview invoice={invoice} profile={profile} primaryBankAccount={primaryBankAccount} />
           </div>
         </DialogContent>
       </Dialog>

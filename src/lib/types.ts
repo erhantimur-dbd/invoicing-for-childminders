@@ -12,6 +12,8 @@ export type Profile = {
   default_bank_account_name: string
   default_bank_sort_code: string
   default_bank_account_number: string
+  // Bank accounts
+  primary_bank_account_id: string | null
   // Ofsted
   ofsted_number: string | null
   show_ofsted_on_invoice: boolean
@@ -39,6 +41,18 @@ export type Child = {
   schedule_days: { day: string; type: 'full' | 'half' }[] | null
   schedule_note: string | null
   archived_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type BankAccount = {
+  id: string
+  childminder_id: string
+  nickname: string
+  bank_name: string
+  account_name: string
+  sort_code: string
+  account_number: string
   created_at: string
   updated_at: string
 }

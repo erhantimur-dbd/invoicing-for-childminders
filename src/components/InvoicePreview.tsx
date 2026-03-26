@@ -1,4 +1,4 @@
-import type { Invoice, Profile } from '@/lib/types'
+import type { Invoice, Profile, BankAccount } from '@/lib/types'
 import { format } from 'date-fns'
 
 function formatGBP(amount: number) {
@@ -8,11 +8,21 @@ function formatGBP(amount: number) {
 type Props = {
   invoice: Invoice
   profile: Profile
+  primaryBankAccount?: BankAccount | null
 }
 
-export default function InvoicePreview({ invoice, profile }: Props) {
+export default function InvoicePreview({ invoice, profile, primaryBankAccount }: Props) {
   const child = (invoice as any).children
   const items = invoice.invoice_line_items || []
+
+  // Resolve which bank account to show:
+  // 1. Child-specific override (legacy per-child bank)
+  // 2. Primary bank account from the new bank_accounts table
+  // 3. Nothing (no payment details shown)
+  const childBank = child?.bank_account_number
+    ? { bank_name: child.bank_name, account_name: child.bank_account_name, sort_code: child.bank_sort_code, account_number: child.bank_account_number }
+    : null
+  const bankToShow = childBank ?? primaryBankAccount ?? null
 
   return (
     <div className="invoice-print-content bg-white font-sans text-gray-900" style={{ fontFamily: 'Georgia, serif' }}>
@@ -128,21 +138,21 @@ export default function InvoicePreview({ invoice, profile }: Props) {
       )}
 
       {/* Payment details */}
-      {child && (child.bank_account_number || child.bank_sort_code) && (
+      {bankToShow && (bankToShow.account_number || bankToShow.sort_code) && (
         <div style={{ margin: '0 40px 32px', padding: '18px 20px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', fontFamily: 'Arial, sans-serif' }}>
           <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#059669', textTransform: 'uppercase', marginBottom: '12px' }}>Payment details</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 32px', fontSize: '13px' }}>
-            {child.bank_name && (
-              <div><span style={{ color: '#9CA3AF' }}>Bank  </span><span style={{ fontWeight: '600' }}>{child.bank_name}</span></div>
+            {bankToShow.bank_name && (
+              <div><span style={{ color: '#9CA3AF' }}>Bank  </span><span style={{ fontWeight: '600' }}>{bankToShow.bank_name}</span></div>
             )}
-            {child.bank_account_name && (
-              <div><span style={{ color: '#9CA3AF' }}>Account name  </span><span style={{ fontWeight: '600' }}>{child.bank_account_name}</span></div>
+            {bankToShow.account_name && (
+              <div><span style={{ color: '#9CA3AF' }}>Account name  </span><span style={{ fontWeight: '600' }}>{bankToShow.account_name}</span></div>
             )}
-            {child.bank_sort_code && (
-              <div><span style={{ color: '#9CA3AF' }}>Sort code  </span><span style={{ fontWeight: '600' }}>{child.bank_sort_code}</span></div>
+            {bankToShow.sort_code && (
+              <div><span style={{ color: '#9CA3AF' }}>Sort code  </span><span style={{ fontWeight: '600' }}>{bankToShow.sort_code}</span></div>
             )}
-            {child.bank_account_number && (
-              <div><span style={{ color: '#9CA3AF' }}>Account number  </span><span style={{ fontWeight: '600' }}>{child.bank_account_number}</span></div>
+            {bankToShow.account_number && (
+              <div><span style={{ color: '#9CA3AF' }}>Account number  </span><span style={{ fontWeight: '600' }}>{bankToShow.account_number}</span></div>
             )}
           </div>
           <div style={{ marginTop: '10px', fontSize: '12px', color: '#6B7280' }}>
