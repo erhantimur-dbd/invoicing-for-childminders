@@ -34,7 +34,7 @@ const DAY_LABELS: Record<string, string> = {
   friday: 'Fri',
 }
 
-type ChildFormData = Omit<Child, 'id' | 'childminder_id' | 'created_at' | 'updated_at'>
+type ChildFormData = Omit<Child, 'id' | 'childminder_id' | 'created_at' | 'updated_at' | 'archived_at'>
 
 const emptyForm: ChildFormData = {
   first_name: '',
