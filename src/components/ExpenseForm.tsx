@@ -56,11 +56,29 @@ export default function ExpenseForm({ mode, expense }: Props) {
   const [extracting, setExtracting] = useState(false)
   const [aiFields, setAiFields] = useState<Set<string>>(new Set())
 
-  // Resolve user id for ReceiptUploader
+  // Resolve user id for ReceiptUploader + fetch autocomplete data
   const [userId, setUserId] = useState<string>('')
+  const [pastMerchants, setPastMerchants] = useState<string[]>([])
+  const [pastDescriptions, setPastDescriptions] = useState<string[]>([])
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUserId(data.user.id)
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return
+      setUserId(data.user.id)
+      // Fetch past merchants and descriptions for autocomplete
+      const { data: rows } = await supabase
+        .from('expenses')
+        .select('merchant_name, description')
+        .eq('childminder_id', data.user.id)
+        .not('merchant_name', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(200)
+      if (rows) {
+        const merchants = [...new Set(rows.map(r => r.merchant_name).filter(Boolean) as string[])]
+        const descriptions = [...new Set(rows.map(r => r.description).filter(Boolean) as string[])]
+        setPastMerchants(merchants)
+        setPastDescriptions(descriptions)
+      }
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -191,12 +209,19 @@ export default function ExpenseForm({ mode, expense }: Props) {
               {aiFields.has('merchant_name') && <AiBadge />}
             </div>
             {extracting ? <ShimmerField /> : (
-              <Input
-                value={merchantName}
-                onChange={e => { setMerchantName(e.target.value); clearAiField('merchant_name') }}
-                placeholder="e.g. Hobbycraft, Tesco"
-                className="h-12 text-base"
-              />
+              <>
+                <datalist id="merchants-list">
+                  {pastMerchants.map(m => <option key={m} value={m} />)}
+                </datalist>
+                <Input
+                  list="merchants-list"
+                  value={merchantName}
+                  onChange={e => { setMerchantName(e.target.value); clearAiField('merchant_name') }}
+                  placeholder="e.g. Hobbycraft, Tesco"
+                  className="h-12 text-base"
+                  autoComplete="off"
+                />
+              </>
             )}
           </div>
 
@@ -207,13 +232,20 @@ export default function ExpenseForm({ mode, expense }: Props) {
               {aiFields.has('description') && <AiBadge />}
             </div>
             {extracting ? <ShimmerField /> : (
-              <Input
-                value={description}
-                onChange={e => { setDescription(e.target.value); clearAiField('description') }}
-                placeholder="e.g. Art supplies from Hobbycraft"
-                className="h-12 text-base"
-                required
-              />
+              <>
+                <datalist id="descriptions-list">
+                  {pastDescriptions.map(d => <option key={d} value={d} />)}
+                </datalist>
+                <Input
+                  list="descriptions-list"
+                  value={description}
+                  onChange={e => { setDescription(e.target.value); clearAiField('description') }}
+                  placeholder="e.g. Art supplies from Hobbycraft"
+                  className="h-12 text-base"
+                  autoComplete="off"
+                  required
+                />
+              </>
             )}
           </div>
 
