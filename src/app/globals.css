@@ -135,53 +135,24 @@
     margin: 0;
   }
 
-  html, body {
+  /* Hide everything by making it invisible */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Only show the dedicated print area */
+  #invoice-print-area,
+  #invoice-print-area * {
+    visibility: visible;
+  }
+
+  #invoice-print-area {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 210mm;
-    height: 297mm;
-    background: white !important;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* Hide everything except the invoice */
-  body > * {
-    display: none !important;
-  }
-
-  /* Show only the dialog content containing the invoice */
-  [role="dialog"] {
-    display: block !important;
-    position: fixed !important;
-    inset: 0 !important;
-    overflow: visible !important;
-    background: white !important;
-    z-index: 9999 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-
-  [role="dialog"] > * {
-    display: block !important;
-  }
-
-  /* Hide dialog chrome — only show invoice content */
-  [role="dialog"] > *:not(:has(.invoice-print-content)) {
-    display: none !important;
-  }
-
-  .invoice-print-content {
-    display: block !important;
-    width: 210mm !important;
-    min-height: 297mm !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    page-break-inside: avoid;
-  }
-
-  nav, header, button, .print\:hidden {
-    display: none !important;
+    min-height: 297mm;
+    background: white;
+    z-index: 99999;
   }
 }

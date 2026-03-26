@@ -10,6 +10,14 @@ function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
 }
 
+// Thick left stripe colour per status
+const statusStripe: Record<string, string> = {
+  draft:   'border-l-gray-300',
+  sent:    'border-l-amber-400',
+  paid:    'border-l-emerald-500',
+  overdue: 'border-l-red-500',
+}
+
 type Props = {
   invoices: any[]
 }
@@ -22,13 +30,15 @@ export default function InvoiceTable({ invoices }: Props) {
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50">
+            {/* Stripe column header — invisible but keeps alignment */}
+            <th className="w-[6px] p-0" />
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoice</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Child</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Issued</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Due</th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
             <th className="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
-            <th className="px-3 py-3"></th>
+            <th className="px-3 py-3" />
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
@@ -38,9 +48,18 @@ export default function InvoiceTable({ invoices }: Props) {
               className="hover:bg-gray-50 transition-colors cursor-pointer group"
               onClick={() => router.push(`/invoices/${invoice.id}`)}
             >
+              {/* Thick colour stripe */}
+              <td
+                className={`w-[6px] p-0 border-l-[6px] ${statusStripe[invoice.status] ?? 'border-l-gray-200'}`}
+              />
               <td className="px-5 py-4">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900 text-sm">{invoice.invoice_number}</span>
+                  <div>
+                    <span className="font-semibold text-gray-900 text-sm">{invoice.invoice_number}</span>
+                    {invoice.status === 'draft' && (
+                      <p className="text-xs text-gray-400 mt-0.5">Awaiting review &amp; approval</p>
+                    )}
+                  </div>
                   {invoice.generated_by && invoice.generated_by !== 'manual' && (
                     <span title="Auto-generated"><Sparkles className="h-3 w-3 text-purple-400" /></span>
                   )}

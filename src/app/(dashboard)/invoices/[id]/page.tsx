@@ -138,8 +138,10 @@ export default function InvoicePage() {
   }
 
   function handlePrint() {
-    setShowPreview(true)
-    setTimeout(() => window.print(), 500)
+    const el = document.getElementById('invoice-print-area')
+    if (el) el.style.display = 'block'
+    window.print()
+    if (el) el.style.display = 'none'
   }
 
   async function handleSaveReminder() {
@@ -189,6 +191,11 @@ export default function InvoicePage() {
 
   return (
     <div>
+      {/* Hidden print-only area — always in the DOM, shown only on print */}
+      <div id="invoice-print-area" style={{ display: 'none' }}>
+        <InvoicePreview invoice={invoice} profile={profile} />
+      </div>
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <Link href="/invoices" className="text-gray-400 hover:text-gray-600">
