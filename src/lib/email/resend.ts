@@ -1,10 +1,13 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy-initialise so missing env var doesn't crash the build
+function getResend() {
+  const key = process.env.RESEND_API_KEY
+  if (!key) return null
+  return new Resend(key)
+}
 
-export { resend }
-
-const DEFAULT_FROM = 'Easy Invoicing <hello@easyinvoicing.co.uk>'
+const DEFAULT_FROM = process.env.RESEND_FROM_EMAIL ?? 'Easy Invoicing <hello@easyinvoicing.co.uk>'
 
 interface SendEmailOptions {
   to: string | string[]
@@ -25,9 +28,15 @@ export async function sendEmail({
   html,
   from,
 }: SendEmailOptions): Promise<SendEmailResult> {
+  const resend = getResend()
+  if (!resend) {
+    console.warn('[sendEmail] RESEND_API_KEY not set — email skipped')
+    return { success: false, error: 'email_not_configured' }
+  }
+
   try {
     const { data, error } = await resend.emails.send({
-      from: from ?? process.env.RESEND_FROM_EMAIL ?? DEFAULT_FROM,
+      from: from ?? DEFAULT_FROM,
       to,
       subject,
       html,
