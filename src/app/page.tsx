@@ -81,7 +81,7 @@ export default async function RootPage() {
           <div className="text-white">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white/90 text-xs font-semibold tracking-wide uppercase mb-6 backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-              New invoices every Sunday · Auto-generated
+              Invoices generated on your schedule · Zero admin
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
               Invoicing on <span className="text-emerald-100">autopilot</span> for childcare professionals
@@ -176,7 +176,7 @@ export default async function RootPage() {
 
               {/* Badge */}
               <div className="absolute -top-3 -right-3 bg-sky-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                ✨ Auto-created Sunday 7am
+                ✨ Auto-created on your schedule
               </div>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default async function RootPage() {
                 </div>
                 <h3 className="text-2xl font-extrabold mb-2">Auto-generate invoices</h3>
                 <p className="text-white/85 text-base max-w-2xl leading-relaxed">
-                  Invoices generate every Sunday based on your children&apos;s fixed schedules. Review, approve, and send — or let them go automatically. No manual entry, no forgotten invoices, no stress.
+                  Set your children&apos;s schedules once and choose when invoices generate — weekly, fortnightly, whenever suits you. They arrive ready to review and approve. No manual entry, no forgotten invoices, no stress.
                 </p>
               </div>
             </div>
@@ -252,6 +252,52 @@ export default async function RootPage() {
                 <p className="text-gray-500 text-sm leading-relaxed">{feature.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIAL ── */}
+      <section className="py-20 sm:py-24 bg-gradient-to-br from-emerald-50 via-white to-sky-50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <p className="text-emerald-600 font-semibold text-sm uppercase tracking-widest mb-2">Real childminders. Real results.</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+              From admin overload to paid by lunch
+            </h2>
+          </div>
+
+          <div className="relative bg-white rounded-3xl shadow-xl shadow-emerald-100/60 border border-emerald-100 p-8 sm:p-10">
+            {/* Quote mark */}
+            <div className="absolute -top-5 left-10 text-7xl text-emerald-200 font-serif leading-none select-none" aria-hidden="true">&ldquo;</div>
+
+            {/* Stars */}
+            <div className="flex gap-1 mb-5">
+              {[1,2,3,4,5].map(i => (
+                <svg key={i} className="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </div>
+
+            {/* Quote */}
+            <blockquote className="text-gray-800 text-lg sm:text-xl leading-relaxed font-medium italic mb-8">
+              &ldquo;I set my invoices to generate on Sunday morning, and by the time I&apos;ve had my coffee they&apos;re sitting there ready for me. One tap to approve, one tap to send — and most Sundays I&apos;ve been paid before lunch. I genuinely don&apos;t know how I managed before this.&rdquo;
+            </blockquote>
+
+            {/* Attribution */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-sky-500 flex items-center justify-center shadow-md flex-shrink-0">
+                <span className="text-white font-extrabold text-lg">M</span>
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">Mary T.</p>
+                <p className="text-gray-500 text-sm">Registered Childminder · Islington, London</p>
+              </div>
+              <div className="ml-auto hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-full px-4 py-2">
+                <span className="text-emerald-600 text-xs font-bold">Paid by Sunday afternoon</span>
+                <span className="text-lg">💸</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -280,7 +326,7 @@ export default async function RootPage() {
                 step: '2',
                 icon: '⚡',
                 title: 'Invoices generate automatically',
-                desc: 'Every Sunday at 7am, invoices are created for the upcoming week based on each child\'s schedule.',
+                desc: 'Choose your own schedule — invoices are created automatically based on each child\'s hours and rates, exactly when you want them.',
               },
               {
                 step: '3',
