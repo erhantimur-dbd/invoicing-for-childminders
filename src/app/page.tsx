@@ -46,6 +46,36 @@ export default async function RootPage() {
         {/* Background texture */}
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, white 1px, transparent 1px), radial-gradient(circle at 75% 75%, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
+        {/* Scattered floating icons */}
+        <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+          {/* Top-left cluster */}
+          <span className="absolute text-5xl opacity-20" style={{ top: '6%',  left: '3%',  transform: 'rotate(-15deg)' }}>📋</span>
+          <span className="absolute text-3xl opacity-20" style={{ top: '18%', left: '8%',  transform: 'rotate(10deg)'  }}>💰</span>
+          <span className="absolute text-4xl opacity-20" style={{ top: '3%',  left: '14%', transform: 'rotate(-5deg)'  }}>🔒</span>
+
+          {/* Top-right cluster */}
+          <span className="absolute text-6xl opacity-20" style={{ top: '4%',  right: '4%',  transform: 'rotate(12deg)'  }}>📅</span>
+          <span className="absolute text-3xl opacity-20" style={{ top: '20%', right: '10%', transform: 'rotate(-18deg)' }}>⭐</span>
+          <span className="absolute text-5xl opacity-20" style={{ top: '8%',  right: '18%', transform: 'rotate(6deg)'   }}>📊</span>
+
+          {/* Mid-left */}
+          <span className="absolute text-4xl opacity-20" style={{ top: '42%', left: '2%',  transform: 'rotate(-22deg)' }}>📄</span>
+          <span className="absolute text-3xl opacity-20" style={{ top: '58%', left: '7%',  transform: 'rotate(14deg)'  }}>✨</span>
+
+          {/* Mid-right */}
+          <span className="absolute text-3xl opacity-20" style={{ top: '38%', right: '3%',  transform: 'rotate(20deg)'  }}>👶</span>
+          <span className="absolute text-5xl opacity-20" style={{ top: '55%', right: '8%',  transform: 'rotate(-10deg)' }}>🛡️</span>
+
+          {/* Bottom-left cluster */}
+          <span className="absolute text-4xl opacity-20" style={{ bottom: '10%', left: '5%',  transform: 'rotate(18deg)'  }}>📊</span>
+          <span className="absolute text-3xl opacity-20" style={{ bottom: '5%',  left: '15%', transform: 'rotate(-8deg)'  }}>💰</span>
+
+          {/* Bottom-right cluster */}
+          <span className="absolute text-5xl opacity-20" style={{ bottom: '12%', right: '5%',  transform: 'rotate(-14deg)' }}>📋</span>
+          <span className="absolute text-3xl opacity-20" style={{ bottom: '6%',  right: '16%', transform: 'rotate(9deg)'   }}>📅</span>
+          <span className="absolute text-4xl opacity-20" style={{ bottom: '18%', right: '22%', transform: 'rotate(-20deg)' }}>📄</span>
+        </div>
+
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
           {/* Copy */}
           <div className="text-white">
