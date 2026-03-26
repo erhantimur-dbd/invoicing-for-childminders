@@ -144,7 +144,8 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
       .eq('id', userId)
   }
 
-  async function handlePrimaryChange(id: string) {
+  async function handlePrimaryChange(id: string | null) {
+    if (!id) return
     await setPrimary(id)
     toast.success('Primary account updated')
   }
