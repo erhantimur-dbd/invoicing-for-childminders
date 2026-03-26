@@ -17,7 +17,7 @@ import InvoicePreview from '@/components/InvoicePreview'
 import { toast } from 'sonner'
 import {
   ChevronLeft, Printer, Mail, MessageCircle, CheckCircle,
-  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X
+  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link
 } from 'lucide-react'
 import InvoiceLineItemEditor from '@/components/InvoiceLineItemEditor'
 import type { Invoice, Profile, BankAccount } from '@/lib/types'
@@ -144,8 +144,9 @@ export default function InvoicePage() {
   function handleWhatsApp() {
     if (!invoice || !profile) return
     const child = (invoice as any).children
+    const publicLink = `${window.location.origin}/invoice/${invoice.id}`
     const message = encodeURIComponent(
-      `Hi ${child?.parent_name || ''},\n\nPlease find your invoice ${invoice.invoice_number} for ${child ? `${child.first_name}'s` : ''} childcare.\n\nAmount due: ${formatGBP(Number(invoice.total))}\n${invoice.due_date ? `Due by: ${format(new Date(invoice.due_date), 'd MMM yyyy')}\n` : ''}${invoice.stripe_payment_link ? `\nPay online: ${invoice.stripe_payment_link}\n` : ''}\nKind regards,\n${profile.full_name}`
+      `Hi ${child?.parent_name || ''},\n\nPlease find your invoice ${invoice.invoice_number} for ${child ? `${child.first_name}'s` : ''} childcare.\n\nAmount due: ${formatGBP(Number(invoice.total))}\n${invoice.due_date ? `Due by: ${format(new Date(invoice.due_date), 'd MMM yyyy')}\n` : ''}\nView invoice: ${publicLink}\n${invoice.stripe_payment_link ? `\nPay online: ${invoice.stripe_payment_link}\n` : ''}\nKind regards,\n${profile.full_name}`
     )
     window.open(`https://wa.me/?text=${message}`, '_blank')
     setShowShareOptions(false)
@@ -518,7 +519,23 @@ export default function InvoicePage() {
               <MessageCircle className="h-6 w-6" />
               <div className="text-left">
                 <p className="font-semibold">Share via WhatsApp</p>
-                <p className="text-xs text-gray-500">Opens WhatsApp with message</p>
+                <p className="text-xs text-gray-500">Includes a link to view the invoice</p>
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full h-14 text-base justify-start gap-3 border-gray-200 text-gray-700 hover:bg-gray-50"
+              onClick={() => {
+                const link = `${window.location.origin}/invoice/${invoice.id}`
+                navigator.clipboard.writeText(link)
+                toast.success('Link copied to clipboard')
+                setShowShareOptions(false)
+              }}
+            >
+              <Link className="h-6 w-6" />
+              <div className="text-left">
+                <p className="font-semibold">Copy invoice link</p>
+                <p className="text-xs text-gray-500">Parent can open and view in their browser</p>
               </div>
             </Button>
             <Button

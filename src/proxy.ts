@@ -16,6 +16,8 @@ const PUBLIC_ROUTES = [
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname)) return true
   if (pathname.startsWith('/api/stripe/webhook')) return true
+  // Public invoice view (shareable link for parents, no auth required)
+  if (pathname.startsWith('/invoice/')) return true
   // Static assets and auth callback sub-paths
   if (pathname.startsWith('/auth/')) return true
   return false
