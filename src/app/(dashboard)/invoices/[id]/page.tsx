@@ -17,7 +17,7 @@ import InvoicePreview from '@/components/InvoicePreview'
 import { toast } from 'sonner'
 import {
   ChevronLeft, Printer, Mail, MessageCircle, CheckCircle,
-  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link
+  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link2
 } from 'lucide-react'
 import InvoiceLineItemEditor from '@/components/InvoiceLineItemEditor'
 import type { Invoice, Profile, BankAccount } from '@/lib/types'
@@ -532,7 +532,7 @@ export default function InvoicePage() {
                 setShowShareOptions(false)
               }}
             >
-              <Link className="h-6 w-6" />
+              <Link2 className="h-6 w-6" />
               <div className="text-left">
                 <p className="font-semibold">Copy invoice link</p>
                 <p className="text-xs text-gray-500">Parent can open and view in their browser</p>
