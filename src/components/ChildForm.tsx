@@ -52,6 +52,7 @@ const emptyForm: ChildFormData = {
   is_active: true,
   half_day_rate: null,
   hourly_rate: null,
+  hours_per_day: null,
   schedule_days: null,
   schedule_note: null,
 }
@@ -138,6 +139,7 @@ export default function ChildForm({ child, mode }: Props) {
       is_active: child.is_active,
       half_day_rate: child.half_day_rate,
       hourly_rate: child.hourly_rate,
+      hours_per_day: child.hours_per_day,
       schedule_days: child.schedule_days,
       schedule_note: child.schedule_note,
     } : emptyForm
@@ -173,21 +175,35 @@ export default function ChildForm({ child, mode }: Props) {
         const halfRate = form.half_day_rate || (Number(form.daily_rate) / 2)
         return sum + halfRate
       }
+      if (form.hourly_rate && form.hours_per_day && !form.daily_rate) {
+        return sum + (Number(form.hourly_rate) * Number(form.hours_per_day))
+      }
       return sum + Number(form.daily_rate)
     }, 0)
   }
 
+  const [rateError, setRateError] = useState('')
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    // At least one rate must be set
+    if (!form.daily_rate && !form.half_day_rate && !form.hourly_rate) {
+      setRateError('Please enter at least one rate — daily, half day, or hourly.')
+      return
+    }
+    setRateError('')
+
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
     const payload = {
       ...form,
-      daily_rate: Number(form.daily_rate),
+      daily_rate: form.daily_rate ? Number(form.daily_rate) : null,
       half_day_rate: form.half_day_rate ? Number(form.half_day_rate) : null,
       hourly_rate: form.hourly_rate ? Number(form.hourly_rate) : null,
+      hours_per_day: form.hours_per_day ? Number(form.hours_per_day) : null,
       schedule_days: hasSchedule ? (form.schedule_days || []) : [],
       schedule_note: hasSchedule ? form.schedule_note : null,
     }
@@ -282,43 +298,75 @@ export default function ChildForm({ child, mode }: Props) {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Daily rate (£)</Label>
+              <Label className="text-sm font-medium">
+                Daily rate (£) <span className="text-gray-400 font-normal text-xs">(optional)</span>
+              </Label>
               <Input
                 type="number"
                 min="0"
                 step="0.50"
                 value={form.daily_rate || ''}
-                onChange={e => set('daily_rate', e.target.value)}
+                onChange={e => { set('daily_rate', e.target.value ? Number(e.target.value) : 0); setRateError('') }}
                 placeholder="45.00"
                 className="h-12 text-base"
-                required
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Half day rate (£)</Label>
+              <Label className="text-sm font-medium">
+                Half day rate (£) <span className="text-gray-400 font-normal text-xs">(optional)</span>
+              </Label>
               <Input
                 type="number"
                 min="0"
                 step="0.50"
                 value={form.half_day_rate || ''}
-                onChange={e => set('half_day_rate', e.target.value ? Number(e.target.value) : null)}
+                onChange={e => { set('half_day_rate', e.target.value ? Number(e.target.value) : null); setRateError('') }}
                 placeholder="25.00"
                 className="h-12 text-base"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Hourly rate (£)</Label>
+              <Label className="text-sm font-medium">
+                Hourly rate (£) <span className="text-gray-400 font-normal text-xs">(optional)</span>
+              </Label>
               <Input
                 type="number"
                 min="0"
                 step="0.50"
                 value={form.hourly_rate || ''}
-                onChange={e => set('hourly_rate', e.target.value ? Number(e.target.value) : null)}
+                onChange={e => { set('hourly_rate', e.target.value ? Number(e.target.value) : null); setRateError('') }}
                 placeholder="6.00"
                 className="h-12 text-base"
               />
             </div>
           </div>
+          {/* Hours per day — shown when hourly rate is set */}
+          {form.hourly_rate ? (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                Hours per day
+                <span className="text-gray-400 font-normal text-xs ml-1">(used to calculate scheduled hours)</span>
+              </Label>
+              <Input
+                type="number"
+                min="0.5"
+                max="24"
+                step="0.5"
+                value={form.hours_per_day || ''}
+                onChange={e => set('hours_per_day', e.target.value ? Number(e.target.value) : null)}
+                placeholder="8"
+                className="h-12 text-base max-w-[140px]"
+              />
+              {form.hours_per_day && form.hourly_rate && (
+                <p className="text-xs text-gray-400">
+                  Daily equivalent: £{(Number(form.hourly_rate) * Number(form.hours_per_day)).toFixed(2)}
+                </p>
+              )}
+            </div>
+          ) : null}
+          {rateError && (
+            <p className="text-sm text-red-600 font-medium">{rateError}</p>
+          )}
         </CardContent>
       </Card>
 
