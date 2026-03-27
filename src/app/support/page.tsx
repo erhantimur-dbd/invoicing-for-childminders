@@ -9,7 +9,7 @@ const FAQ_ITEMS = [
   {
     question: 'How does auto-invoice generation work?',
     answer:
-      "Every Sunday at 7am, the system automatically creates draft invoices for each child based on their fixed weekly schedule. They appear in your invoices list marked as 'Draft' — review them, make any changes, and send to parents when you're ready.",
+      "You choose when invoices generate — weekly, fortnightly, or monthly. Set your schedule during onboarding or update it any time in Settings. At your chosen time, Dottie automatically creates draft invoices for each child based on their schedule and rates. They appear in your invoices list marked as 'Draft' — review them, make any changes, and send to parents when you're ready.",
   },
   {
     question: 'Is there a free trial?',

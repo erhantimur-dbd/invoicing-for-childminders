@@ -66,7 +66,11 @@ const CATEGORIES = [
     questions: [
       {
         q: 'How does auto-invoice generation work?',
-        a: "You set each child's weekly schedule and rates once. Dottie generates invoices automatically on your chosen schedule — weekly, fortnightly, or monthly. Invoices appear as 'Draft' for you to review, then you approve and send to parents in one tap.",
+        a: "You set each child's schedule and rates once, then choose how often to generate invoices — weekly, fortnightly, or monthly. You configure this during onboarding and can update it any time in Settings. At your chosen interval, Dottie automatically creates draft invoices for each child. They appear in your invoices list for you to review, approve, and send to parents in one tap.",
+      },
+      {
+        q: 'Can I change my invoice generation schedule?',
+        a: "Yes, any time. Head to Settings and update your invoice generation frequency — weekly, fortnightly, or monthly. Changes take effect from your next invoice run. You can also generate invoices manually at any time if you need a one-off.",
       },
       {
         q: 'Can I edit an invoice before sending?',
