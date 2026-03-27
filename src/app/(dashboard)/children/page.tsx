@@ -169,8 +169,8 @@ export default async function ChildrenPage({
               </>
             ) : (
               <>
-                <p className="text-gray-600 font-medium mb-1">No children yet</p>
-                <p className="text-gray-400 text-sm mb-4">Add a child to start creating invoices</p>
+                <p className="text-gray-600 font-medium mb-1">No children added yet</p>
+                <p className="text-gray-400 text-sm mb-4">Add a child and I'll take care of the invoicing from there.</p>
                 <Link href="/children/new">
                   <Button className="bg-emerald-600 hover:bg-emerald-700">Add your first child</Button>
                 </Link>

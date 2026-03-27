@@ -279,7 +279,7 @@ export default function OnboardingPage() {
   async function handleFinish() {
     const ok = await saveStep3AndComplete()
     if (!ok) return
-    toast.success('Setup complete! Welcome.')
+    toast.success("You're all set! I'll take it from here. 🎉")
     router.push('/dashboard')
   }
 
@@ -336,10 +336,10 @@ export default function OnboardingPage() {
       {/* Header */}
       <div className="text-center mb-6">
         <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-600 rounded-2xl mb-3">
-          <span className="text-white text-xl font-bold">C</span>
+          <span className="text-white text-xl font-bold">D.</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Let's get you set up</h1>
-        <p className="text-gray-500 text-sm mt-1">Takes about 2 minutes</p>
+        <h1 className="text-2xl font-bold text-gray-900">Hi! I'm Dottie 👋</h1>
+        <p className="text-gray-500 text-sm mt-1">Let's get you sorted — it takes about 2 minutes.</p>
       </div>
 
       <StepIndicator current={step} />
@@ -348,8 +348,8 @@ export default function OnboardingPage() {
       {step === 0 && (
         <div className="space-y-4">
           <div className="text-center mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">Your details</h2>
-            <p className="text-sm text-gray-500">These appear on every invoice you send</p>
+            <h2 className="text-lg font-semibold text-gray-900">First, a bit about you</h2>
+            <p className="text-sm text-gray-500">This goes on every invoice — how should parents know you?</p>
           </div>
           <Card className="border-0 shadow-sm">
             <CardContent className="pt-5 space-y-4">
@@ -388,8 +388,8 @@ export default function OnboardingPage() {
       {step === 1 && (
         <div className="space-y-4">
           <div className="text-center mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">Your bank details</h2>
-            <p className="text-sm text-gray-500">Shown on invoices so parents know where to pay</p>
+            <h2 className="text-lg font-semibold text-gray-900">Where do parents send their payments?</h2>
+            <p className="text-sm text-gray-500">I'll put these on every invoice automatically.</p>
           </div>
           <Card className="border-0 shadow-sm">
             <CardContent className="pt-5 space-y-4">
@@ -424,8 +424,8 @@ export default function OnboardingPage() {
       {step === 2 && (
         <div className="space-y-4">
           <div className="text-center mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">Add the children you look after</h2>
-            <p className="text-sm text-gray-500">You can add more at any time</p>
+            <h2 className="text-lg font-semibold text-gray-900">Tell me about the children in your care</h2>
+            <p className="text-sm text-gray-500">Once I know their details, I'll handle the invoicing from here.</p>
           </div>
 
           {children.map((child, idx) => (
@@ -531,16 +531,16 @@ export default function OnboardingPage() {
       {step === 3 && (
         <div className="space-y-4">
           <div className="text-center mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">Fixed weekly schedules</h2>
-            <p className="text-sm text-gray-500">Set which days each child attends. Invoices will be pre-filled automatically.</p>
+            <h2 className="text-lg font-semibold text-gray-900">What days do they come to you?</h2>
+            <p className="text-sm text-gray-500">I'll use this to pre-fill every invoice — you won't need to think about it again.</p>
           </div>
 
           {childrenWithSchedules.length === 0 ? (
             <Card className="border-0 shadow-sm">
               <CardContent className="py-10 text-center">
                 <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 text-sm">No fixed schedules to set up.</p>
-                <p className="text-gray-400 text-xs mt-1">You can add schedules any time from the Children section.</p>
+                <p className="text-gray-500 text-sm">No fixed schedules to set up yet.</p>
+                <p className="text-gray-400 text-xs mt-1">That's fine — you can add them any time from the Children section and I'll pick them up.</p>
               </CardContent>
             </Card>
           ) : (
@@ -639,7 +639,7 @@ export default function OnboardingPage() {
             disabled={saving}
           >
             {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : (
-              <>All done — take me to my dashboard <ChevronRight className="h-5 w-5 ml-1" /></>
+              <>I'm ready — take me to my dashboard <ChevronRight className="h-5 w-5 ml-1" /></>
             )}
           </Button>
         ) : (

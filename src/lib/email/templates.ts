@@ -22,7 +22,7 @@ function baseLayout(content: string): string {
           <tr>
             <td style="background-color:${BRAND_COLOR};border-radius:12px 12px 0 0;padding:28px 32px;">
               <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Dottie</p>
-              <p style="margin:4px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Childcare, simplified.</p>
+              <p style="margin:4px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Invoicing simplified.</p>
             </td>
           </tr>
 
@@ -73,13 +73,12 @@ export function welcomeEmail({ name }: { name: string }): {
   const firstName = name.split(' ')[0]
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Welcome to Dottie! 🎉</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Hi ${firstName}, we're so glad you're here.</p>
+    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Hi ${firstName}, I'm Dottie! 👋</h1>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">I'll be handling your invoicing from here on in.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      You've just unlocked <strong>7 days of free access</strong> to everything Dottie has to offer.
-      We built this tool specifically for childminders — so you can spend less time on admin and more time
-      with the children in your care.
+      You've got <strong>7 days completely free</strong> to see how much time I can save you.
+      You didn't become a childminder to spend Sunday nights writing invoices — that's my job now.
     </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:4px;margin:24px 0;">
@@ -137,17 +136,17 @@ export function welcomeEmail({ name }: { name: string }): {
     ${ctaButton('Get started', APP_URL)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      If you have any questions, just reply to this email — we'd love to hear from you.
+      Any questions? Just reply — I'm always here to help.
     </p>
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Warm regards,<br>
-      <strong style="color:#111827;">The Dottie Team</strong>
+      Talk soon,<br>
+      <strong style="color:#111827;">Dottie 💚</strong>
     </p>
   `
 
   return {
-    subject: 'Welcome to Dottie! 🎉',
+    subject: `Hi ${firstName} — I'm Dottie, and I'm here to help! 👋`,
     html: baseLayout(content),
   }
 }
@@ -167,12 +166,11 @@ export function trialExpiringEmail({
   const dayWord = daysLeft === 1 ? 'day' : 'days'
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Your trial ends in ${daysLeft} ${dayWord}</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Hi ${firstName}, just a friendly heads-up.</p>
+    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Just a heads-up, ${firstName} ⏰</h1>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Your free trial ends in ${daysLeft} ${dayWord}.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Your Dottie free trial ends on <strong>${trialEnd}</strong>. After that, access to your
-      account will be paused until you choose a plan.
+      I've been keeping your invoicing running smoothly — I'd love to keep doing that after your trial ends on <strong>${trialEnd}</strong>. Pick a plan and I'll carry on exactly as I have been.
     </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fffbeb;border:1px solid #fde68a;border-radius:10px;margin:24px 0;">
@@ -206,12 +204,12 @@ export function trialExpiringEmail({
     ${ctaButton('Choose your plan', `${APP_URL}/subscribe`)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      Questions about plans? Just reply to this email and we'll help you out.
+      Questions about which plan is right for you? Just reply — I'll point you in the right direction.
     </p>
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Best,<br>
-      <strong style="color:#111827;">The Dottie Team</strong>
+      See you on the other side,<br>
+      <strong style="color:#111827;">Dottie 💚</strong>
     </p>
   `
 
@@ -234,12 +232,11 @@ export function subscriptionConfirmEmail({
   const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1)
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">You're all set! 🎉</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Hi ${firstName}, your subscription is confirmed.</p>
+    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">We're official, ${firstName}! 🎉</h1>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Your subscription is confirmed — I'm not going anywhere.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Thank you for subscribing to Dottie. Your account is now fully active and you have
-      complete access to all features.
+      From now on, I'll keep your invoices running like clockwork. No more Sunday admin sessions — that's my job.
     </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin:24px 0;">
@@ -252,18 +249,18 @@ export function subscriptionConfirmEmail({
     </table>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Everything is ready to go — head to your dashboard to continue managing your childcare invoices.
+      Everything is already set up and running. Head to your dashboard whenever you're ready — I'll have things ticking along in the background.
     </p>
 
-    ${ctaButton('Go to your dashboard', `${APP_URL}/dashboard`)}
+    ${ctaButton('Go to my dashboard', `${APP_URL}/dashboard`)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      If you ever have questions or need support, we're always here to help.
+      Any questions? Just reply to this email — I'm always here.
     </p>
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Warm regards,<br>
-      <strong style="color:#111827;">The Dottie Team</strong>
+      Here to help,<br>
+      <strong style="color:#111827;">Dottie 💚</strong>
     </p>
   `
 

@@ -82,13 +82,13 @@ export default async function RootPage() {
           <div className="text-white">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white/90 text-xs font-semibold tracking-wide uppercase mb-6 backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-              Invoices generated on your schedule · Zero admin
+              Hi, I'm Dottie · Your invoicing, sorted
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
-              Invoicing on <span className="text-emerald-100">autopilot</span> for childcare professionals
+              You didn&apos;t become a childminder to spend Sunday nights writing invoices. <span className="text-emerald-100">That&apos;s my job.</span>
             </h1>
             <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-lg">
-              Set up your children&apos;s schedules once. Invoices generate automatically on your schedule, ready to review and approve.
+              I&apos;ll remember the schedules. I&apos;ll generate the invoices. I&apos;ll keep track of what&apos;s paid. You just focus on the children.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-6">

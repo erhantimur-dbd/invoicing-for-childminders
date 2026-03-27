@@ -86,8 +86,8 @@ export default async function DashboardPage() {
               <Sparkles className="h-4 w-4 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-amber-900">Complete your setup</p>
-              <p className="text-xs text-amber-700 mt-0.5">Add your bank details and children to start invoicing</p>
+              <p className="text-sm font-semibold text-amber-900">Let's get you sorted, {firstName}!</p>
+              <p className="text-xs text-amber-700 mt-0.5">Add your bank details and children — then I'll handle the invoicing.</p>
             </div>
             <ChevronRight className="h-4 w-4 text-amber-500 flex-shrink-0" />
           </div>
@@ -103,9 +103,9 @@ export default async function DashboardPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-violet-900">
-                {autoDrafts.length} invoice{autoDrafts.length !== 1 ? 's' : ''} ready to review
+                I've prepared {autoDrafts.length} invoice{autoDrafts.length !== 1 ? 's' : ''} for you
               </p>
-              <p className="text-xs text-violet-700 mt-0.5">Auto-generated — review and send to parents</p>
+              <p className="text-xs text-violet-700 mt-0.5">All done — just check them over and send to parents</p>
             </div>
             <ChevronRight className="h-4 w-4 text-violet-400 flex-shrink-0" />
           </div>
@@ -239,11 +239,11 @@ export default async function DashboardPage() {
                 <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
                   <Plus className="h-6 w-6 text-gray-300" />
                 </div>
-                <p className="text-gray-500 font-medium mb-1">No invoices yet</p>
-                <p className="text-gray-400 text-sm mb-4">Create your first invoice in seconds</p>
-                <Link href="/invoices/new">
+                <p className="text-gray-500 font-medium mb-1">Nothing here yet</p>
+                <p className="text-gray-400 text-sm mb-4">Add your children and I'll handle the invoicing from there.</p>
+                <Link href="/children/new">
                   <Button className="bg-emerald-600 hover:bg-emerald-700">
-                    Create your first invoice
+                    Add your first child
                   </Button>
                 </Link>
               </CardContent>
