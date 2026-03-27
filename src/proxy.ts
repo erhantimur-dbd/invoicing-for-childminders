@@ -11,6 +11,9 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
   '/support',
   '/pricing',
+  '/privacy',
+  '/terms',
+  '/faq',
 ]
 
 function isPublicRoute(pathname: string): boolean {
