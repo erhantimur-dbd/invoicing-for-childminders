@@ -35,7 +35,7 @@ export default function SideNav({ name }: { name?: string }) {
           </div>
           <div>
             <p className="font-bold text-gray-900 text-sm leading-tight">Dottie</p>
-            <p className="text-xs text-gray-400 leading-tight">Childcare, simplified.</p>
+            <p className="text-xs text-gray-400 leading-tight">Invoicing simplified.</p>
           </div>
         </div>
       </div>
