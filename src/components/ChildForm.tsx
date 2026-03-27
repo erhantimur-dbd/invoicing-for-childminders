@@ -39,7 +39,7 @@ type ChildFormData = Omit<Child, 'id' | 'childminder_id' | 'created_at' | 'updat
 const emptyForm: ChildFormData = {
   first_name: '',
   last_name: '',
-  date_of_birth: null,
+  date_of_birth: '',
   parent_name: '',
   parent_email: '',
   parent_phone: '',
@@ -264,13 +264,18 @@ export default function ChildForm({ child, mode }: Props) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Date of birth (optional)</Label>
+            <Label className="text-sm font-medium">
+              Date of birth
+              <span className="text-red-500 ml-0.5">*</span>
+            </Label>
             <Input
               type="date"
               value={form.date_of_birth || ''}
               onChange={e => set('date_of_birth', e.target.value || null)}
               className="h-12 text-base"
+              required
             />
+            <p className="text-xs text-gray-400">Used by parents to securely access their invoice</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">

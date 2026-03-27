@@ -2,10 +2,10 @@ type Props = {
   password: string
 }
 
-function getScore(password: string): number {
+export function getScore(password: string): number {
   if (!password) return 0
   let score = 0
-  if (password.length >= 8) score += 1
+  if (password.length >= 10) score += 1
   if (password.length >= 12) score += 1
   if (/[a-z]/.test(password)) score += 1
   if (/[A-Z]/.test(password)) score += 1

@@ -1,21 +1,28 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { verifyInvoiceToken } from '@/lib/invoiceToken'
 
-// Uses service role so we can read invoice by ID without auth
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
 
+  // Require a valid access token issued by /api/invoice/[id]/verify
+  const authHeader = req.headers.get('authorization') || ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+  if (!token || !verifyInvoiceToken(token, id)) {
+    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+  }
+
   const { data: invoice, error } = await supabaseAdmin
     .from('invoices')
-    .select('*, children(first_name, last_name, parent_name, parent_email), invoice_line_items(*)')
+    .select('*, children(first_name, last_name, parent_name, parent_email, bank_name, bank_account_name, bank_sort_code, bank_account_number), invoice_line_items(*)')
     .eq('id', id)
     .single()
 
@@ -23,7 +30,7 @@ export async function GET(
     return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
   }
 
-  // Fetch childminder profile + primary bank account
+  // Childminder profile + primary bank account
   const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('full_name, email, phone, address_line1, address_line2, city, postcode, ofsted_number, show_ofsted_on_invoice, primary_bank_account_id')

@@ -19,6 +19,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing imageBase64 or mimeType' }, { status: 400 })
     }
 
+    // Validate MIME type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    if (!allowedTypes.includes(mimeType)) {
+      return NextResponse.json({ error: 'Invalid file type. Use JPEG, PNG, or WebP.' }, { status: 400 })
+    }
+
+    // Validate size — base64 is ~4/3 of original, so 5MB raw ≈ 6.7MB base64
+    const MAX_BASE64_BYTES = 7 * 1024 * 1024
+    if (imageBase64.length > MAX_BASE64_BYTES) {
+      return NextResponse.json({ error: 'Image too large. Maximum size is 5MB.' }, { status: 413 })
+    }
+
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
     const response = await client.messages.create({
