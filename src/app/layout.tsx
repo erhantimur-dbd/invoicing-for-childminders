@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   description: "You didn't become a childminder to spend Sunday nights writing invoices. That's Dottie's job. Invoicing on autopilot for UK childcare professionals.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://www.dottie.cloud"),
+  verification: {
+    google: "6rnBpp9OHac9RXHCzz0oFK1ADWHb9Uanca-I0biO9kU",
+  },
   openGraph: {
     siteName: "Dottie",
     title: "Dottie — Invoicing simplified.",
