@@ -143,19 +143,22 @@ export default function TermsPage() {
             </Section>
 
             <Section id="subscription" title="5. Subscription and billing">
-              <P>After your free trial ends, continued access to Dottie requires an active subscription. We offer:</P>
+              <P>After your free trial ends, continued access to Dottie requires an active subscription. We offer the following plans:</P>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-1">Monthly plan</p>
-                  <p className="text-2xl font-bold text-gray-900">£9.99<span className="text-sm font-normal text-gray-400">/month</span></p>
-                  <p className="text-xs text-gray-500 mt-1">Billed monthly. Cancel anytime.</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Starter</p>
+                  <p className="text-sm text-gray-500 mb-2">Up to 5 children</p>
+                  <p className="text-xl font-bold text-gray-900">£9.99<span className="text-sm font-normal text-gray-400">/month</span></p>
+                  <p className="text-xs text-gray-500 mt-1">or £99/year · save 17%</p>
                 </div>
                 <div className="p-4 rounded-xl bg-white border-2 border-emerald-200">
-                  <p className="font-semibold text-gray-800 mb-1">Annual plan</p>
-                  <p className="text-2xl font-bold text-gray-900">£99<span className="text-sm font-normal text-gray-400">/year</span></p>
-                  <p className="text-xs text-gray-500 mt-1">Equivalent to £8.25/month. Save 17%.</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Professional</p>
+                  <p className="text-sm text-gray-500 mb-2">Up to 20 children</p>
+                  <p className="text-xl font-bold text-gray-900">£19.99<span className="text-sm font-normal text-gray-400">/month</span></p>
+                  <p className="text-xs text-gray-500 mt-1">or £199/year · save 17%</p>
                 </div>
               </div>
+              <P>For larger childminding settings requiring more than 20 children, please contact us about our Unlimited plan.</P>
               <P>
                 Subscriptions are processed by Stripe. By subscribing, you authorise Stripe to charge your payment method on a recurring basis. Prices are displayed in GBP and include applicable taxes.
               </P>

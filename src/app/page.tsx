@@ -610,7 +610,8 @@ export default async function RootPage() {
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
               <a href="#features" className="hover:text-white transition-colors">Features</a>
               <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-              <a href="#security" className="hover:text-white transition-colors">Support</a>
+              <Link href="/support" className="hover:text-white transition-colors">Support</Link>
+              <Link href="/faq" className="hover:text-white transition-colors">FAQ</Link>
               <Link href="/login" className="hover:text-white transition-colors">Sign in</Link>
               <Link href="/signup" className="hover:text-white transition-colors">Sign up</Link>
             </div>
@@ -619,10 +620,10 @@ export default async function RootPage() {
           <div className="h-px bg-gray-800 mb-6" />
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm">
-            <p>&copy; 2025 Dottie. All rights reserved.</p>
+            <p>&copy; 2026 Dottie. All rights reserved.</p>
             <div className="flex gap-5">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>
