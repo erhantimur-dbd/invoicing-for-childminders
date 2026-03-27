@@ -46,6 +46,8 @@ export default function SignupPage() {
   const [passwordFocused, setPasswordFocused] = useState(false)
   const [loading, setLoading] = useState(false)
   const [weakError, setWeakError] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [termsError, setTermsError] = useState(false)
 
   const requirements = getRequirements(password)
   const showRequirements = passwordFocused || password.length > 0
@@ -58,6 +60,11 @@ export default function SignupPage() {
       return
     }
     setWeakError(false)
+    if (!termsAccepted) {
+      setTermsError(true)
+      return
+    }
+    setTermsError(false)
     setLoading(true)
     const supabase = createClient()
     const { data, error } = await supabase.auth.signUp({
@@ -173,16 +180,31 @@ export default function SignupPage() {
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create free account'}
           </Button>
 
-          <p className="text-xs text-gray-400 text-center leading-relaxed">
-            By creating an account you agree to our{' '}
-            <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
-              Privacy Policy
-            </Link>
-          </p>
+          <div className="space-y-1">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={e => { setTermsAccepted(e.target.checked); setTermsError(false) }}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 flex-shrink-0"
+              />
+              <span className="text-xs text-gray-500 leading-relaxed">
+                I agree to Dottie&apos;s{' '}
+                <Link href="/terms" target="_blank" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link href="/privacy" target="_blank" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
+                  Privacy Policy
+                </Link>
+              </span>
+            </label>
+            {termsError && (
+              <p className="text-xs text-red-500 font-medium pl-7">
+                You must accept the terms to create an account.
+              </p>
+            )}
+          </div>
 
           <p className="text-sm text-gray-400 text-center pt-1">
             Already have an account?{' '}

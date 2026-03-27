@@ -83,12 +83,9 @@ export default async function RootPage() {
               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
               Invoices generated on your schedule · Zero admin
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-3">
-              Every <span className="text-emerald-100">i</span> dotted.<br className="hidden sm:block" /> Every <span className="text-emerald-100">T</span> crossed.
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+              Invoicing on <span className="text-emerald-100">autopilot</span> for childcare professionals
             </h1>
-            <p className="text-xl sm:text-2xl text-white/80 font-medium mb-4">
-              Invoicing on autopilot for childcare professionals
-            </p>
             <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-lg">
               Set up your children&apos;s schedules once. Invoices generate automatically on your schedule, ready to review and approve.
             </p>
