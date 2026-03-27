@@ -14,6 +14,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #0ea5e9, transparent 70%)' }} />
 
       <div className="w-full max-w-sm relative">
+        <div className="text-center mb-2">
+          <a href="/" className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white transition-colors">
+            ← Back to website
+          </a>
+        </div>
         <div className="text-center mb-8">
           <div
             className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg shadow-emerald-200/60"
