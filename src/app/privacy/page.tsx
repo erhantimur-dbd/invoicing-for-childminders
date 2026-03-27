@@ -2,8 +2,10 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Dottie',
-  description: 'How Dottie collects, uses, and protects your personal data.',
+  title: 'Privacy Policy',
+  description: 'How Dottie collects, uses, and protects your personal data in line with UK GDPR and the Data Protection Act 2018.',
+  alternates: { canonical: 'https://www.dottie.cloud/privacy' },
+  robots: { index: true, follow: false },
 }
 
 const LAST_UPDATED = '27 March 2026'

@@ -2,8 +2,10 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service — Dottie',
-  description: 'Terms and conditions for using Dottie.',
+  title: 'Terms of Service',
+  description: 'Terms and conditions for using Dottie — invoicing software for UK childminders.',
+  alternates: { canonical: 'https://www.dottie.cloud/terms' },
+  robots: { index: true, follow: false },
 }
 
 const LAST_UPDATED = '27 March 2026'

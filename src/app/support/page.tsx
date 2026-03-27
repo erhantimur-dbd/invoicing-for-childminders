@@ -2,8 +2,14 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Support — Dottie for Childcare Professionals',
-  description: 'Get help with Dottie. Contact our support team or browse frequently asked questions.',
+  title: 'Support & Help',
+  description: 'Get help with Dottie. Contact our support team or browse frequently asked questions about invoicing for childminders.',
+  alternates: { canonical: 'https://www.dottie.cloud/support' },
+  openGraph: {
+    title: 'Support & Help — Dottie',
+    description: 'Get help with Dottie. Contact our support team or browse our FAQ.',
+    url: 'https://www.dottie.cloud/support',
+  },
 }
 
 const SUPPORT_EMAIL = 'support@dottie.cloud'

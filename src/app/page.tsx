@@ -1,6 +1,56 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  alternates: { canonical: 'https://www.dottie.cloud' },
+  openGraph: {
+    title: 'Dottie — Invoicing simplified.',
+    description: "You didn't become a childminder to spend Sunday nights writing invoices. That's Dottie's job.",
+    url: 'https://www.dottie.cloud',
+    type: 'website',
+  },
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Dottie',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  url: 'https://www.dottie.cloud',
+  description: 'Invoicing on autopilot for UK childminders and childcare professionals. Auto-generate invoices, track expenses, and manage payments.',
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Starter',
+      price: '9.99',
+      priceCurrency: 'GBP',
+      billingIncrement: 'P1M',
+      description: 'Up to 5 children',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Professional',
+      price: '19.99',
+      priceCurrency: 'GBP',
+      billingIncrement: 'P1M',
+      description: 'Up to 20 children',
+    },
+  ],
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '5',
+    reviewCount: '1',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Dottie',
+    url: 'https://www.dottie.cloud',
+    email: 'hello@dottie.cloud',
+  },
+}
 
 export default async function RootPage() {
   const supabase = await createClient()
@@ -9,6 +59,12 @@ export default async function RootPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── NAV ── */}
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
