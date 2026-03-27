@@ -16,9 +16,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dottie",
-  description: "Every i dotted. Every T crossed. Invoicing on autopilot for childcare professionals.",
+  title: {
+    default: "Dottie — Invoicing simplified.",
+    template: "%s | Dottie",
+  },
+  description: "You didn't become a childminder to spend Sunday nights writing invoices. That's Dottie's job. Invoicing on autopilot for UK childcare professionals.",
   manifest: "/manifest.json",
+  metadataBase: new URL("https://www.dottie.cloud"),
+  openGraph: {
+    siteName: "Dottie",
+    title: "Dottie — Invoicing simplified.",
+    description: "Invoicing on autopilot for UK childminders and childcare professionals.",
+    url: "https://www.dottie.cloud",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Dottie — Invoicing simplified.",
+    description: "Invoicing on autopilot for UK childminders and childcare professionals.",
+  },
 };
 
 export const viewport: Viewport = {
