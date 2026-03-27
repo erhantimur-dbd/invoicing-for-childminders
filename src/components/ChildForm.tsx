@@ -51,6 +51,7 @@ const emptyForm: ChildFormData = {
   notes: '',
   is_active: true,
   half_day_rate: null,
+  hourly_rate: null,
   schedule_days: null,
   schedule_note: null,
 }
@@ -136,6 +137,7 @@ export default function ChildForm({ child, mode }: Props) {
       notes: child.notes,
       is_active: child.is_active,
       half_day_rate: child.half_day_rate,
+      hourly_rate: child.hourly_rate,
       schedule_days: child.schedule_days,
       schedule_note: child.schedule_note,
     } : emptyForm
@@ -185,6 +187,7 @@ export default function ChildForm({ child, mode }: Props) {
       ...form,
       daily_rate: Number(form.daily_rate),
       half_day_rate: form.half_day_rate ? Number(form.half_day_rate) : null,
+      hourly_rate: form.hourly_rate ? Number(form.hourly_rate) : null,
       schedule_days: hasSchedule ? (form.schedule_days || []) : [],
       schedule_note: hasSchedule ? form.schedule_note : null,
     }
@@ -277,7 +280,7 @@ export default function ChildForm({ child, mode }: Props) {
             />
             <p className="text-xs text-gray-400">Used by parents to securely access their invoice</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label className="text-sm font-medium">Daily rate (£)</Label>
               <Input
@@ -300,6 +303,18 @@ export default function ChildForm({ child, mode }: Props) {
                 value={form.half_day_rate || ''}
                 onChange={e => set('half_day_rate', e.target.value ? Number(e.target.value) : null)}
                 placeholder="25.00"
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Hourly rate (£)</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.50"
+                value={form.hourly_rate || ''}
+                onChange={e => set('hourly_rate', e.target.value ? Number(e.target.value) : null)}
+                placeholder="6.00"
                 className="h-12 text-base"
               />
             </div>

@@ -38,6 +38,7 @@ export type Child = {
   notes: string
   is_active: boolean
   half_day_rate: number | null
+  hourly_rate: number | null
   schedule_days: { day: string; type: 'full' | 'half' }[] | null
   schedule_note: string | null
   archived_at: string | null

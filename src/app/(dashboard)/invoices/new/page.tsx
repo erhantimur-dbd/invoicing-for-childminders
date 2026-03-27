@@ -288,6 +288,11 @@ export default function NewInvoicePage() {
                     Half day: {formatGBP(Number((selectedChild as any).half_day_rate))}
                   </Badge>
                 )}
+                {(selectedChild as any).hourly_rate && (
+                  <Badge className="bg-amber-50 text-amber-700 hover:bg-amber-50 text-xs">
+                    Hourly: {formatGBP(Number((selectedChild as any).hourly_rate))}
+                  </Badge>
+                )}
                 {hasSchedule && (
                   <Badge className="bg-purple-50 text-purple-700 hover:bg-purple-50 text-xs">
                     Fixed schedule · {childSchedule.length} day{childSchedule.length !== 1 ? 's' : ''}/week
