@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 function SubStatusBadge({ status }: { status: string | null | undefined }) {
@@ -71,29 +72,30 @@ export default async function AdminUsersPage({
 }) {
   const supabase = await createClient()
 
-  // Double-check admin role
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Auth check — uses regular client (RLS applies to current user only)
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: adminProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+    .from('profiles').select('role').eq('id', user.id).single()
   if (!adminProfile || adminProfile.role !== 'admin') redirect('/dashboard')
+
+  // Data queries — service role client bypasses RLS
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   const { q } = await searchParams
 
   // Fetch all users with subscriptions
-  const { data: allUsers } = await supabase
+  const { data: allUsers } = await admin
     .from('profiles')
     .select('*, subscriptions(*)')
     .order('created_at', { ascending: false })
 
   // Fetch invoice counts per childminder
-  const { data: invoiceRows } = await supabase
+  const { data: invoiceRows } = await admin
     .from('invoices')
     .select('childminder_id')
 

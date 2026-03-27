@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import {
   Card,
   CardContent,
@@ -37,20 +38,20 @@ function formatDate(dateStr: string | null | undefined) {
 }
 
 export default async function AdminOverviewPage() {
+  // Auth check uses the regular client (respects RLS for the current user)
   const supabase = await createClient()
-
-  // Double-check admin role
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: adminProfile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+    .from('profiles').select('role').eq('id', user.id).single()
   if (!adminProfile || adminProfile.role !== 'admin') redirect('/dashboard')
+
+  // All data queries use the service role client to bypass RLS
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   // Stats queries (parallel)
   const [
@@ -59,19 +60,19 @@ export default async function AdminOverviewPage() {
     { count: trialingCount },
     { count: expiringSoonCount },
   ] = await Promise.all([
-    supabase
+    admin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'childminder'),
-    supabase
+    admin
       .from('subscriptions')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active'),
-    supabase
+    admin
       .from('subscriptions')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'trialing'),
-    supabase
+    admin
       .from('subscriptions')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'trialing')
@@ -79,7 +80,7 @@ export default async function AdminOverviewPage() {
   ])
 
   // Recent sign-ups: last 10 childminders with subscriptions
-  const { data: recentUsers } = await supabase
+  const { data: recentUsers } = await admin
     .from('profiles')
     .select('*, subscriptions(*)')
     .eq('role', 'childminder')
@@ -87,7 +88,7 @@ export default async function AdminOverviewPage() {
     .limit(10)
 
   // Revenue estimate
-  const { data: activeSubs } = await supabase
+  const { data: activeSubs } = await admin
     .from('subscriptions')
     .select('plan, status')
     .eq('status', 'active')
