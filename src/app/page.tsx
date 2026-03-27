@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.dottie.cloud' },
   openGraph: {
     title: 'Dottie — Invoicing simplified.',
-    description: "You didn't become a childminder to spend Sunday nights writing invoices. That's Dottie's job.",
+    description: 'Invoicing on autopilot for UK childminders. Set up once, invoices generate automatically.',
     url: 'https://www.dottie.cloud',
     type: 'website',
   },
@@ -171,10 +171,10 @@ export default async function RootPage() {
               </div>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
-              You didn&apos;t become a childminder to spend Sunday nights writing invoices. <span className="text-emerald-100">That&apos;s my job.</span>
+              Invoicing on autopilot for <span className="text-emerald-100">childcare professionals</span>
             </h1>
             <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-lg">
-              I&apos;ll remember the schedules. I&apos;ll generate the invoices. I&apos;ll keep track of what&apos;s paid. You just focus on the children.
+              Set up your children&apos;s schedules once. Invoices generate automatically, ready for you to review and approve.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
