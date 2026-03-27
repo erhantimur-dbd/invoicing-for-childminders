@@ -18,9 +18,10 @@ export default async function RootPage() {
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 shadow-md">
               <span className="text-white text-base font-extrabold leading-none">D.</span>
             </span>
-            <span className="text-gray-900 font-bold text-lg tracking-tight hidden sm:block">
-              Dottie
-            </span>
+            <div className="hidden sm:block">
+              <p className="text-gray-900 font-bold text-lg tracking-tight leading-tight">Dottie</p>
+              <p className="text-gray-400 text-xs leading-tight">Invoicing simplified.</p>
+            </div>
           </Link>
 
           {/* Nav links */}
