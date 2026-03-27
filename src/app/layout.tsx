@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Easy Invoicing",
-  description: "Invoicing on autopilot for childcare professionals",
+  title: "Dottie",
+  description: "Every i dotted. Every T crossed. Invoicing on autopilot for childcare professionals.",
   manifest: "/manifest.json",
 };
 

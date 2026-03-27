@@ -31,11 +31,11 @@ export default function SideNav({ name }: { name?: string }) {
       <div className="px-5 py-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-xl flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-base">EI</span>
+            <span className="text-white font-bold text-base">D.</span>
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm leading-tight">Easy Invoicing</p>
-            <p className="text-xs text-gray-400 leading-tight">Childcare professionals</p>
+            <p className="font-bold text-gray-900 text-sm leading-tight">Dottie</p>
+            <p className="text-xs text-gray-400 leading-tight">Childcare, simplified.</p>
           </div>
         </div>
       </div>

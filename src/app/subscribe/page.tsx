@@ -81,7 +81,7 @@ export default function SubscribePage() {
           <div className="mb-6">
             <div className="text-gray-500 text-sm font-medium mb-1">Monthly</div>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-extrabold text-gray-900">£4.99</span>
+              <span className="text-4xl font-extrabold text-gray-900">£9.99</span>
               <span className="text-gray-400 text-sm">/month</span>
             </div>
             <p className="text-gray-400 text-sm mt-1">Billed monthly, cancel anytime</p>
@@ -118,17 +118,17 @@ export default function SubscribePage() {
         <div className="relative rounded-3xl border-2 border-emerald-500 bg-white p-8 shadow-xl shadow-emerald-100/50 flex flex-col">
           <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
             <span className="px-4 py-1.5 rounded-full bg-sky-500 text-white text-xs font-extrabold shadow-md whitespace-nowrap">
-              Save 10% · Best value
+              Save 17% · Best value
             </span>
           </div>
 
           <div className="mb-6">
             <div className="text-gray-500 text-sm font-medium mb-1">Annual</div>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-extrabold text-gray-900">£54</span>
+              <span className="text-4xl font-extrabold text-gray-900">£99</span>
               <span className="text-gray-400 text-sm">/year</span>
             </div>
-            <p className="text-gray-400 text-sm mt-1">Equivalent to £4.50/month</p>
+            <p className="text-gray-400 text-sm mt-1">Equivalent to £8.25/month</p>
           </div>
 
           <ul className="space-y-3 mb-8 flex-1">

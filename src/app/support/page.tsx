@@ -2,11 +2,11 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Support — Easy Invoicing for Childcare Professionals',
-  description: 'Get help with Easy Invoicing. Contact our support team or browse frequently asked questions.',
+  title: 'Support — Dottie for Childcare Professionals',
+  description: 'Get help with Dottie. Contact our support team or browse frequently asked questions.',
 }
 
-const SUPPORT_EMAIL = 'support@easyinvoicing.co.uk'
+const SUPPORT_EMAIL = 'support@dottie.cloud'
 
 const FAQ_ITEMS = [
   {
@@ -22,7 +22,7 @@ const FAQ_ITEMS = [
   {
     question: 'How much does it cost?',
     answer:
-      'Easy Invoicing costs £4.99/month or £54/year (save 10%). Both plans include unlimited children, auto-invoice generation, PDF invoices, expense tracking, and tax year reports.',
+      'Dottie costs £9.99/month or £99/year (save 17%). Both plans include unlimited children, auto-invoice generation, PDF invoices, expense tracking, and tax year reports.',
   },
   {
     question: 'Is my data secure?',
@@ -50,9 +50,9 @@ const FAQ_ITEMS = [
       'Yes, every invoice can be printed or saved as a PDF directly from the app. Invoices are formatted to A4 for professional presentation.',
   },
   {
-    question: 'What is Dottie OS?',
+    question: 'What is Dottie?',
     answer:
-      'Easy Invoicing is part of the Dottie OS ecosystem — a suite of tools being built for childcare professionals. More integrations and features are coming soon.',
+      'Dottie is invoicing on autopilot for childcare professionals. We built it from scratch for UK childminders — so you can spend less time on admin and more time with the children in your care.',
   },
 ]
 

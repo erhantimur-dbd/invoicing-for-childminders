@@ -1,7 +1,7 @@
 const BRAND_COLOR = '#059669'
 const BRAND_COLOR_DARK = '#047857'
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://easyinvoicing.co.uk'
-const SUPPORT_EMAIL = 'hello@easyinvoicing.co.uk'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.dottie.cloud'
+const SUPPORT_EMAIL = 'hello@dottie.cloud'
 
 function baseLayout(content: string): string {
   return `<!DOCTYPE html>
@@ -10,7 +10,7 @@ function baseLayout(content: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Easy Invoicing</title>
+  <title>Dottie</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;padding:40px 16px;">
@@ -21,8 +21,8 @@ function baseLayout(content: string): string {
           <!-- Header -->
           <tr>
             <td style="background-color:${BRAND_COLOR};border-radius:12px 12px 0 0;padding:28px 32px;">
-              <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Easy Invoicing</p>
-              <p style="margin:4px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">for Childcare Professionals</p>
+              <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Dottie</p>
+              <p style="margin:4px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Childcare, simplified.</p>
             </td>
           </tr>
 
@@ -41,8 +41,7 @@ function baseLayout(content: string): string {
                 <a href="mailto:${SUPPORT_EMAIL}" style="color:${BRAND_COLOR};text-decoration:none;">${SUPPORT_EMAIL}</a>
               </p>
               <p style="margin:8px 0 0;font-size:11px;color:#9ca3af;text-align:center;">
-                Easy Invoicing is part of the <strong style="color:#6b7280;">Dottie OS</strong> ecosystem.
-                &copy; ${new Date().getFullYear()} Easy Invoicing. All rights reserved.
+                &copy; ${new Date().getFullYear()} Dottie. All rights reserved.
               </p>
             </td>
           </tr>
@@ -74,11 +73,11 @@ export function welcomeEmail({ name }: { name: string }): {
   const firstName = name.split(' ')[0]
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Welcome to Easy Invoicing! 🎉</h1>
+    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Welcome to Dottie! 🎉</h1>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Hi ${firstName}, we're so glad you're here.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      You've just unlocked <strong>7 days of free access</strong> to everything Easy Invoicing has to offer.
+      You've just unlocked <strong>7 days of free access</strong> to everything Dottie has to offer.
       We built this tool specifically for childminders — so you can spend less time on admin and more time
       with the children in your care.
     </p>
@@ -143,12 +142,12 @@ export function welcomeEmail({ name }: { name: string }): {
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
       Warm regards,<br>
-      <strong style="color:#111827;">The Easy Invoicing Team</strong>
+      <strong style="color:#111827;">The Dottie Team</strong>
     </p>
   `
 
   return {
-    subject: 'Welcome to Easy Invoicing! 🎉',
+    subject: 'Welcome to Dottie! 🎉',
     html: baseLayout(content),
   }
 }
@@ -172,7 +171,7 @@ export function trialExpiringEmail({
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Hi ${firstName}, just a friendly heads-up.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Your Easy Invoicing free trial ends on <strong>${trialEnd}</strong>. After that, access to your
+      Your Dottie free trial ends on <strong>${trialEnd}</strong>. After that, access to your
       account will be paused until you choose a plan.
     </p>
 
@@ -196,8 +195,8 @@ export function trialExpiringEmail({
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:12px 0 24px;">
       <tr>
         <td style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 20px;text-align:center;">
-          <p style="margin:0;font-size:20px;font-weight:700;color:${BRAND_COLOR};">£4.99 <span style="font-size:14px;font-weight:400;color:#6b7280;">/ month</span></p>
-          <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">or save with <strong style="color:${BRAND_COLOR};">£54 / year</strong></p>
+          <p style="margin:0;font-size:20px;font-weight:700;color:${BRAND_COLOR};">£9.99 <span style="font-size:14px;font-weight:400;color:#6b7280;">/ month</span></p>
+          <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">or save with <strong style="color:${BRAND_COLOR};">£99 / year</strong></p>
         </td>
       </tr>
     </table>
@@ -210,12 +209,12 @@ export function trialExpiringEmail({
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
       Best,<br>
-      <strong style="color:#111827;">The Easy Invoicing Team</strong>
+      <strong style="color:#111827;">The Dottie Team</strong>
     </p>
   `
 
   return {
-    subject: `Your Easy Invoicing trial ends in ${daysLeft} ${dayWord}`,
+    subject: `Your Dottie trial ends in ${daysLeft} ${dayWord}`,
     html: baseLayout(content),
   }
 }
@@ -237,7 +236,7 @@ export function subscriptionConfirmEmail({
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Hi ${firstName}, your subscription is confirmed.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Thank you for subscribing to Easy Invoicing. Your account is now fully active and you have
+      Thank you for subscribing to Dottie. Your account is now fully active and you have
       complete access to all features.
     </p>
 
@@ -262,12 +261,12 @@ export function subscriptionConfirmEmail({
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
       Warm regards,<br>
-      <strong style="color:#111827;">The Easy Invoicing Team</strong>
+      <strong style="color:#111827;">The Dottie Team</strong>
     </p>
   `
 
   return {
-    subject: "You're all set! Easy Invoicing subscription confirmed",
+    subject: "You're all set! Dottie subscription confirmed",
     html: baseLayout(content),
   }
 }

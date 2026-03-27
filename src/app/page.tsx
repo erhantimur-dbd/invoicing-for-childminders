@@ -16,10 +16,10 @@ export default async function RootPage() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 shadow-md">
-              <span className="text-white text-base font-extrabold leading-none">EI</span>
+              <span className="text-white text-base font-extrabold leading-none">D.</span>
             </span>
             <span className="text-gray-900 font-bold text-lg tracking-tight hidden sm:block">
-              Easy Invoicing
+              Dottie
             </span>
           </Link>
 
@@ -83,11 +83,14 @@ export default async function RootPage() {
               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
               Invoices generated on your schedule · Zero admin
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
-              Invoicing on <span className="text-emerald-100">autopilot</span> for childcare professionals
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-3">
+              Every <span className="text-emerald-100">i</span> dotted.<br className="hidden sm:block" /> Every <span className="text-emerald-100">T</span> crossed.
             </h1>
+            <p className="text-xl sm:text-2xl text-white/80 font-medium mb-4">
+              Invoicing on autopilot for childcare professionals
+            </p>
             <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-lg">
-              Set up your children&apos;s schedules once. Invoices generate automatically every week, ready for you to review and approve.
+              Set up your children&apos;s schedules once. Invoices generate automatically on your schedule, ready to review and approve.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -372,7 +375,7 @@ export default async function RootPage() {
               <div className="mb-6">
                 <div className="text-gray-500 text-sm font-medium mb-1">Monthly</div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-gray-900">£4.99</span>
+                  <span className="text-4xl font-extrabold text-gray-900">£9.99</span>
                   <span className="text-gray-400 text-sm">/month</span>
                 </div>
                 <p className="text-gray-400 text-sm mt-1">Billed monthly, cancel anytime</p>
@@ -407,17 +410,17 @@ export default async function RootPage() {
               {/* Badge */}
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                 <span className="px-4 py-1.5 rounded-full bg-sky-500 text-white text-xs font-extrabold shadow-md whitespace-nowrap">
-                  Save 10% · Best value
+                  Save 17% · Best value
                 </span>
               </div>
 
               <div className="mb-6">
                 <div className="text-gray-500 text-sm font-medium mb-1">Annual</div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-gray-900">£54</span>
+                  <span className="text-4xl font-extrabold text-gray-900">£99</span>
                   <span className="text-gray-400 text-sm">/year</span>
                 </div>
-                <p className="text-gray-400 text-sm mt-1">Equivalent to £4.50/month</p>
+                <p className="text-gray-400 text-sm mt-1">Equivalent to £8.25/month</p>
               </div>
 
               <ul className="space-y-3 mb-8">
@@ -510,11 +513,11 @@ export default async function RootPage() {
             <div>
               <div className="flex items-center gap-2.5 mb-2">
                 <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500">
-                  <span className="text-white text-sm font-extrabold">EI</span>
+                  <span className="text-white text-sm font-extrabold">D.</span>
                 </span>
-                <span className="text-white font-bold text-base">Easy Invoicing</span>
+                <span className="text-white font-bold text-base">Dottie</span>
               </div>
-              <p className="text-gray-500 text-sm">Part of the <span className="text-sky-400 font-medium">Dottie OS</span> ecosystem</p>
+              <p className="text-gray-500 text-sm"><span className="text-sky-400 font-medium">www.dottie.cloud</span></p>
             </div>
 
             {/* Nav */}
@@ -530,7 +533,7 @@ export default async function RootPage() {
           <div className="h-px bg-gray-800 mb-6" />
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm">
-            <p>&copy; 2025 Easy Invoicing. All rights reserved.</p>
+            <p>&copy; 2025 Dottie. All rights reserved.</p>
             <div className="flex gap-5">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-white transition-colors">Terms of Service</a>

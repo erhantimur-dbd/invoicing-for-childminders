@@ -58,8 +58,8 @@ export default async function AdminSubscriptionsPage() {
   // MRR estimate
   let mrr = 0
   for (const s of active) {
-    if (s.plan === 'monthly') mrr += 4.99
-    else if (s.plan === 'annual') mrr += 54 / 12
+    if (s.plan === 'monthly') mrr += 9.99
+    else if (s.plan === 'annual') mrr += 99 / 12
   }
 
   const statCards = [

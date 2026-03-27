@@ -30,7 +30,7 @@ export default async function AdminLayout({
       <aside className="w-64 min-h-screen bg-slate-900 flex flex-col fixed top-0 left-0 z-30">
         <div className="px-6 py-5 border-b border-slate-700">
           <span className="text-white font-semibold text-base leading-tight block">
-            Easy Invoicing Admin
+            Dottie Admin
           </span>
           <span className="text-slate-400 text-xs mt-0.5 block">Internal Operations</span>
         </div>
