@@ -195,8 +195,10 @@ export function trialExpiringEmail({
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:12px 0 24px;">
       <tr>
         <td style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 20px;text-align:center;">
-          <p style="margin:0;font-size:20px;font-weight:700;color:${BRAND_COLOR};">£9.99 <span style="font-size:14px;font-weight:400;color:#6b7280;">/ month</span></p>
-          <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">or save with <strong style="color:${BRAND_COLOR};">£99 / year</strong></p>
+          <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#065f46;">Starter (up to 5 children)</p>
+          <p style="margin:0;font-size:18px;font-weight:700;color:${BRAND_COLOR};">£9.99<span style="font-size:13px;font-weight:400;color:#6b7280;">/mo</span> or <strong style="color:${BRAND_COLOR};">£99/yr</strong></p>
+          <p style="margin:8px 0 4px;font-size:13px;font-weight:600;color:#065f46;">Professional (up to 20 children)</p>
+          <p style="margin:0;font-size:18px;font-weight:700;color:${BRAND_COLOR};">£19.99<span style="font-size:13px;font-weight:400;color:#6b7280;">/mo</span> or <strong style="color:${BRAND_COLOR};">£199/yr</strong></p>
         </td>
       </tr>
     </table>

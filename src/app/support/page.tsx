@@ -22,7 +22,7 @@ const FAQ_ITEMS = [
   {
     question: 'How much does it cost?',
     answer:
-      'Dottie costs £9.99/month or £99/year (save 17%). Both plans include unlimited children, auto-invoice generation, PDF invoices, expense tracking, and tax year reports.',
+      'Dottie has two plans: Starter (up to 5 children) at £9.99/month or £99/year, and Professional (up to 20 children) at £19.99/month or £199/year. For unlimited children, contact us at support@dottie.cloud. All plans include auto-invoice generation, PDF invoices, expense tracking, and tax year reports.',
   },
   {
     question: 'Is my data secure?',

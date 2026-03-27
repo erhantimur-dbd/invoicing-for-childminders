@@ -7,6 +7,7 @@ import { Plus, ChevronRight, User, Archive } from 'lucide-react'
 import UnarchiveButton from '@/components/UnarchiveButton'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { getChildLimit, isAtLimit } from '@/lib/childLimit'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
@@ -24,15 +25,27 @@ export default async function ChildrenPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: allChildren } = await supabase
-    .from('children')
-    .select('*')
-    .eq('childminder_id', user.id)
-    .order('first_name')
+  const [{ data: allChildren }, { data: subscription }] = await Promise.all([
+    supabase
+      .from('children')
+      .select('*')
+      .eq('childminder_id', user.id)
+      .order('first_name'),
+    supabase
+      .from('subscriptions')
+      .select('tier')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+  ])
 
   const active = (allChildren || []).filter(c => !c.archived_at)
   const archived = (allChildren || []).filter(c => !!c.archived_at)
   const displayed = showHistory ? archived : active
+
+  const tier = subscription?.tier ?? 'starter'
+  const limit = getChildLimit(tier)
+  const atLimit = isAtLimit(active.length, tier)
+  const nearLimit = !atLimit && limit !== Infinity && active.length >= limit - 1
 
   return (
     <div className="space-y-5">
@@ -44,18 +57,58 @@ export default async function ChildrenPage({
           <p className="text-gray-500 text-sm">
             {showHistory
               ? `${archived.length} archived`
-              : `${active.length} active`}
+              : limit === Infinity
+                ? `${active.length} active`
+                : `${active.length} of ${limit} on your plan`}
           </p>
         </div>
         {!showHistory && (
           <Link href="/children/new">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm">
+            <Button
+              className={cn(
+                'h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm',
+                atLimit
+                  ? 'bg-amber-500 hover:bg-amber-600'
+                  : 'bg-emerald-600 hover:bg-emerald-700'
+              )}
+            >
               <Plus className="h-4 w-4" />
-              Add child
+              {atLimit ? 'Upgrade to add more' : 'Add child'}
             </Button>
           </Link>
         )}
       </div>
+
+      {/* Plan usage bar */}
+      {!showHistory && limit !== Infinity && (
+        <div className={cn(
+          'rounded-xl px-4 py-3 flex items-center gap-3 text-sm',
+          atLimit
+            ? 'bg-amber-50 border border-amber-200'
+            : nearLimit
+              ? 'bg-yellow-50 border border-yellow-100'
+              : 'bg-gray-50 border border-gray-100'
+        )}>
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className={cn('font-medium', atLimit ? 'text-amber-800' : 'text-gray-700')}>
+                {atLimit ? `Plan limit reached — ${active.length}/${limit} children` : `${active.length}/${limit} children`}
+              </span>
+              {atLimit && (
+                <Link href="/subscribe" className="text-xs font-semibold text-emerald-600 hover:text-emerald-700">
+                  Upgrade →
+                </Link>
+              )}
+            </div>
+            <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className={cn('h-full rounded-full transition-all', atLimit ? 'bg-amber-400' : 'bg-emerald-500')}
+                style={{ width: `${Math.min(100, (active.length / limit) * 100)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">

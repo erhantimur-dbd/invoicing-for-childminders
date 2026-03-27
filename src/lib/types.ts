@@ -59,6 +59,8 @@ export type BankAccount = {
   updated_at: string
 }
 
+export type SubscriptionTier = 'starter' | 'professional' | 'enterprise'
+
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue'
 export type PaymentMethod = '' | 'stripe' | 'bank_transfer'
 

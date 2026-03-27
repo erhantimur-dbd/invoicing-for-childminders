@@ -356,92 +356,94 @@ export default async function RootPage() {
 
       {/* ── PRICING ── */}
       <section id="pricing" className="py-20 sm:py-28 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
               Simple, transparent pricing
             </h2>
             <p className="text-gray-500 text-lg">
-              One plan, two billing options. Start free — no credit card needed.
+              Pick the plan that fits your childminding practice. Start free — no credit card needed.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {/* Monthly */}
-            <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-md">
+          <div className="grid sm:grid-cols-3 gap-6">
+            {/* Starter */}
+            <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-md flex flex-col">
               <div className="mb-6">
-                <div className="text-gray-500 text-sm font-medium mb-1">Monthly</div>
+                <div className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">Starter</div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-extrabold text-gray-900">£9.99</span>
                   <span className="text-gray-400 text-sm">/month</span>
                 </div>
-                <p className="text-gray-400 text-sm mt-1">Billed monthly, cancel anytime</p>
+                <p className="text-gray-400 text-sm mt-1">or £99/year · save 17%</p>
+                <p className="text-gray-500 text-sm font-medium mt-3">Up to 5 children</p>
               </div>
-
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Unlimited children',
-                  'Auto-generate invoices',
-                  'PDF invoices',
-                  'Expense tracking',
-                  'Tax year reports',
-                  '7-day free trial',
-                ].map((f) => (
+              <ul className="space-y-3 mb-8 flex-1">
+                {['Up to 5 children', 'Auto-generate invoices', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
                     {f}
                   </li>
                 ))}
               </ul>
-
-              <Link
-                href="/signup"
-                className="block w-full text-center py-3 rounded-2xl border-2 border-emerald-600 text-emerald-700 font-bold hover:bg-emerald-50 transition-colors"
-              >
+              <Link href="/signup" className="block w-full text-center py-3 rounded-2xl border-2 border-emerald-600 text-emerald-700 font-bold hover:bg-emerald-50 transition-colors">
                 Start free trial
               </Link>
             </div>
 
-            {/* Annual — highlighted */}
-            <div className="relative rounded-3xl border-2 border-emerald-500 bg-white p-8 shadow-xl shadow-emerald-100/50">
-              {/* Badge */}
+            {/* Professional — highlighted */}
+            <div className="relative rounded-3xl border-2 border-emerald-500 bg-white p-8 shadow-xl shadow-emerald-100/50 flex flex-col">
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                 <span className="px-4 py-1.5 rounded-full bg-sky-500 text-white text-xs font-extrabold shadow-md whitespace-nowrap">
-                  Save 17% · Best value
+                  Most popular
                 </span>
               </div>
-
               <div className="mb-6">
-                <div className="text-gray-500 text-sm font-medium mb-1">Annual</div>
+                <div className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">Professional</div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-gray-900">£99</span>
-                  <span className="text-gray-400 text-sm">/year</span>
+                  <span className="text-4xl font-extrabold text-gray-900">£19.99</span>
+                  <span className="text-gray-400 text-sm">/month</span>
                 </div>
-                <p className="text-gray-400 text-sm mt-1">Equivalent to £8.25/month</p>
+                <p className="text-gray-400 text-sm mt-1">or £199/year · save 17%</p>
+                <p className="text-gray-500 text-sm font-medium mt-3">Up to 20 children</p>
               </div>
-
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Unlimited children',
-                  'Auto-generate invoices',
-                  'PDF invoices',
-                  'Expense tracking',
-                  'Tax year reports',
-                  '7-day free trial',
-                ].map((f) => (
+              <ul className="space-y-3 mb-8 flex-1">
+                {['Up to 20 children', 'Auto-generate invoices', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
                     {f}
                   </li>
                 ))}
               </ul>
-
-              <Link
-                href="/signup"
-                className="block w-full text-center py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-200 transition-colors"
-              >
+              <Link href="/signup" className="block w-full text-center py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-200 transition-colors">
                 Start free trial
               </Link>
+            </div>
+
+            {/* Unlimited */}
+            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-8 shadow-md flex flex-col">
+              <div className="mb-6">
+                <div className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Unlimited</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-extrabold text-gray-900">Get in touch</span>
+                </div>
+                <p className="text-gray-400 text-sm mt-1">Custom pricing for larger settings</p>
+                <p className="text-gray-500 text-sm font-medium mt-3">Unlimited children</p>
+              </div>
+              <ul className="space-y-3 mb-8 flex-1">
+                {['Unlimited children', 'Auto-generate invoices', 'PDF invoices', 'Expense tracking', 'Tax year reports', 'Priority support'].map(f => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold">✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="mailto:support@dottie.cloud?subject=Unlimited plan enquiry"
+                className="block w-full text-center py-3 rounded-2xl border-2 border-slate-300 text-slate-700 font-bold hover:bg-white transition-colors"
+              >
+                Contact us →
+              </a>
             </div>
           </div>
         </div>
