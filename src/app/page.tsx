@@ -80,9 +80,39 @@ export default async function RootPage() {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
           {/* Copy */}
           <div className="text-white">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white/90 text-xs font-semibold tracking-wide uppercase mb-6 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-              Hi, I'm Dottie · Your invoicing, sorted
+            {/* WhatsApp-style intro bubble */}
+            <div className="inline-flex items-end gap-2.5 mb-8">
+              {/* Dottie avatar */}
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-white/30">
+                <span className="text-white font-extrabold text-xs leading-none">D.</span>
+              </div>
+              {/* Bubble */}
+              <div className="relative">
+                {/* Tail — bottom-left triangle */}
+                <div
+                  className="absolute -bottom-px -left-2.5"
+                  style={{
+                    width: 0, height: 0,
+                    borderStyle: 'solid',
+                    borderWidth: '0 0 12px 12px',
+                    borderColor: 'transparent transparent white transparent',
+                  }}
+                />
+                <div className="bg-white rounded-2xl rounded-bl-none px-4 py-2.5 shadow-xl shadow-black/25">
+                  <p className="text-emerald-600 text-[11px] font-bold leading-none mb-1 tracking-wide">Dottie</p>
+                  <p className="text-gray-800 text-sm font-medium leading-snug">
+                    Hi! I'm Dottie 👋 Your invoicing, sorted.
+                  </p>
+                  <div className="flex items-center justify-end gap-1.5 mt-1">
+                    <span className="text-gray-400 text-[10px]">now</span>
+                    {/* Blue double tick */}
+                    <svg width="18" height="10" viewBox="0 0 18 10" fill="none" className="text-sky-400" aria-hidden="true">
+                      <path d="M17 1L8 9.5L5 6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M13 1L4 9.5L1 6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
               You didn&apos;t become a childminder to spend Sunday nights writing invoices. <span className="text-emerald-100">That&apos;s my job.</span>
