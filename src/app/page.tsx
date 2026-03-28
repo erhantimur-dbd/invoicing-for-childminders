@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import HeroVisual from '@/components/HeroVisual'
+import MobileNav from '@/components/MobileNav'
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://www.dottie.cloud' },
@@ -89,13 +90,16 @@ export default async function RootPage() {
             <Link href="/login" className="hover:text-emerald-600 transition-colors">Sign in</Link>
           </div>
 
-          {/* CTA */}
+          {/* CTA — hidden on mobile, shown on md+ */}
           <Link
             href="/signup"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-md shadow-emerald-200 transition-all active:scale-95"
+            className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-md shadow-emerald-200 transition-all active:scale-95"
           >
             Start free trial
           </Link>
+
+          {/* Mobile hamburger */}
+          <MobileNav />
         </div>
       </nav>
 
