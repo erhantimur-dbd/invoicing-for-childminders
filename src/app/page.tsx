@@ -163,12 +163,12 @@ export default async function RootPage() {
             </p>
           </div>
 
-          {/* Right column: WhatsApp notification + invoice card */}
-          <div className="hidden lg:flex justify-center items-end">
-            <div className="relative" style={{ paddingTop: '140px' }}>
+          {/* Right column: WhatsApp chat (left) + invoice card (right) */}
+          <div className="hidden lg:flex justify-center items-center">
+            <div className="flex items-start gap-3">
 
-              {/* WhatsApp mini chat — floats above and overlaps the invoice card */}
-              <div className="absolute top-0 -left-8 z-20 w-72 rounded-2xl overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-white/20">
+              {/* WhatsApp mini chat */}
+              <div className="w-56 rounded-2xl overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-white/20 flex-shrink-0">
                 {/* Header */}
                 <div className="flex items-center gap-2.5 px-3 py-2.5" style={{ background: 'linear-gradient(135deg, #075E54 0%, #128C7E 100%)' }}>
                   <svg width="9" height="15" viewBox="0 0 9 15" fill="none" className="text-white/70 flex-shrink-0" aria-hidden="true">
@@ -246,10 +246,11 @@ export default async function RootPage() {
                 </div>
               </div>
 
-              {/* Shadow card behind invoice */}
-              <div className="absolute top-4 left-4 w-full h-full bg-white/20 rounded-3xl" />
+              {/* Invoice card */}
+              <div className="relative flex-shrink-0">
+                <div className="absolute top-3 left-3 w-full h-full bg-white/20 rounded-3xl" />
               {/* Main card */}
-              <div className="relative bg-white rounded-3xl shadow-2xl shadow-black/30 p-6 w-80 text-sm">
+              <div className="relative bg-white rounded-3xl shadow-2xl shadow-black/30 p-6 w-72 text-sm">
                 {/* Invoice header */}
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -311,8 +312,9 @@ export default async function RootPage() {
               <div className="absolute -top-3 -right-3 bg-sky-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                 ✨ Auto-created on your schedule
               </div>
-            </div>
-          </div>
+              </div>{/* end invoice outer */}
+            </div>{/* end flex row */}
+          </div>{/* end right column */}
         </div>
       </section>
 
