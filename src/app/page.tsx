@@ -136,37 +136,97 @@ export default async function RootPage() {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
           {/* Copy */}
           <div className="text-white">
-            {/* WhatsApp-style intro bubble */}
-            <div className="inline-flex items-end gap-2.5 mb-8">
-              {/* Dottie avatar */}
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-white/30">
-                <span className="text-white font-extrabold text-xs leading-none">D.</span>
+            {/* WhatsApp-style mini chat window */}
+            <div className="inline-block mb-8 rounded-2xl overflow-hidden shadow-2xl shadow-black/40 ring-1 ring-white/20 w-full max-w-xs sm:max-w-sm">
+              {/* ── Header bar ── */}
+              <div className="flex items-center gap-3 px-4 py-3" style={{ background: 'linear-gradient(135deg, #075E54 0%, #128C7E 100%)' }}>
+                {/* Back arrow */}
+                <svg width="11" height="18" viewBox="0 0 11 18" fill="none" className="text-white/80 flex-shrink-0" aria-hidden="true">
+                  <path d="M9.5 1.5L2 9l7.5 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {/* Avatar */}
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-300 to-sky-400 flex items-center justify-center flex-shrink-0 ring-2 ring-white/30 shadow-md">
+                  <span className="text-white font-extrabold text-xs leading-none">D.</span>
+                </div>
+                {/* Name + status */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-semibold text-sm leading-tight">Dottie</p>
+                  <p className="text-emerald-200 text-[11px] leading-tight">online</p>
+                </div>
+                {/* Action icons */}
+                <div className="flex items-center gap-4 text-white/80 flex-shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M15.05 5A5 5 0 0119 8.95M15.05 1A9 9 0 0123 8.94M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 13.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2.84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 10.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 17.92v-1z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <svg width="4" height="18" viewBox="0 0 4 18" fill="currentColor" aria-hidden="true">
+                    <circle cx="2" cy="2" r="1.5"/><circle cx="2" cy="9" r="1.5"/><circle cx="2" cy="16" r="1.5"/>
+                  </svg>
+                </div>
               </div>
-              {/* Bubble */}
-              <div className="relative">
-                {/* Tail — bottom-left triangle */}
-                <div
-                  className="absolute -bottom-px -left-2.5"
-                  style={{
-                    width: 0, height: 0,
-                    borderStyle: 'solid',
-                    borderWidth: '0 0 12px 12px',
-                    borderColor: 'transparent transparent white transparent',
-                  }}
-                />
-                <div className="bg-white rounded-2xl rounded-bl-none px-4 py-2.5 shadow-xl shadow-black/25">
-                  <p className="text-emerald-600 text-[11px] font-bold leading-none mb-1 tracking-wide">Dottie</p>
-                  <p className="text-gray-800 text-sm font-medium leading-snug">
-                    Hi! I'm Dottie 👋 Your invoicing, sorted.
-                  </p>
-                  <div className="flex items-center justify-end gap-1.5 mt-1">
-                    <span className="text-gray-400 text-[10px]">now</span>
-                    {/* Blue double tick */}
-                    <svg width="18" height="10" viewBox="0 0 18 10" fill="none" className="text-sky-400" aria-hidden="true">
-                      <path d="M17 1L8 9.5L5 6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M13 1L4 9.5L1 6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+
+              {/* ── Chat area ── */}
+              <div className="px-3 py-3 space-y-2.5" style={{ background: '#ECE5DD' }}>
+                {/* Message 1 */}
+                <div className="flex items-end gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <span className="text-white font-extrabold text-[9px] leading-none">D.</span>
                   </div>
+                  <div className="relative max-w-[85%]">
+                    <div
+                      className="absolute top-0 -left-1.5"
+                      style={{ width: 0, height: 0, borderStyle: 'solid', borderWidth: '0 8px 8px 0', borderColor: 'transparent white transparent transparent' }}
+                    />
+                    <div className="bg-white rounded-xl rounded-tl-none px-3 py-2 shadow-sm">
+                      <p className="text-[#075E54] text-[10px] font-bold leading-none mb-1">Dottie</p>
+                      <p className="text-gray-800 text-sm leading-snug">Hi! I&apos;m Dottie 👋 Your invoicing is sorted from here.</p>
+                      <div className="flex items-center justify-end gap-1 mt-1">
+                        <span className="text-gray-400 text-[10px]">9:41 AM</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message 2 */}
+                <div className="flex items-end gap-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <span className="text-white font-extrabold text-[9px] leading-none">D.</span>
+                  </div>
+                  <div className="relative max-w-[85%]">
+                    <div className="bg-white rounded-xl rounded-tl-none px-3 py-2 shadow-sm">
+                      <p className="text-gray-800 text-sm leading-snug">Invoice for Olivia Bennett is ready ✨ £192.50 — approve to send!</p>
+                      <div className="flex items-center justify-end gap-1 mt-1">
+                        <span className="text-gray-400 text-[10px]">9:42 AM</span>
+                        {/* Blue double tick */}
+                        <svg width="18" height="10" viewBox="0 0 18 10" fill="none" className="text-sky-400" aria-hidden="true">
+                          <path d="M17 1L8 9.5L5 6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M13 1L4 9.5L1 6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Input bar ── */}
+              <div className="flex items-center gap-2 px-3 py-2.5" style={{ background: '#F0F0F0' }}>
+                <div className="flex-1 flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-sm">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-400 flex-shrink-0" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                  <span className="text-gray-400 text-sm flex-1">Type a message</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-400" aria-hidden="true">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md" style={{ background: '#075E54' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                    <path d="M12 2a3 3 0 013 3v7a3 3 0 01-6 0V5a3 3 0 013-3z"/>
+                    <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3M8 22h8" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                  </svg>
                 </div>
               </div>
             </div>
