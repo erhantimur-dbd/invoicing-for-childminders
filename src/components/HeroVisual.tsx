@@ -142,7 +142,7 @@ export default function HeroVisual() {
               {/* Message 3 — Sarah's reply (right-aligned, green bubble) */}
               <div className={`transition-all duration-500 ease-out ${step >= 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
                 <div className="flex justify-end">
-                  <div className="relative max-w-[80%]">
+                  <div className="relative">
                     <div className="absolute top-0 -right-1.5" style={{ width: 0, height: 0, borderStyle: 'solid', borderWidth: '7px 7px 0 0', borderColor: '#DCF8C6 transparent transparent transparent' }} />
                     <div className="rounded-xl rounded-tr-none px-3 py-1.5 shadow-sm" style={{ background: '#DCF8C6' }}>
                       <p className="text-gray-800 text-xs leading-snug">Thanks! Just paid now 💚</p>
