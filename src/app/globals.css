@@ -158,6 +158,11 @@
   }
 }
 
+@keyframes dotBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
 @media print {
   @page {
     size: A4 portrait;
