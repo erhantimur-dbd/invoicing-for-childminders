@@ -59,7 +59,7 @@ export default async function RootPage() {
   if (user) redirect('/dashboard')
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans overflow-x-hidden">
 
       {/* JSON-LD structured data */}
       <script
