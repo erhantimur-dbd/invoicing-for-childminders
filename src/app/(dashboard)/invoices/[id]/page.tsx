@@ -17,7 +17,7 @@ import InvoicePreview from '@/components/InvoicePreview'
 import { toast } from 'sonner'
 import {
   ChevronLeft, Printer, Mail, MessageCircle, CheckCircle,
-  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link2, Trash2
+  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link2, Trash2, Undo2
 } from 'lucide-react'
 import InvoiceLineItemEditor from '@/components/InvoiceLineItemEditor'
 import type { Invoice, Profile, BankAccount } from '@/lib/types'
@@ -184,6 +184,21 @@ export default function InvoicePage() {
     router.push('/invoices')
   }
 
+  async function handleRevertToDraft() {
+    if (!invoice) return
+    if (!confirm('Revert this invoice to draft? You can then make corrections and re-send.')) return
+    const { error } = await supabase
+      .from('invoices')
+      .update({ status: 'draft', updated_at: new Date().toISOString() })
+      .eq('id', invoice.id)
+    if (error) {
+      toast.error('Failed to revert to draft')
+      return
+    }
+    setInvoice(prev => prev ? { ...prev, status: 'draft' } : null)
+    toast.success('Invoice reverted to draft — you can now edit and re-send')
+  }
+
   async function handleSaveReminder() {
     if (!invoice) return
     setSavingReminder(true)
@@ -256,6 +271,11 @@ export default function InvoicePage() {
           <Button variant="outline" size="sm" onClick={handleDelete} disabled={deleting} className="gap-2 text-red-600 border-red-200 hover:bg-red-50">
             <Trash2 className="h-4 w-4" /> {deleting ? 'Deleting...' : 'Delete'}
           </Button>
+          {(invoice.status === 'approved' || invoice.status === 'sent') && (
+            <Button variant="outline" size="sm" onClick={handleRevertToDraft} className="gap-2">
+              <Undo2 className="h-4 w-4" /> Revert to draft
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
             <Printer className="h-4 w-4" /> Print
           </Button>
@@ -332,6 +352,16 @@ export default function InvoicePage() {
               Mark as paid
             </Button>
           </>
+        )}
+        {(invoice.status === 'approved' || invoice.status === 'sent') && (
+          <Button
+            variant="outline"
+            className="h-14 flex-col gap-1 text-xs col-span-2"
+            onClick={handleRevertToDraft}
+          >
+            <Undo2 className="h-5 w-5 text-gray-600" />
+            Revert to draft
+          </Button>
         )}
         <Button
           variant="outline"

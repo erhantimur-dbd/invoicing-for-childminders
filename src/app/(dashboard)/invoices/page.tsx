@@ -62,11 +62,13 @@ export default async function InvoicesPage({
   } else if (filter === 'year') {
     filtered = allInvoices.filter(i => i.status === 'paid' && i.paid_at && i.paid_at >= startOfYear)
   } else if (filter === 'outstanding') {
-    filtered = allInvoices.filter(i => i.status === 'sent' || i.status === 'overdue')
+    filtered = allInvoices.filter(i => i.status === 'sent' || i.status === 'overdue' || i.status === 'approved')
   } else if (filter === 'overdue') {
     filtered = allInvoices.filter(i => i.status === 'overdue')
   } else if (filter === 'draft') {
     filtered = allInvoices.filter(i => i.status === 'draft')
+  } else if (filter === 'approved') {
+    filtered = allInvoices.filter(i => i.status === 'approved')
   } else if (filter === 'sent') {
     filtered = allInvoices.filter(i => i.status === 'sent')
   } else if (filter === 'paid') {

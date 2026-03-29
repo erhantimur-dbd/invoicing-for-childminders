@@ -94,24 +94,6 @@ export default async function DashboardPage() {
         </Link>
       )}
 
-      {/* Auto-draft review banner */}
-      {autoDrafts.length > 0 && (
-        <Link href="/invoices?filter=draft">
-          <div className="bg-violet-50 border border-violet-200 rounded-2xl p-4 flex items-center gap-3 hover:bg-violet-100 transition-colors">
-            <div className="w-9 h-9 bg-violet-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Zap className="h-4 w-4 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-violet-900">
-                I've prepared {autoDrafts.length} invoice{autoDrafts.length !== 1 ? 's' : ''} for you
-              </p>
-              <p className="text-xs text-violet-700 mt-0.5">All done — just check them over and send to parents</p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-violet-400 flex-shrink-0" />
-          </div>
-        </Link>
-      )}
-
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -140,6 +122,24 @@ export default async function DashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Auto-draft review banner */}
+      {autoDrafts.length > 0 && (
+        <Link href="/invoices?filter=draft">
+          <div className="bg-violet-50 border border-violet-200 rounded-2xl p-4 flex items-center gap-3 hover:bg-violet-100 transition-colors">
+            <div className="w-9 h-9 bg-violet-500 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Zap className="h-4 w-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-violet-900">
+                I&apos;ve prepared {autoDrafts.length} invoice{autoDrafts.length !== 1 ? 's' : ''} for you
+              </p>
+              <p className="text-xs text-violet-700 mt-0.5">All done — just check them over and send to parents</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-violet-400 flex-shrink-0" />
+          </div>
+        </Link>
+      )}
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
