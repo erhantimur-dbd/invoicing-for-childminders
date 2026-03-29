@@ -127,8 +127,8 @@ export default function InvoicePage() {
       })
       if (!res.ok) throw new Error('Failed')
       toast.success('Invoice sent by email!')
-      // Update status to sent if draft
-      if (invoice.status === 'draft') {
+      // Update status to sent if draft or approved
+      if (invoice.status === 'draft' || invoice.status === 'approved') {
         await supabase
           .from('invoices')
           .update({ status: 'sent', updated_at: new Date().toISOString() })
@@ -142,7 +142,7 @@ export default function InvoicePage() {
     setShowShareOptions(false)
   }
 
-  function handleWhatsApp() {
+  async function handleWhatsApp() {
     if (!invoice || !profile) return
     const child = (invoice as any).children
     const publicLink = `${window.location.origin}/invoice/${invoice.id}`
@@ -150,6 +150,14 @@ export default function InvoicePage() {
       `Hi ${child?.parent_name || ''},\n\nPlease find your invoice ${invoice.invoice_number} for ${child ? `${child.first_name}'s` : ''} childcare.\n\nAmount due: ${formatGBP(Number(invoice.total))}\n${invoice.due_date ? `Due by: ${format(new Date(invoice.due_date), 'd MMM yyyy')}\n` : ''}\nView invoice: ${publicLink}\n${invoice.stripe_payment_link ? `\nPay online: ${invoice.stripe_payment_link}\n` : ''}\nKind regards,\n${profile.full_name}`
     )
     window.open(`https://wa.me/?text=${message}`, '_blank')
+    // Update status to sent if draft or approved
+    if (invoice.status === 'draft' || invoice.status === 'approved') {
+      await supabase
+        .from('invoices')
+        .update({ status: 'sent', updated_at: new Date().toISOString() })
+        .eq('id', invoice.id)
+      setInvoice(prev => prev ? { ...prev, status: 'sent' } : null)
+    }
     setShowShareOptions(false)
   }
 

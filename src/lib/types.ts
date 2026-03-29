@@ -66,7 +66,7 @@ export type BankAccount = {
 
 export type SubscriptionTier = 'starter' | 'professional' | 'enterprise'
 
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue'
+export type InvoiceStatus = 'draft' | 'approved' | 'sent' | 'paid' | 'overdue'
 export type PaymentMethod = '' | 'stripe' | 'bank_transfer'
 
 export type Invoice = {

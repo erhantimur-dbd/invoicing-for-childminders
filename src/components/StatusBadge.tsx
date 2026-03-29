@@ -2,10 +2,11 @@ import { cn } from '@/lib/utils'
 import type { InvoiceStatus } from '@/lib/types'
 
 const config: Record<InvoiceStatus, { label: string; dot: string; bg: string; text: string }> = {
-  draft:   { label: 'Awaiting review',  dot: 'bg-gray-400',    bg: 'bg-gray-100',    text: 'text-gray-600' },
-  sent:    { label: 'Sent',             dot: 'bg-amber-400',   bg: 'bg-amber-50',    text: 'text-amber-700' },
-  paid:    { label: 'Paid',             dot: 'bg-emerald-500', bg: 'bg-emerald-50',  text: 'text-emerald-700' },
-  overdue: { label: 'Overdue',          dot: 'bg-red-500',     bg: 'bg-red-50',      text: 'text-red-700' },
+  draft:    { label: 'Awaiting review',  dot: 'bg-gray-400',    bg: 'bg-gray-100',    text: 'text-gray-600' },
+  approved: { label: 'Approved',        dot: 'bg-blue-500',    bg: 'bg-blue-50',     text: 'text-blue-700' },
+  sent:     { label: 'Sent',            dot: 'bg-amber-400',   bg: 'bg-amber-50',    text: 'text-amber-700' },
+  paid:     { label: 'Paid',            dot: 'bg-emerald-500', bg: 'bg-emerald-50',  text: 'text-emerald-700' },
+  overdue:  { label: 'Overdue',         dot: 'bg-red-500',     bg: 'bg-red-50',      text: 'text-red-700' },
 }
 
 export default function StatusBadge({ status }: { status: InvoiceStatus }) {

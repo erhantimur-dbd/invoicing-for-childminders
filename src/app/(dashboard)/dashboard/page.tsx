@@ -286,7 +286,7 @@ export default async function DashboardPage() {
             <CardContent className="p-5">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Invoice breakdown</p>
               <div className="space-y-3">
-                {(['paid', 'sent', 'overdue', 'draft'] as const).map(status => {
+                {(['paid', 'sent', 'approved', 'overdue', 'draft'] as const).map(status => {
                   const count = allInvoices.filter(i => i.status === status).length
                   const total = allInvoices.filter(i => i.status === status).reduce((s, i) => s + Number(i.total), 0)
                   return (

@@ -20,12 +20,14 @@ const FILTER_LABELS: Record<string, string> = {
   outstanding: 'Outstanding invoices',
   overdue: 'Overdue invoices',
   draft: 'Awaiting review',
+  approved: 'Approved invoices',
   sent: 'Sent invoices',
   paid: 'Paid invoices',
 }
 
 const borderColor: Record<string, string> = {
   draft: 'border-l-gray-300',
+  approved: 'border-l-blue-400',
   sent: 'border-l-amber-400',
   paid: 'border-l-emerald-500',
   overdue: 'border-l-red-500',
@@ -157,7 +159,7 @@ export default async function InvoicesPage({
       {/* Status filter tabs — only when no filter active and no search */}
       {!filter && !hasSearch && (
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-          {(['outstanding', 'overdue', 'draft', 'sent', 'paid'] as const).map(f => (
+          {(['outstanding', 'overdue', 'draft', 'approved', 'sent', 'paid'] as const).map(f => (
             <Link
               key={f}
               href={`/invoices?filter=${f}`}
