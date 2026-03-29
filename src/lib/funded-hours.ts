@@ -2,7 +2,7 @@ import type { FundingType } from './types'
 
 export type LineItemInput = {
   description: string
-  care_date: string | null
+  care_date: string
   quantity: number
   unit_price: number
   amount: number
