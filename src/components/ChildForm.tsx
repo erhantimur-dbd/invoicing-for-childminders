@@ -232,7 +232,8 @@ export default function ChildForm({ child, mode }: Props) {
         childminder_id: user.id,
       })
       if (error) {
-        toast.error('Failed to add child')
+        console.error('Insert child error:', error)
+        toast.error(`Failed to add child: ${error.message}`)
         setSaving(false)
         return
       }
@@ -244,7 +245,8 @@ export default function ChildForm({ child, mode }: Props) {
         .update({ ...payload, updated_at: new Date().toISOString() })
         .eq('id', child!.id)
       if (error) {
-        toast.error('Failed to update child')
+        console.error('Update child error:', error)
+        toast.error(`Failed to update child: ${error.message}`)
         setSaving(false)
         return
       }
