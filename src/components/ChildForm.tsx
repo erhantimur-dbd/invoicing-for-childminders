@@ -394,7 +394,7 @@ export default function ChildForm({ child, mode }: Props) {
                   })}
                 </div>
                 {(!form.schedule_days || form.schedule_days.length === 0) && (
-                  <p className="text-xs text-amber-600">Set up a fixed schedule above first, then select which days are funded.</p>
+                  <p className="text-xs text-amber-600">Set up a fixed schedule below first, then come back to select which days are funded.</p>
                 )}
               </div>
             </>
