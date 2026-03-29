@@ -41,7 +41,7 @@ export default async function SubscribeSuccessPage() {
           You&apos;re all set!
         </h1>
         <p className="text-gray-500 text-base leading-relaxed mb-2">
-          Your subscription is now active. Welcome to Easy Invoicing — your invoices will start generating automatically every Sunday at 7am.
+          Your subscription is now active. Welcome to Dottie — your invoices will start generating automatically every Sunday at 7am.
         </p>
         <p className="text-gray-400 text-sm mb-8">
           A confirmation email is on its way to you.
