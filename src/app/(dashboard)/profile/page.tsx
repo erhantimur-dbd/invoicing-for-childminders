@@ -35,6 +35,7 @@ export default function ProfilePage() {
     show_ofsted_on_invoice: false,
     invoice_frequency: 'weekly',
     invoice_day: 'sunday',
+    invoice_hour: 7,
   })
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export default function ProfilePage() {
         show_ofsted_on_invoice: profile.show_ofsted_on_invoice ?? false,
         invoice_frequency: profile.invoice_frequency || 'weekly',
         invoice_day: profile.invoice_day || 'sunday',
+        invoice_hour: profile.invoice_hour ?? 7,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
@@ -306,10 +308,44 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-emerald-50 rounded-lg p-3">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Time</Label>
+              <select
+                value={profile.invoice_hour ?? 7}
+                onChange={e => set('invoice_hour', Number(e.target.value) as any)}
+                className="h-10 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-700 bg-white max-w-[140px]"
+              >
+                {Array.from({ length: 24 }, (_, i) => (
+                  <option key={i} value={i}>
+                    {i === 0 ? '12:00 AM' : i < 12 ? `${i}:00 AM` : i === 12 ? '12:00 PM' : `${i - 12}:00 PM`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="bg-emerald-50 rounded-lg p-3 space-y-1">
               <p className="text-xs text-emerald-700 font-medium">
                 Invoices will generate {profile.invoice_frequency === 'weekly' ? 'every' : profile.invoice_frequency === 'fortnightly' ? 'every other' : 'once a month on'}{' '}
-                <span className="capitalize">{profile.invoice_day}</span> at 7:00 AM
+                <span className="capitalize">{profile.invoice_day}</span> at{' '}
+                {(() => { const h = profile.invoice_hour ?? 7; return h === 0 ? '12:00 AM' : h < 12 ? `${h}:00 AM` : h === 12 ? '12:00 PM' : `${h - 12}:00 PM` })()}
+              </p>
+              <p className="text-xs text-emerald-600">
+                Next run:{' '}
+                {(() => {
+                  const dayMap: Record<string, number> = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 }
+                  const targetDay = dayMap[profile.invoice_day || 'sunday'] ?? 0
+                  const h = profile.invoice_hour ?? 7
+                  const now = new Date()
+                  const todayDay = now.getDay()
+                  let daysUntil = (targetDay - todayDay + 7) % 7
+                  if (daysUntil === 0 && now.getHours() >= h) daysUntil = 7
+                  if (daysUntil === 0 && now.getHours() < h) daysUntil = 0
+                  const next = new Date(now)
+                  next.setDate(now.getDate() + daysUntil)
+                  next.setHours(h, 0, 0, 0)
+                  return next.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) +
+                    ' at ' + (h === 0 ? '12:00 AM' : h < 12 ? `${h}:00 AM` : h === 12 ? '12:00 PM' : `${h - 12}:00 PM`)
+                })()}
               </p>
             </div>
           </CardContent>

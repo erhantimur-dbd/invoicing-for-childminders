@@ -34,24 +34,28 @@ export async function GET(request: NextRequest) {
   // Get all childminders with onboarding completed
   const { data: profiles, error: profileError } = await supabaseAdmin
     .from('profiles')
-    .select('id, full_name, email, invoice_frequency, invoice_day, invoice_last_generated_at')
+    .select('id, full_name, email, invoice_frequency, invoice_day, invoice_hour, invoice_last_generated_at')
     .eq('onboarding_completed', true)
 
   if (profileError || !profiles?.length) {
     return NextResponse.json({ message: 'No eligible childminders', week: weekStart })
   }
 
-  // Determine today's day name (e.g. 'sunday')
-  const todayDayName = new Date().toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase()
+  // Determine today's day name and current hour (UTC)
+  const now = new Date()
+  const todayDayName = now.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase()
+  const currentHour = now.getUTCHours()
 
   const results = []
 
   for (const profile of profiles) {
-    // Check if today is this user's invoice generation day
+    // Check if today is this user's invoice generation day and hour
     const userDay = profile.invoice_day || 'sunday'
     const userFreq = profile.invoice_frequency || 'weekly'
+    const userHour = profile.invoice_hour ?? 7
 
     if (todayDayName !== userDay) continue // Not this user's day
+    if (currentHour !== userHour) continue // Not this user's hour
 
     // For fortnightly: skip if generated less than 12 days ago
     if (userFreq === 'fortnightly' && profile.invoice_last_generated_at) {
