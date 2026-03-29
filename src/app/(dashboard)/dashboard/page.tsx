@@ -227,7 +227,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Lower section: 2-col on desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
 
         {/* Recent invoices — takes 2 cols on desktop */}
         <div className="md:col-span-2">
