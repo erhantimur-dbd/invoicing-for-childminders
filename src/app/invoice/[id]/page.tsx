@@ -274,7 +274,14 @@ function InvoiceView({ invoiceId, token }: { invoiceId: string; token: string })
       <style>{`
         @media print {
           .print\\:hidden { display: none !important; }
-          body { background: white; }
+          body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          nav, header { display: none !important; }
+          .max-w-3xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+          .bg-white.rounded-2xl { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+          .min-h-screen { min-height: auto !important; background: white !important; }
+          .bg-gray-50 { background: white !important; }
+          .border-b { border-bottom: none !important; }
         }
       `}</style>
     </div>
