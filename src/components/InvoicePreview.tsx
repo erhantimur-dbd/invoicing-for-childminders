@@ -121,7 +121,7 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
                     {funded ? `${item.quantity} hrs` : item.quantity}
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right', color: funded ? '#059669' : '#6B7280' }}>
-                    {funded ? 'FREE' : formatGBP(Number(item.unit_price))}
+                    {funded ? 'FUNDED' : formatGBP(Number(item.unit_price))}
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: funded ? '#059669' : '#111827' }}>
                     {funded ? '£0.00' : formatGBP(Number(item.amount))}
