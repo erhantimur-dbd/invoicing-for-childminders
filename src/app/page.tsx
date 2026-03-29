@@ -228,6 +228,7 @@ export default async function RootPage() {
             {/* Regular feature cards */}
             {[
               { icon: '📅', title: 'Fixed schedule support', desc: 'Set Mon–Fri schedules with full or half days. The app calculates everything for you.' },
+              { icon: '🏛️', title: 'Government-funded hours', desc: 'Track 15 or 30 funded hours per child. Invoices automatically split funded (FREE) and private hours per DfE guidance.' },
               { icon: '🔒', title: 'Bank-grade security', desc: 'Your bank details and children\'s data are encrypted and protected. Built for professionals who handle sensitive information.' },
               { icon: '📊', title: 'Tax year reports', desc: 'HMRC-ready income summaries and expense reports at the click of a button.' },
               { icon: '💸', title: 'Expense tracking', desc: 'Log childcare expenses by category. Export for your accountant.' },
@@ -369,7 +370,7 @@ export default async function RootPage() {
                 <p className="text-gray-500 text-sm font-medium mt-3">Up to 5 children</p>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
-                {['Up to 5 children', 'Auto-generate invoices', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
+                {['Up to 5 children', 'Auto-generate invoices', 'Funded hours tracking', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
                     {f}
@@ -398,7 +399,7 @@ export default async function RootPage() {
                 <p className="text-gray-500 text-sm font-medium mt-3">Up to 20 children</p>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
-                {['Up to 20 children', 'Auto-generate invoices', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
+                {['Up to 20 children', 'Auto-generate invoices', 'Funded hours tracking', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
                     {f}
@@ -421,7 +422,7 @@ export default async function RootPage() {
                 <p className="text-gray-500 text-sm font-medium mt-3">Unlimited children</p>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
-                {['Unlimited children', 'Auto-generate invoices', 'PDF invoices', 'Expense tracking', 'Tax year reports', 'Priority support'].map(f => (
+                {['Unlimited children', 'Auto-generate invoices', 'Funded hours tracking', 'PDF invoices', 'Expense tracking', 'Tax year reports', 'Priority support'].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold">✓</span>
                     {f}
