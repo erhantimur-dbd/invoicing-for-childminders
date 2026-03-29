@@ -125,18 +125,23 @@ export default async function DashboardPage() {
 
       {/* Auto-draft review banner */}
       {autoDrafts.length > 0 && (
-        <Link href="/invoices?filter=draft">
-          <div className="bg-violet-50 border border-violet-200 rounded-2xl p-4 flex items-center gap-3 hover:bg-violet-100 transition-colors">
-            <div className="w-9 h-9 bg-violet-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Zap className="h-4 w-4 text-white" />
+        <Link href="/invoices?filter=draft" className="block group">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-sky-500 p-5 shadow-md shadow-emerald-200/40 hover:shadow-lg hover:shadow-emerald-200/60 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 ring-1 ring-white/30">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-white">
+                  {autoDrafts.length} invoice{autoDrafts.length !== 1 ? 's' : ''} ready to review
+                </p>
+                <p className="text-xs text-white/75 mt-0.5">Just check them over, then approve &amp; send to parents</p>
+              </div>
+              <div className="flex items-center gap-1.5 text-white/70 group-hover:text-white transition-colors flex-shrink-0">
+                <span className="text-xs font-medium hidden sm:inline">Review now</span>
+                <ChevronRight className="h-4 w-4" />
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-violet-900">
-                I&apos;ve prepared {autoDrafts.length} invoice{autoDrafts.length !== 1 ? 's' : ''} for you
-              </p>
-              <p className="text-xs text-violet-700 mt-0.5">All done — just check them over and send to parents</p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-violet-400 flex-shrink-0" />
           </div>
         </Link>
       )}
