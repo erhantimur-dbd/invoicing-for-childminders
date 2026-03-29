@@ -4,6 +4,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { buildLineItemsForDay, formatDateLabel } from '@/lib/funded-hours'
 
 export type ScheduleDay = { day: string; type: 'full' | 'half' }
 
@@ -14,8 +15,13 @@ export type AgentChild = {
   parent_name: string
   daily_rate: number
   half_day_rate: number | null
+  hourly_rate: number | null
+  hours_per_day: number | null
   schedule_days: ScheduleDay[]
   schedule_note: string | null
+  funding_type: 'none' | '15' | '30'
+  funded_hours_per_day: number | null
+  funded_days: string[] | null
 }
 
 export type AgentLineItem = {
@@ -24,6 +30,7 @@ export type AgentLineItem = {
   quantity: number
   unit_price: number
   amount: number
+  is_funded: boolean
 }
 
 export type AgentDecision = {
@@ -234,23 +241,20 @@ Please check for any additional context needed, then call decide_invoices with y
                 const scheduled = child.schedule_days.find(s => s.day === dayName)
                 if (!scheduled) continue
 
-                const isHalf = scheduled.type === 'half'
-                const rate = isHalf
-                  ? (child.half_day_rate ?? child.daily_rate / 2)
-                  : child.daily_rate
-                const qty = isHalf ? 0.5 : 1
-
-                lineItems.push({
-                  description: `Childcare${isHalf ? ' (half day)' : ''} — ${formatDateLong(dateStr)}`,
-                  care_date: dateStr,
-                  quantity: qty,
-                  unit_price: isHalf ? child.daily_rate : rate,
-                  amount: rate,
-                })
+                const dayItems = buildLineItemsForDay(dateStr, dayName, {
+                  funding_type: child.funding_type,
+                  funded_hours_per_day: child.funded_hours_per_day,
+                  funded_days: child.funded_days,
+                  hourly_rate: child.hourly_rate,
+                  hours_per_day: child.hours_per_day,
+                  daily_rate: child.daily_rate,
+                  half_day_rate: child.half_day_rate,
+                }, scheduled.type, formatDateLabel(dateStr))
+                lineItems.push(...dayItems)
               }
             }
 
-            const week_total = lineItems.reduce((s, i) => s + i.amount, 0)
+            const week_total = lineItems.filter(i => !i.is_funded).reduce((s, i) => s + i.amount, 0)
 
             return {
               child_id: d.child_id,
@@ -303,16 +307,16 @@ export function buildFallbackDecisions(
       const scheduled = child.schedule_days.find(s => s.day === dayName)
       if (!scheduled) continue
 
-      const isHalf = scheduled.type === 'half'
-      const rate = isHalf ? (child.half_day_rate ?? child.daily_rate / 2) : child.daily_rate
-
-      lineItems.push({
-        description: `Childcare${isHalf ? ' (half day)' : ''} — ${formatDateLong(dateStr)}`,
-        care_date: dateStr,
-        quantity: isHalf ? 0.5 : 1,
-        unit_price: isHalf ? child.daily_rate : rate,
-        amount: rate,
-      })
+      const dayItems = buildLineItemsForDay(dateStr, dayName, {
+        funding_type: child.funding_type,
+        funded_hours_per_day: child.funded_hours_per_day,
+        funded_days: child.funded_days,
+        hourly_rate: child.hourly_rate,
+        hours_per_day: child.hours_per_day,
+        daily_rate: child.daily_rate,
+        half_day_rate: child.half_day_rate,
+      }, scheduled.type, formatDateLabel(dateStr))
+      lineItems.push(...dayItems)
     }
 
     return {
@@ -321,7 +325,7 @@ export function buildFallbackDecisions(
       line_items: lineItems,
       skip_reason: lineItems.length === 0 ? 'No scheduled days in this week' : null,
       agent_notes: null,
-      week_total: lineItems.reduce((s, i) => s + i.amount, 0),
+      week_total: lineItems.filter(i => !i.is_funded).reduce((s, i) => s + i.amount, 0),
     }
   })
 }

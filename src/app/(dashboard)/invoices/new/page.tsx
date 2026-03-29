@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { Loader2, ChevronLeft, Plus, Trash2, CalendarDays, Pencil } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Child } from '@/lib/types'
+import { buildLineItemsForDay, formatDateLabel } from '@/lib/funded-hours'
 
 type ScheduleDay = { day: string; type: 'full' | 'half' }
 
@@ -24,6 +25,7 @@ type LineItem = {
   quantity: number
   unit_price: number
   amount: number
+  is_funded?: boolean
 }
 
 const DAY_NAME_MAP: Record<number, string> = {
@@ -104,19 +106,19 @@ export default function NewInvoicePage() {
       const dayName = DAY_NAME_MAP[current.getDay()]
       const scheduled = schedule.find(s => s.day === dayName)
       if (scheduled) {
-        const isHalf = scheduled.type === 'half'
-        const halfDayRate = (selectedChild as any).half_day_rate
-        const rate = isHalf
-          ? (halfDayRate ? Number(halfDayRate) : Number(selectedChild.daily_rate) / 2)
-          : Number(selectedChild.daily_rate)
-        const qty = isHalf ? 0.5 : 1
-        items.push({
-          description: `Childcare ${isHalf ? '(half day) ' : ''}— ${current.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}`,
-          care_date: current.toISOString().split('T')[0],
-          quantity: qty,
-          unit_price: isHalf ? Number(selectedChild.daily_rate) : rate,
-          amount: rate,
-        })
+        const dateStr = current.toISOString().split('T')[0]
+        const dateLabel = formatDateLabel(dateStr)
+        const child = selectedChild as any
+        const dayItems = buildLineItemsForDay(dateStr, dayName, {
+          funding_type: child.funding_type || 'none',
+          funded_hours_per_day: child.funded_hours_per_day ? Number(child.funded_hours_per_day) : null,
+          funded_days: child.funded_days || null,
+          hourly_rate: child.hourly_rate ? Number(child.hourly_rate) : null,
+          hours_per_day: child.hours_per_day ? Number(child.hours_per_day) : null,
+          daily_rate: Number(child.daily_rate),
+          half_day_rate: child.half_day_rate ? Number(child.half_day_rate) : null,
+        }, scheduled.type, dateLabel)
+        items.push(...dayItems.map(i => ({ ...i, care_date: i.care_date || dateStr })))
       }
       current.setDate(current.getDate() + 1)
     }
@@ -225,6 +227,7 @@ export default function NewInvoicePage() {
         quantity: Number(item.quantity),
         unit_price: Number(item.unit_price),
         amount: Number(item.amount),
+        is_funded: item.is_funded ?? false,
       }))
     )
 

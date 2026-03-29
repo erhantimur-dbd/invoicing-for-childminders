@@ -21,6 +21,8 @@ export type Profile = {
   updated_at: string
 }
 
+export type FundingType = 'none' | '15' | '30'
+
 export type Child = {
   id: string
   childminder_id: string
@@ -42,6 +44,9 @@ export type Child = {
   hours_per_day: number | null
   schedule_days: { day: string; type: 'full' | 'half' }[] | null
   schedule_note: string | null
+  funding_type: FundingType
+  funded_hours_per_day: number | null
+  funded_days: string[] | null
   archived_at: string | null
   created_at: string
   updated_at: string
@@ -94,6 +99,7 @@ export type InvoiceLineItem = {
   quantity: number
   unit_price: number
   amount: number
+  is_funded: boolean
   created_at: string
 }
 

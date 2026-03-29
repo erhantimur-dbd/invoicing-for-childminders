@@ -111,6 +111,7 @@ export async function persistInvoices(
         quantity: item.quantity,
         unit_price: item.unit_price,
         amount: item.amount,
+        is_funded: item.is_funded ?? false,
       }))
     )
 

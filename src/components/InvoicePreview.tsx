@@ -109,16 +109,35 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
             </tr>
           </thead>
           <tbody>
-            {items.map((item, idx) => (
-              <tr key={item.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                <td style={{ padding: '12px 16px', color: '#374151' }}>{item.description}</td>
-                <td style={{ padding: '12px 16px', textAlign: 'center', color: '#6B7280' }}>{item.quantity}</td>
-                <td style={{ padding: '12px 16px', textAlign: 'right', color: '#6B7280' }}>{formatGBP(Number(item.unit_price))}</td>
-                <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: '#111827' }}>{formatGBP(Number(item.amount))}</td>
-              </tr>
-            ))}
+            {items.map((item, idx) => {
+              const funded = !!(item as any).is_funded
+              return (
+                <tr key={item.id} style={{ background: funded ? '#F0FDF4' : (idx % 2 === 0 ? '#ffffff' : '#F9FAFB'), borderBottom: '1px solid #F3F4F6' }}>
+                  <td style={{ padding: '12px 16px', color: '#374151' }}>
+                    {item.description}
+                    {funded && <span style={{ marginLeft: '8px', fontSize: '10px', fontWeight: '700', color: '#059669', background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Funded</span>}
+                  </td>
+                  <td style={{ padding: '12px 16px', textAlign: 'center', color: funded ? '#059669' : '#6B7280' }}>
+                    {funded ? `${item.quantity} hrs` : item.quantity}
+                  </td>
+                  <td style={{ padding: '12px 16px', textAlign: 'right', color: funded ? '#059669' : '#6B7280' }}>
+                    {funded ? 'FREE' : formatGBP(Number(item.unit_price))}
+                  </td>
+                  <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: funded ? '#059669' : '#111827' }}>
+                    {funded ? '£0.00' : formatGBP(Number(item.amount))}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
+
+        {/* Funded hours notice */}
+        {items.some(i => (i as any).is_funded) && (
+          <div style={{ margin: '12px 0', padding: '10px 16px', background: '#F0FDF4', borderLeft: '3px solid #059669', borderRadius: '4px', fontSize: '11px', color: '#065F46', fontFamily: 'Arial, sans-serif' }}>
+            Government-funded hours shown as FREE per DfE guidance. Total reflects private hours only.
+          </div>
+        )}
 
         {/* Total */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
