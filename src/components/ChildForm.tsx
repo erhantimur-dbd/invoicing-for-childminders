@@ -316,92 +316,6 @@ export default function ChildForm({ child, mode }: Props) {
             />
             <p className="text-xs text-gray-400">Used by parents to securely access their invoice</p>
           </div>
-          {/* Government-funded hours */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Government-funded hours</Label>
-            <p className="text-xs text-gray-500">If this child receives free entitlement hours, invoices will show funded hours separately at no charge (per DfE guidance).</p>
-            <div className="flex gap-2">
-              {([['none', 'None'], ['15', '15 hrs/week'], ['30', '30 hrs/week']] as const).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => set('funding_type', value)}
-                  className={`flex-1 h-10 rounded-lg text-sm font-medium transition-colors ${
-                    form.funding_type === value
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {form.funding_type !== 'none' && (
-            <>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Funded hours per day</Label>
-                <Input
-                  type="number"
-                  min="0.5"
-                  max="10"
-                  step="0.5"
-                  value={form.funded_hours_per_day || ''}
-                  onChange={e => set('funded_hours_per_day', e.target.value ? Number(e.target.value) : null)}
-                  placeholder="e.g. 5 or 6"
-                  className="h-12 text-base max-w-[160px]"
-                />
-                {form.funded_hours_per_day && form.funded_days && form.funded_days.length > 0 && (
-                  <p className="text-xs text-gray-400">
-                    {Number(form.funded_hours_per_day) * form.funded_days.length} funded hrs/week across {form.funded_days.length} day{form.funded_days.length > 1 ? 's' : ''}
-                    {Number(form.funded_hours_per_day) * form.funded_days.length > Number(form.funding_type) && (
-                      <span className="text-amber-600 font-medium ml-1">
-                        (exceeds {form.funding_type}hr entitlement cap)
-                      </span>
-                    )}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Which days are funded?</Label>
-                <p className="text-xs text-gray-500">Select the specific days covered by government funding</p>
-                <div className="flex gap-2">
-                  {DAYS.map(day => {
-                    const isScheduled = (form.schedule_days || []).some(d => d.day === day)
-                    const isFunded = (form.funded_days || []).includes(day)
-                    if (!isScheduled) return null
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => {
-                          const current = form.funded_days || []
-                          if (isFunded) {
-                            set('funded_days', current.filter(d => d !== day))
-                          } else {
-                            set('funded_days', [...current, day])
-                          }
-                        }}
-                        className={`flex-1 h-10 rounded-lg text-sm font-medium transition-colors ${
-                          isFunded
-                            ? 'bg-green-600 text-white'
-                            : 'bg-gray-100 text-gray-500'
-                        }`}
-                      >
-                        {DAY_LABELS[day]}
-                      </button>
-                    )
-                  })}
-                </div>
-                {(!form.schedule_days || form.schedule_days.length === 0) && (
-                  <p className="text-xs text-amber-600">Set up a fixed schedule below first, then come back to select which days are funded.</p>
-                )}
-              </div>
-            </>
-          )}
-
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label className="text-sm font-medium">
@@ -470,26 +384,6 @@ export default function ChildForm({ child, mode }: Props) {
               )}
             </div>
           ) : null}
-          {form.funding_type !== 'none' && !form.hourly_rate && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-              <p className="text-xs text-amber-700 font-medium">
-                An hourly rate is required for children with funded hours — it&apos;s used to calculate private hours on invoices.
-              </p>
-            </div>
-          )}
-
-          {form.funding_type !== 'none' && form.hourly_rate && form.funded_hours_per_day && form.funded_days && form.funded_days.length > 0 && (
-            <div className="bg-green-50 rounded-lg p-3 space-y-1">
-              <p className="text-xs text-green-700 font-medium">Weekly invoice breakdown:</p>
-              <p className="text-xs text-green-600">
-                Funded: {(Number(form.funded_hours_per_day) * form.funded_days.length).toFixed(1)} hrs @ FREE (term time only — 38 weeks/year)
-              </p>
-              <p className="text-xs text-green-600">
-                Private: billed at £{Number(form.hourly_rate).toFixed(2)}/hr for any additional hours
-              </p>
-            </div>
-          )}
-
           {rateError && (
             <p className="text-sm text-red-600 font-medium">{rateError}</p>
           )}
@@ -601,6 +495,122 @@ export default function ChildForm({ child, mode }: Props) {
         </CardContent>
       </Card>
 
+
+      {/* Government-funded hours */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <span className="text-emerald-600 text-sm">🏛️</span>
+            Government-funded hours
+          </CardTitle>
+          <p className="text-xs text-gray-500">If this child receives free entitlement hours, invoices will show funded hours separately at no charge (per DfE guidance).</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Funding entitlement</Label>
+            <div className="flex gap-2">
+              {([['none', 'None'], ['15', '15 hrs/week'], ['30', '30 hrs/week']] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => set('funding_type', value)}
+                  className={`flex-1 h-10 rounded-lg text-sm font-medium transition-colors ${
+                    form.funding_type === value
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-gray-100 text-gray-500'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {form.funding_type !== 'none' && (
+            <>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Funded hours per day</Label>
+                <Input
+                  type="number"
+                  min="0.5"
+                  max="10"
+                  step="0.5"
+                  value={form.funded_hours_per_day || ''}
+                  onChange={e => set('funded_hours_per_day', e.target.value ? Number(e.target.value) : null)}
+                  placeholder="e.g. 5 or 6"
+                  className="h-12 text-base max-w-[160px]"
+                />
+                {form.funded_hours_per_day && form.funded_days && form.funded_days.length > 0 && (
+                  <p className="text-xs text-gray-400">
+                    {Number(form.funded_hours_per_day) * form.funded_days.length} funded hrs/week across {form.funded_days.length} day{form.funded_days.length > 1 ? 's' : ''}
+                    {Number(form.funded_hours_per_day) * form.funded_days.length > Number(form.funding_type) && (
+                      <span className="text-amber-600 font-medium ml-1">
+                        (exceeds {form.funding_type}hr entitlement cap)
+                      </span>
+                    )}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Which days are funded?</Label>
+                <p className="text-xs text-gray-500">Select the specific days covered by government funding</p>
+                <div className="flex gap-2">
+                  {DAYS.map(day => {
+                    const isScheduled = (form.schedule_days || []).some(d => d.day === day)
+                    const isFunded = (form.funded_days || []).includes(day)
+                    if (!isScheduled) return null
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => {
+                          const current = form.funded_days || []
+                          if (isFunded) {
+                            set('funded_days', current.filter(d => d !== day))
+                          } else {
+                            set('funded_days', [...current, day])
+                          }
+                        }}
+                        className={`flex-1 h-10 rounded-lg text-sm font-medium transition-colors ${
+                          isFunded
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        {DAY_LABELS[day]}
+                      </button>
+                    )
+                  })}
+                </div>
+                {(!form.schedule_days || form.schedule_days.length === 0) && (
+                  <p className="text-xs text-amber-600">Set up a fixed schedule first, then select which days are funded.</p>
+                )}
+              </div>
+
+              {!form.hourly_rate && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <p className="text-xs text-amber-700 font-medium">
+                    An hourly rate is required for children with funded hours — set it in the rates section above.
+                  </p>
+                </div>
+              )}
+
+              {form.hourly_rate && form.funded_hours_per_day && form.funded_days && form.funded_days.length > 0 && (
+                <div className="bg-green-50 rounded-lg p-3 space-y-1">
+                  <p className="text-xs text-green-700 font-medium">Weekly invoice breakdown:</p>
+                  <p className="text-xs text-green-600">
+                    Funded: {(Number(form.funded_hours_per_day) * form.funded_days.length).toFixed(1)} hrs @ FREE (term time only — 38 weeks/year)
+                  </p>
+                  <p className="text-xs text-green-600">
+                    Private: billed at £{Number(form.hourly_rate).toFixed(2)}/hr for any additional hours
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Parent details */}
       <Card className="border-0 shadow-sm">
