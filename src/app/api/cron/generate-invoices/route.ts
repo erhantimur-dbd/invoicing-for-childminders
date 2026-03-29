@@ -34,16 +34,36 @@ export async function GET(request: NextRequest) {
   // Get all childminders with onboarding completed
   const { data: profiles, error: profileError } = await supabaseAdmin
     .from('profiles')
-    .select('id, full_name, email')
+    .select('id, full_name, email, invoice_frequency, invoice_day, invoice_last_generated_at')
     .eq('onboarding_completed', true)
 
   if (profileError || !profiles?.length) {
     return NextResponse.json({ message: 'No eligible childminders', week: weekStart })
   }
 
+  // Determine today's day name (e.g. 'sunday')
+  const todayDayName = new Date().toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase()
+
   const results = []
 
   for (const profile of profiles) {
+    // Check if today is this user's invoice generation day
+    const userDay = profile.invoice_day || 'sunday'
+    const userFreq = profile.invoice_frequency || 'weekly'
+
+    if (todayDayName !== userDay) continue // Not this user's day
+
+    // For fortnightly: skip if generated less than 12 days ago
+    if (userFreq === 'fortnightly' && profile.invoice_last_generated_at) {
+      const daysSinceLast = Math.floor((Date.now() - new Date(profile.invoice_last_generated_at).getTime()) / (1000 * 60 * 60 * 24))
+      if (daysSinceLast < 12) continue
+    }
+
+    // For monthly: skip if generated less than 26 days ago
+    if (userFreq === 'monthly' && profile.invoice_last_generated_at) {
+      const daysSinceLast = Math.floor((Date.now() - new Date(profile.invoice_last_generated_at).getTime()) / (1000 * 60 * 60 * 24))
+      if (daysSinceLast < 26) continue
+    }
     // Get children with schedules for this childminder
     const { data: childRows } = await supabaseAdmin
       .from('children')
@@ -102,6 +122,14 @@ export async function GET(request: NextRequest) {
     // Send notification email if invoices were created
     if (created.length > 0 && process.env.RESEND_API_KEY) {
       await sendCronNotificationEmail(profile, created, skipped, weekStart, weekEnd)
+    }
+
+    // Update last generated timestamp
+    if (created.length > 0) {
+      await supabaseAdmin
+        .from('profiles')
+        .update({ invoice_last_generated_at: new Date().toISOString() })
+        .eq('id', profile.id)
     }
 
     results.push({ childminder: profile.full_name || profile.email, created: created.length, skipped: skipped.length })

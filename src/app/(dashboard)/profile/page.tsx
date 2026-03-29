@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { Loader2, LogOut, User, MapPin, ShieldCheck } from 'lucide-react'
+import { Loader2, LogOut, User, MapPin, ShieldCheck, CalendarClock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { Profile } from '@/lib/types'
 import BankAccountsSection from '@/components/BankAccountsSection'
@@ -33,6 +33,8 @@ export default function ProfilePage() {
     postcode: '',
     ofsted_number: '',
     show_ofsted_on_invoice: false,
+    invoice_frequency: 'weekly',
+    invoice_day: 'sunday',
   })
 
   useEffect(() => {
@@ -70,6 +72,8 @@ export default function ProfilePage() {
         postcode: profile.postcode,
         ofsted_number: profile.ofsted_number || null,
         show_ofsted_on_invoice: profile.show_ofsted_on_invoice ?? false,
+        invoice_frequency: profile.invoice_frequency || 'weekly',
+        invoice_day: profile.invoice_day || 'sunday',
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
@@ -247,6 +251,67 @@ export default function ProfilePage() {
             {!profile.ofsted_number && (
               <p className="text-xs text-gray-400">Enter your Ofsted number above to enable this toggle</p>
             )}
+          </CardContent>
+        </Card>
+
+        {/* ── Invoice generation schedule ──────────────────────── */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center">
+                <CalendarClock className="h-4 w-4 text-violet-600" />
+              </div>
+              Invoice generation
+            </CardTitle>
+            <p className="text-xs text-gray-500 mt-1">Choose when Dottie auto-generates draft invoices for your children</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Frequency</Label>
+              <div className="flex gap-2">
+                {([['weekly', 'Weekly'], ['fortnightly', 'Fortnightly'], ['monthly', 'Monthly']] as const).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => set('invoice_frequency', value)}
+                    className={`flex-1 h-10 rounded-lg text-sm font-medium transition-colors ${
+                      profile.invoice_frequency === value
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Generate on</Label>
+              <div className="flex gap-1.5">
+                {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map(day => (
+                  <button
+                    key={day}
+                    type="button"
+                    onClick={() => set('invoice_day', day)}
+                    className={`flex-1 h-10 rounded-lg text-xs font-medium transition-colors ${
+                      profile.invoice_day === day
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    {day.slice(0, 3).charAt(0).toUpperCase() + day.slice(1, 3)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-emerald-50 rounded-lg p-3">
+              <p className="text-xs text-emerald-700 font-medium">
+                Invoices will generate {profile.invoice_frequency === 'weekly' ? 'every' : profile.invoice_frequency === 'fortnightly' ? 'every other' : 'once a month on'}{' '}
+                <span className="capitalize">{profile.invoice_day}</span> at 7:00 AM
+              </p>
+            </div>
           </CardContent>
         </Card>
 
