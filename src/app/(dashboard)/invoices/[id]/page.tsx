@@ -237,7 +237,7 @@ export default function InvoicePage() {
                 <CheckCircle className="h-4 w-4" /> Mark paid
               </Button>
               <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-2" onClick={() => setShowShareOptions(true)}>
-                <Mail className="h-4 w-4" /> Share
+                <Mail className="h-4 w-4" /> Approve & Share
               </Button>
             </>
           )}
@@ -293,7 +293,7 @@ export default function InvoicePage() {
               onClick={() => setShowShareOptions(true)}
             >
               <Mail className="h-5 w-5" />
-              Share invoice
+              Approve & share invoice
             </Button>
             <Button
               variant="outline"
@@ -497,7 +497,7 @@ export default function InvoicePage() {
       <Dialog open={showShareOptions} onOpenChange={setShowShareOptions}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Share invoice</DialogTitle>
+            <DialogTitle>Approve & share invoice</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <Button
