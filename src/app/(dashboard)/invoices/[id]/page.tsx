@@ -17,7 +17,7 @@ import InvoicePreview from '@/components/InvoicePreview'
 import { toast } from 'sonner'
 import {
   ChevronLeft, Printer, Mail, MessageCircle, CheckCircle,
-  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link2
+  Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link2, Trash2
 } from 'lucide-react'
 import InvoiceLineItemEditor from '@/components/InvoiceLineItemEditor'
 import type { Invoice, Profile, BankAccount } from '@/lib/types'
@@ -50,6 +50,7 @@ export default function InvoicePage() {
   const [savingReminder, setSavingReminder] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
   const [editingLineItems, setEditingLineItems] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -159,6 +160,22 @@ export default function InvoicePage() {
     if (el) el.style.display = 'none'
   }
 
+  async function handleDelete() {
+    if (!invoice) return
+    if (!confirm(`Delete invoice ${invoice.invoice_number}? This cannot be undone.`)) return
+    setDeleting(true)
+    // Delete line items first (foreign key), then invoice
+    await supabase.from('invoice_line_items').delete().eq('invoice_id', invoice.id)
+    const { error } = await supabase.from('invoices').delete().eq('id', invoice.id)
+    if (error) {
+      toast.error('Failed to delete invoice')
+      setDeleting(false)
+      return
+    }
+    toast.success('Invoice deleted')
+    router.push('/invoices')
+  }
+
   async function handleSaveReminder() {
     if (!invoice) return
     setSavingReminder(true)
@@ -228,6 +245,9 @@ export default function InvoicePage() {
         </div>
         {/* Desktop action buttons in header */}
         <div className="hidden md:flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleDelete} disabled={deleting} className="gap-2 text-red-600 border-red-200 hover:bg-red-50">
+            <Trash2 className="h-4 w-4" /> {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
           <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
             <Printer className="h-4 w-4" /> Print
           </Button>
@@ -305,6 +325,15 @@ export default function InvoicePage() {
             </Button>
           </>
         )}
+        <Button
+          variant="outline"
+          className="h-14 flex-col gap-1 text-xs border-red-200 text-red-600 col-span-2"
+          onClick={handleDelete}
+          disabled={deleting}
+        >
+          <Trash2 className="h-5 w-5" />
+          {deleting ? 'Deleting...' : 'Delete invoice'}
+        </Button>
       </div>
 
       {/* Reminders */}
