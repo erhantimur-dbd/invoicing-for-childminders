@@ -91,6 +91,19 @@ export default function SignupPage() {
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
       <div className="space-y-6">
+        <ul className="space-y-2">
+          {[
+            '7-day free trial — no credit card required',
+            'Set up in under 5 minutes',
+            'Cancel anytime',
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
+
         <SSOButtons mode="signup" />
 
         <div className="relative flex items-center gap-3">
@@ -211,6 +224,12 @@ export default function SignupPage() {
             <Link href="/login" className="text-emerald-600 font-semibold hover:text-emerald-700">
               Sign in
             </Link>
+          </p>
+          <p className="text-xs text-gray-400 text-center">
+            Questions?{' '}
+            <a href="mailto:support@godottie.cloud" className="text-emerald-600 font-medium hover:text-emerald-700">
+              support@godottie.cloud
+            </a>
           </p>
         </form>
       </div>

@@ -29,7 +29,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://www.dottie.cloud/sitemap.xml',
-    host: 'https://www.dottie.cloud',
+    sitemap: 'https://www.godottie.cloud/sitemap.xml',
+    host: 'https://www.godottie.cloud',
   }
 }

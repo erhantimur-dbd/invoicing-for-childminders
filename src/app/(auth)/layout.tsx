@@ -1,6 +1,6 @@
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-sky-50 to-white px-4 py-12 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-amber-50 to-[#fdf8f1] px-4 py-12 relative overflow-hidden">
       {/* Subtle background pattern */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -11,18 +11,18 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       />
       {/* Decorative blobs */}
       <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #10b981, transparent 70%)' }} />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #0ea5e9, transparent 70%)' }} />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #fbbf24, transparent 70%)' }} />
 
       <div className="w-full max-w-sm relative">
         <div className="text-center mb-2">
-          <a href="/" className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white transition-colors">
+          <a href="/" className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-emerald-600 transition-colors">
             ← Back to website
           </a>
         </div>
         <div className="text-center mb-8">
           <div
             className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg shadow-emerald-200/60"
-            style={{ background: 'linear-gradient(135deg, #10b981 0%, #0ea5e9 100%)' }}
+            style={{ background: 'linear-gradient(135deg, #10b981 0%, #fbbf24 100%)' }}
           >
             <span className="text-white font-extrabold text-2xl leading-none tracking-tight">D.</span>
           </div>

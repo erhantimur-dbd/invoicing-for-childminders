@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server'
 
-const BASE_URL = 'https://www.dottie.cloud'
+const BASE_URL = 'https://www.godottie.cloud'
 
 const urls = [
-  { loc: BASE_URL,                changefreq: 'weekly',  priority: '1.0' },
-  { loc: `${BASE_URL}/signup`,    changefreq: 'monthly', priority: '0.9' },
-  { loc: `${BASE_URL}/login`,     changefreq: 'monthly', priority: '0.7' },
-  { loc: `${BASE_URL}/subscribe`, changefreq: 'weekly',  priority: '0.8' },
-  { loc: `${BASE_URL}/support`,   changefreq: 'monthly', priority: '0.6' },
-  { loc: `${BASE_URL}/faq`,       changefreq: 'monthly', priority: '0.7' },
-  { loc: `${BASE_URL}/privacy`,   changefreq: 'yearly',  priority: '0.3' },
-  { loc: `${BASE_URL}/terms`,     changefreq: 'yearly',  priority: '0.3' },
+  { loc: BASE_URL,                                                   changefreq: 'weekly',  priority: '1.0' },
+  { loc: `${BASE_URL}/signup`,                                       changefreq: 'monthly', priority: '0.9' },
+  { loc: `${BASE_URL}/login`,                                        changefreq: 'monthly', priority: '0.7' },
+  { loc: `${BASE_URL}/subscribe`,                                    changefreq: 'weekly',  priority: '0.8' },
+  { loc: `${BASE_URL}/support`,                                      changefreq: 'monthly', priority: '0.6' },
+  { loc: `${BASE_URL}/faq`,                                          changefreq: 'monthly', priority: '0.7' },
+  { loc: `${BASE_URL}/guides`,                                       changefreq: 'weekly',  priority: '0.9' },
+  { loc: `${BASE_URL}/guides/mtd`,                                   changefreq: 'weekly',  priority: '0.9' },
+  { loc: `${BASE_URL}/guides/funded-hours`,                          changefreq: 'weekly',  priority: '0.9' },
+  { loc: `${BASE_URL}/guides/funded-hours/2026-invoice-rules`,       changefreq: 'weekly',  priority: '0.9' },
+  { loc: `${BASE_URL}/guides/funded-hours/30-hours-9-month-rollout-2025`, changefreq: 'weekly', priority: '0.9' },
+  { loc: `${BASE_URL}/privacy`,                                      changefreq: 'yearly',  priority: '0.3' },
+  { loc: `${BASE_URL}/terms`,                                        changefreq: 'yearly',  priority: '0.3' },
 ]
 
 export async function GET() {

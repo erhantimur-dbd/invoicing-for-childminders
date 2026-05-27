@@ -4,11 +4,11 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'FAQ',
   description: 'Frequently asked questions about Dottie — invoicing software for UK childminders. Answers on pricing, invoicing, security, and more.',
-  alternates: { canonical: 'https://www.dottie.cloud/faq' },
+  alternates: { canonical: 'https://www.godottie.cloud/faq' },
   openGraph: {
     title: 'FAQ — Dottie',
     description: 'Answers to the most common questions about Dottie for childminders.',
-    url: 'https://www.dottie.cloud/faq',
+    url: 'https://www.godottie.cloud/faq',
   },
 }
 
@@ -129,7 +129,7 @@ const CATEGORIES = [
       },
       {
         q: 'What if I need more than 20 children?',
-        a: "Get in touch at support@dottie.cloud and we'll set you up on our Unlimited plan with custom pricing for your setting.",
+        a: "Get in touch at support@godottie.cloud and we'll set you up on our Unlimited plan with custom pricing for your setting.",
       },
     ],
   },
@@ -167,11 +167,11 @@ const CATEGORIES = [
       },
       {
         q: 'Is Dottie GDPR compliant?',
-        a: "Yes. Dottie is fully compliant with UK GDPR and the Data Protection Act 2018. All data is stored in UK/EU data centres. We have a full Privacy Policy you can read at dottie.cloud/privacy.",
+        a: "Yes. Dottie is fully compliant with UK GDPR and the Data Protection Act 2018. All data is stored in UK/EU data centres. We have a full Privacy Policy you can read at godottie.cloud/privacy.",
       },
       {
         q: "How is children's data protected?",
-        a: "Children's data is entered by you and used solely to provide the invoicing service. Dates of birth are used only to verify parent identity when accessing an invoice. We don't share children's data with third parties beyond the sub-processors needed to run the service (Supabase, Stripe, Resend).",
+        a: "Children's data is entered by you and used solely to provide the invoicing service. Dates of birth are used only to verify parent identity when accessing an invoice. We don't share children's data with third parties beyond the sub-processors needed to run the service (Supabase for hosting and database, Stripe for billing, Resend for email, and Anthropic for the AI features — receipt scanning and the invoice agent).",
       },
       {
         q: 'How do parents securely access invoices?',
@@ -185,9 +185,25 @@ const CATEGORIES = [
   },
 ]
 
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: CATEGORIES.flatMap((cat) =>
+    cat.questions.map((q) => ({
+      '@type': 'Question',
+      name: q.q,
+      acceptedAnswer: { '@type': 'Answer', text: q.a },
+    }))
+  ),
+}
+
 export default function FaqPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fdf8f1]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6">
 
         {/* Header */}
@@ -254,7 +270,7 @@ export default function FaqPage() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-sky-500 p-8 text-center text-white">
+        <div className="mt-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-8 text-center text-white">
           <h2 className="text-xl font-bold mb-2">Still have questions?</h2>
           <p className="text-white/80 text-sm mb-5">I'm here to help — just drop me a message.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

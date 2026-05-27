@@ -1,7 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+
+type SubState = {
+  status: string | null
+  trial_end: string | null
+  stripe_subscription_id: string | null
+}
 
 const FEATURES_COMMON = [
   'Auto-generate invoices',
@@ -42,6 +48,20 @@ export default function SubscribePage() {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual')
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [stripeUnavailable, setStripeUnavailable] = useState(false)
+  const [sub, setSub] = useState<SubState | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/me/subscription')
+      .then(r => r.ok ? r.json() : Promise.reject(r))
+      .then((j: { subscription: SubState | null }) => { if (!cancelled) setSub(j.subscription) })
+      .catch(() => { /* non-fatal — page still works without state */ })
+    return () => { cancelled = true }
+  }, [])
+
+  const trialDaysLeft = sub?.trial_end
+    ? Math.ceil((new Date(sub.trial_end).getTime() - Date.now()) / 86_400_000)
+    : null
 
   async function handleCheckout(planId: PlanId) {
     setLoadingPlan(planId)
@@ -79,23 +99,57 @@ export default function SubscribePage() {
 
   return (
     <div className="space-y-8">
-      {/* Trial banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-sky-500 p-5 text-white text-center shadow-lg shadow-emerald-200/40">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <span className="text-xl">🎉</span>
-          <span className="font-extrabold text-lg">Your 7-day free trial has started!</span>
+      {/* State-aware top banner */}
+      {sub?.status === 'past_due' ? (
+        <div className="rounded-2xl bg-red-50 border border-red-200 p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">⚠️</span>
+            <span className="font-bold text-red-900 text-lg">Your last payment failed</span>
+          </div>
+          <p className="text-red-800/90 text-sm leading-relaxed">
+            Your trial has ended and we couldn&apos;t charge your card. Update your payment method below to keep your subscription active and avoid losing access to your records.
+          </p>
         </div>
-        <p className="text-white/85 text-sm">
-          Choose a plan to continue after your trial ends. You won&apos;t be charged until your trial is over.
-        </p>
-      </div>
+      ) : sub?.status === 'active' ? (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">✓</span>
+            <span className="font-bold text-emerald-900 text-lg">Your subscription is active</span>
+          </div>
+          <p className="text-emerald-800/90 text-sm leading-relaxed">
+            Manage billing or change plan below.
+          </p>
+        </div>
+      ) : sub?.status === 'trialing' && trialDaysLeft !== null && trialDaysLeft > 0 ? (
+        <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-400 p-5 text-white text-center shadow-lg shadow-emerald-200/40">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-xl">🎉</span>
+            <span className="font-extrabold text-lg">
+              {trialDaysLeft} day{trialDaysLeft === 1 ? '' : 's'} left on your free trial
+            </span>
+          </div>
+          <p className="text-white/85 text-sm">
+            No card needed yet. Pick a plan whenever you&apos;re ready — we&apos;ll only charge after your trial ends.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-400 p-5 text-white text-center shadow-lg shadow-emerald-200/40">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-xl">🎉</span>
+            <span className="font-extrabold text-lg">Your 7-day free trial is active</span>
+          </div>
+          <p className="text-white/85 text-sm">
+            Use Dottie freely for 7 days. Pick a plan when you&apos;re ready — we&apos;ll only charge after the trial.
+          </p>
+        </div>
+      )}
 
       {/* Stripe unavailable notice */}
       {stripeUnavailable && (
-        <div className="rounded-2xl bg-sky-50 border border-sky-200 p-5 text-center">
-          <div className="text-sky-600 font-semibold mb-1">💳 Payment setup coming soon</div>
-          <p className="text-sky-700/80 text-sm">
-            Your trial is active and you can use the app fully. We&apos;ll let you know when billing is ready.
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-center">
+          <div className="text-amber-700 font-semibold mb-1">💳 Hold on — billing is briefly unavailable</div>
+          <p className="text-amber-800/80 text-sm">
+            We couldn&apos;t reach Stripe just now. Your trial is unaffected; please try again in a moment.
           </p>
         </div>
       )}
@@ -130,7 +184,7 @@ export default function SubscribePage() {
           >
             {plan.highlight && (
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="px-4 py-1.5 rounded-full bg-sky-500 text-white text-xs font-extrabold shadow-md whitespace-nowrap">
+                <span className="px-4 py-1.5 rounded-full bg-amber-400 text-amber-950 text-xs font-extrabold shadow-md whitespace-nowrap">
                   Most popular
                 </span>
               </div>
@@ -186,23 +240,25 @@ export default function SubscribePage() {
           <p className="text-gray-500 text-sm mt-0.5">Our Unlimited plan is available for larger childminding settings.</p>
         </div>
         <a
-          href="mailto:support@dottie.cloud?subject=Unlimited plan enquiry"
+          href="mailto:support@godottie.cloud?subject=Unlimited plan enquiry"
           className="shrink-0 px-5 py-2.5 rounded-xl border-2 border-slate-300 bg-white text-slate-700 text-sm font-semibold hover:border-slate-400 transition-colors"
         >
           Get in touch →
         </a>
       </div>
 
-      {/* Skip for now */}
-      <div className="text-center space-y-1">
-        <p className="text-gray-500 text-sm">Not ready to choose yet? Your trial is fully active.</p>
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1 text-emerald-600 font-semibold hover:text-emerald-700 transition-colors"
-        >
-          Continue to app →
-        </Link>
-      </div>
+      {/* Skip for now — only shown while a usable trial is active */}
+      {sub?.status === 'trialing' && trialDaysLeft !== null && trialDaysLeft > 0 && (
+        <div className="text-center space-y-1">
+          <p className="text-gray-500 text-sm">Not ready to choose yet? Carry on with your trial.</p>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1 text-emerald-600 font-semibold hover:text-emerald-700 transition-colors"
+          >
+            Continue to app →
+          </Link>
+        </div>
+      )}
 
       {/* Manage billing */}
       <ManageBillingSection />

@@ -43,9 +43,9 @@ export default function MobileNav() {
           <a href="#pricing" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
             Pricing
           </a>
-          <a href="#security" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+          <Link href="/support" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
             Support
-          </a>
+          </Link>
           <div className="h-px bg-gray-100 my-2" />
           <Link href="/login" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
             Sign in

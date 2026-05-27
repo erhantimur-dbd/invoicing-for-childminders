@@ -1,64 +1,165 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Loader2, CheckCircle2 } from 'lucide-react'
 
-export default async function SubscribeSuccessPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+type Subscription = {
+  status: string | null
+  plan: string | null
+  trial_end: string | null
+  current_period_end: string | null
+  stripe_subscription_id: string | null
+}
 
-  // If no user session at all, redirect to login
-  if (!user) redirect('/login')
+const POLL_INTERVAL_MS = 1500
+const POLL_TIMEOUT_MS = 30_000
 
-  // Optionally: if user already has an active subscription stored in their
-  // profile/metadata, redirect straight to dashboard.
-  // We check app_metadata or user_metadata for a subscription_status field.
-  const subscriptionStatus =
-    (user.user_metadata?.subscription_status as string | undefined) ??
-    (user.app_metadata?.subscription_status as string | undefined)
+function formatDate(iso: string | null): string {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
 
-  if (subscriptionStatus === 'active') {
-    redirect('/dashboard')
+function planLabel(plan: string | null): string {
+  if (!plan) return 'Subscription'
+  // Stored as "<tier>_<billing>" e.g. "professional_annual" — render nicely.
+  const map: Record<string, string> = {
+    starter_monthly: 'Starter (monthly)',
+    starter_annual: 'Starter (annual)',
+    professional_monthly: 'Professional (monthly)',
+    professional_annual: 'Professional (annual)',
+    monthly: 'Monthly',
+    annual: 'Annual',
+  }
+  return map[plan] ?? plan
+}
+
+export default function SubscribeSuccessPage() {
+  const [sub, setSub] = useState<Subscription | null>(null)
+  const [timedOut, setTimedOut] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    const start = Date.now()
+
+    async function tick() {
+      if (cancelled) return
+      try {
+        const r = await fetch('/api/me/subscription', { cache: 'no-store' })
+        if (r.ok) {
+          const j: { subscription: Subscription | null } = await r.json()
+          if (j.subscription?.stripe_subscription_id) {
+            if (!cancelled) setSub(j.subscription)
+            return // landed — stop polling
+          }
+        }
+      } catch { /* swallow + retry */ }
+
+      if (Date.now() - start > POLL_TIMEOUT_MS) {
+        if (!cancelled) setTimedOut(true)
+        return
+      }
+      setTimeout(tick, POLL_INTERVAL_MS)
+    }
+    tick()
+    return () => { cancelled = true }
+  }, [])
+
+  // ── Still polling ────────────────────────────────────────────────────────
+  if (!sub && !timedOut) {
+    return (
+      <Shell>
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-5 mx-auto">
+          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+        </div>
+        <h1 className="text-xl font-extrabold text-gray-900 mb-2">Confirming your subscription…</h1>
+        <p className="text-gray-500 text-sm leading-relaxed">
+          We&apos;re finishing up with Stripe. This usually takes a few seconds.
+        </p>
+      </Shell>
+    )
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white flex flex-col items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-10 text-center">
-        {/* Big green checkmark */}
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 mb-6 mx-auto">
-          <svg
-            className="w-10 h-10 text-emerald-600"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
+  // ── Polling timed out — webhook didn't land. Reassure but don't lie ──────
+  if (timedOut) {
+    return (
+      <Shell>
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 mb-5 mx-auto">
+          <CheckCircle2 className="w-8 h-8 text-amber-600" />
         </div>
-
-        <h1 className="text-2xl font-extrabold text-gray-900 mb-3">
-          You&apos;re all set!
-        </h1>
-        <p className="text-gray-500 text-base leading-relaxed mb-2">
-          Your subscription is now active. Welcome to Dottie — your invoices will generate automatically based on your schedule. You can change the day and frequency any time in Settings.
+        <h1 className="text-xl font-extrabold text-gray-900 mb-2">Almost there</h1>
+        <p className="text-gray-500 text-sm leading-relaxed mb-6">
+          Stripe took a little longer than usual. Your payment went through — your subscription will appear shortly. Carry on to your dashboard, your trial is fully active in the meantime.
         </p>
-        <p className="text-gray-400 text-sm mb-8">
-          A confirmation email is on its way to you.
-        </p>
-
         <Link
           href="/dashboard"
-          className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
+          className="inline-flex items-center justify-center w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
         >
           Go to dashboard →
         </Link>
+      </Shell>
+    )
+  }
+
+  // ── Trial-with-card on Stripe ─────────────────────────────────────────────
+  const isTrialing = sub?.status === 'trialing'
+  const trialEndLabel = formatDate(sub?.trial_end ?? null)
+  const renewLabel = formatDate(sub?.current_period_end ?? null)
+
+  return (
+    <Shell>
+      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-5 mx-auto">
+        <CheckCircle2 className="w-9 h-9 text-emerald-600" />
       </div>
 
-      {/* Branding footer */}
+      {isTrialing ? (
+        <>
+          <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Card on file ✓</h1>
+          <p className="text-gray-500 text-sm leading-relaxed mb-1">
+            <span className="font-semibold text-gray-700">{planLabel(sub?.plan ?? null)}</span> selected.
+          </p>
+          {trialEndLabel && (
+            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+              Your free trial continues until <strong className="text-gray-700">{trialEndLabel}</strong>. We&apos;ll charge you on that date — cancel any time before then.
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          <h1 className="text-2xl font-extrabold text-gray-900 mb-2">You&apos;re all set!</h1>
+          <p className="text-gray-500 text-sm leading-relaxed mb-1">
+            <span className="font-semibold text-gray-700">{planLabel(sub?.plan ?? null)}</span> active.
+          </p>
+          {renewLabel && (
+            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+              Next renewal: <strong className="text-gray-700">{renewLabel}</strong>.
+            </p>
+          )}
+        </>
+      )}
+
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center justify-center w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
+      >
+        Go to dashboard →
+      </Link>
+    </Shell>
+  )
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white flex flex-col items-center justify-center px-4 py-16">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-10 text-center">
+        {children}
+      </div>
       <p className="mt-8 text-gray-400 text-sm text-center">
-        Part of the{' '}
-        <span className="text-sky-500 font-medium">Dottie OS</span> ecosystem
+        Part of the <span className="text-amber-600 font-medium">Dottie OS</span> ecosystem
       </p>
     </div>
   )

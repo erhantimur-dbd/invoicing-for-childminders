@@ -80,7 +80,7 @@ export default function HeroVisual() {
                 aria-hidden="true"
               >
                 <div className="flex items-end gap-1.5">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-amber-400 flex items-center justify-center flex-shrink-0 shadow-sm">
                     <span className="text-white font-extrabold text-[8px] leading-none">D.</span>
                   </div>
                   <div className="bg-white rounded-xl rounded-tl-none px-3 py-2 shadow-sm">
@@ -96,7 +96,7 @@ export default function HeroVisual() {
               {/* Message 1 — Dottie's greeting */}
               <div className={`transition-all duration-500 ease-out ${step >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
                 <div className="flex items-end gap-1.5">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-amber-400 flex items-center justify-center flex-shrink-0 shadow-sm">
                     <span className="text-white font-extrabold text-[8px] leading-none">D.</span>
                   </div>
                   <div className="relative max-w-[85%]">
@@ -113,7 +113,7 @@ export default function HeroVisual() {
               {/* Message 2 — Invoice link */}
               <div className={`transition-all duration-500 ease-out ${step >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
                 <div className="flex items-end gap-1.5">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-sky-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-amber-400 flex items-center justify-center flex-shrink-0 shadow-sm">
                     <span className="text-white font-extrabold text-[8px] leading-none">D.</span>
                   </div>
                   <div className="relative max-w-[85%]">
@@ -228,7 +228,7 @@ export default function HeroVisual() {
                 <button className="flex-1 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold">Download</button>
               </div>
             </div>
-            <div className="absolute -top-3 -right-3 bg-sky-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+            <div className="absolute -top-3 -right-3 bg-amber-400 text-amber-950 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
               ✨ Auto-created on your schedule
             </div>
           </div>

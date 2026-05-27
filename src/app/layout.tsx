@@ -1,13 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
+import { Nunito, Fraunces, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import CookieConsent from "@/components/CookieConsent";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Warm, friendly body face with rounded terminals.
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
   display: "swap",
+});
+
+// Soft display serif for headings — adds warmth and personality.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["SOFT", "opsz"],
 });
 
 const geistMono = Geist_Mono({
@@ -23,19 +32,19 @@ export const metadata: Metadata = {
   },
   description: "You didn't become a childminder to spend Sunday nights writing invoices. That's Dottie's job. Invoicing on autopilot for UK childcare professionals.",
   manifest: "/manifest.json",
-  metadataBase: new URL("https://www.dottie.cloud"),
+  metadataBase: new URL("https://www.godottie.cloud"),
   verification: {
-    google: "6rnBpp9OHac9RXHCzz0oFK1ADWHb9Uanca-I0biO9kU",
+    google: "NdRl-7hEzWp8asSyK2YBfiiYKwcVhbXDbFHm-foNlBU",
   },
   openGraph: {
     siteName: "Dottie",
     title: "Dottie — Invoicing simplified.",
     description: "Invoicing on autopilot for UK childminders and childcare professionals.",
-    url: "https://www.dottie.cloud",
+    url: "https://www.godottie.cloud",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Dottie — Invoicing simplified.",
     description: "Invoicing on autopilot for UK childminders and childcare professionals.",
   },
@@ -44,7 +53,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#059669",
 };
 
@@ -54,17 +62,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50">
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-CCYVZXRWK0" strategy="afterInteractive" />
-        <Script id="google-analytics" strategy="afterInteractive">{`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-CCYVZXRWK0');
-        `}</Script>
+    <html lang="en-GB" className={`${nunito.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-[#fdf8f1]">
         {children}
         <Toaster richColors position="top-center" />
+        <CookieConsent gaId="G-CCYVZXRWK0" />
       </body>
     </html>
   );

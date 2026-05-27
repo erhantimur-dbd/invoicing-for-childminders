@@ -91,7 +91,7 @@ export default async function NewChildPage() {
                   For unlimited children, get in touch with us:
                 </p>
                 <a
-                  href="mailto:support@dottie.cloud?subject=Enterprise plan enquiry"
+                  href="mailto:support@godottie.cloud?subject=Enterprise plan enquiry"
                   className="block w-full text-center py-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-sm transition-colors"
                 >
                   Contact us about Enterprise →

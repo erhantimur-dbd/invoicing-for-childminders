@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 
-const SUPPORT_EMAIL = 'support@dottie.cloud'
+const SUPPORT_EMAIL = 'support@godottie.cloud'
 
 const FAQ_ITEMS = [
   {
@@ -92,7 +92,7 @@ export default function SupportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fdf8f1]">
       <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6">
 
         {/* Header */}

@@ -14,7 +14,7 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-sky-50 to-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-amber-50 to-white px-4">
       <div className="text-center max-w-sm">
         <div
           className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 shadow-lg shadow-emerald-200/60"

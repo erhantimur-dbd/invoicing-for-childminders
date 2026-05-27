@@ -4,12 +4,12 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'How Dottie collects, uses, and protects your personal data in line with UK GDPR and the Data Protection Act 2018.',
-  alternates: { canonical: 'https://www.dottie.cloud/privacy' },
+  alternates: { canonical: 'https://www.godottie.cloud/privacy' },
   robots: { index: true, follow: false },
 }
 
 const LAST_UPDATED = '27 March 2026'
-const CONTACT_EMAIL = 'support@dottie.cloud'
+const CONTACT_EMAIL = 'support@godottie.cloud'
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -49,7 +49,7 @@ const TOC = [
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fdf8f1]">
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6">
 
         {/* Header */}
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
 
             <Section id="who-we-are" title="1. Who we are">
               <P>
-                Dottie (&quot;Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is an invoicing and business management tool built specifically for UK childminders and childcare professionals. Our service is available at <strong>www.dottie.cloud</strong>.
+                Dottie (&quot;Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is an invoicing and business management tool built specifically for UK childminders and childcare professionals. Our service is available at <strong>www.godottie.cloud</strong>.
               </P>
               <P>
                 We are the data controller for the personal data you provide to us. If you have any questions about this policy or how we handle your data, please contact us at{' '}
@@ -313,10 +313,10 @@ export default function PrivacyPage() {
 
             <Section id="cookies" title="9. Cookies">
               <P>
-                We use only essential cookies required for the service to function. These include session authentication cookies managed by Supabase. We do not use advertising cookies, analytics cookies, or any third-party tracking.
+                We use essential cookies required for the service to function. These include session authentication cookies managed by Supabase. Essential cookies cannot be disabled as they are necessary for you to log in and use the app.
               </P>
               <P>
-                Essential cookies cannot be disabled as they are necessary for you to log in and use the app. No cookie consent banner is shown because we do not use non-essential cookies.
+                With your consent, we also use Google Analytics to understand how visitors use our website. These analytics cookies (such as <code>_ga</code>) are only set after you accept them via the cookie banner shown on your first visit. If you decline, no analytics cookies are set and no analytics data is collected. You can change your choice at any time by clearing your browser&apos;s site data for this site, which will show the banner again. We do not use advertising cookies or third-party advertising trackers.
               </P>
             </Section>
 
@@ -353,7 +353,7 @@ export default function PrivacyPage() {
                 <p>
                   <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>
                 </p>
-                <p className="text-gray-500">www.dottie.cloud</p>
+                <p className="text-gray-500">www.godottie.cloud</p>
               </div>
               <P>
                 If you are not satisfied with our response, you have the right to complain to the ICO at{' '}

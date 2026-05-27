@@ -4,12 +4,12 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Terms of Service',
   description: 'Terms and conditions for using Dottie — invoicing software for UK childminders.',
-  alternates: { canonical: 'https://www.dottie.cloud/terms' },
+  alternates: { canonical: 'https://www.godottie.cloud/terms' },
   robots: { index: true, follow: false },
 }
 
 const LAST_UPDATED = '27 March 2026'
-const CONTACT_EMAIL = 'support@dottie.cloud'
+const CONTACT_EMAIL = 'support@godottie.cloud'
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -52,7 +52,7 @@ const TOC = [
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fdf8f1]">
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6">
 
         {/* Header */}
@@ -92,7 +92,7 @@ export default function TermsPage() {
 
             <Section id="agreement" title="1. Agreement to terms">
               <P>
-                These Terms of Service (&quot;Terms&quot;) govern your use of Dottie (&quot;Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;), available at <strong>www.dottie.cloud</strong> and associated applications.
+                These Terms of Service (&quot;Terms&quot;) govern your use of Dottie (&quot;Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;), available at <strong>www.godottie.cloud</strong> and associated applications.
               </P>
               <P>
                 By creating an account or using the service, you agree to these Terms and our{' '}
@@ -275,7 +275,7 @@ export default function TermsPage() {
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1">
                 <p className="font-semibold text-gray-900">Dottie</p>
                 <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline block">{CONTACT_EMAIL}</a>
-                <p className="text-gray-500">www.dottie.cloud</p>
+                <p className="text-gray-500">www.godottie.cloud</p>
               </div>
             </Section>
 

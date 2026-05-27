@@ -77,11 +77,11 @@ function DobGate({ invoiceId, onVerified }: { invoiceId: string; onVerified: (to
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-sky-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-amber-50 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-xl flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-amber-400 rounded-xl flex items-center justify-center shadow-md">
             <span className="text-white font-extrabold text-sm">D.</span>
           </div>
           <div>
@@ -236,7 +236,7 @@ function InvoiceView({ invoiceId, token }: { invoiceId: string; token: string })
       {/* Top bar */}
       <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-lg flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-amber-400 rounded-lg flex items-center justify-center shadow-sm">
             <span className="text-white font-extrabold text-xs">D.</span>
           </div>
           <span className="font-semibold text-gray-900 text-sm">Dottie</span>
