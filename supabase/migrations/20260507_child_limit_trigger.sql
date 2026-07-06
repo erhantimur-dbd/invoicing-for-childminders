@@ -37,7 +37,10 @@ begin
     end if;
   end if;
 
-  select plan into v_plan
+  -- Reads subscriptions.tier: the app populates `tier` ('starter'/'professional'/
+  -- 'enterprise'); `plan` stores the billing-interval variant and is null on
+  -- trial rows, so keying on it capped everyone at the starter limit.
+  select tier into v_plan
   from public.subscriptions
   where user_id = NEW.childminder_id
   limit 1;

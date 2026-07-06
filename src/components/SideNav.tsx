@@ -62,6 +62,7 @@ export default function SideNav({ name }: { name?: string }) {
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-emerald-500 rounded-r-full" />
               )}
               <Icon
+                aria-hidden="true"
                 style={{ width: '1.1rem', height: '1.1rem' }}
                 className={cn('flex-shrink-0', active ? 'text-emerald-600' : 'text-gray-400')}
               />

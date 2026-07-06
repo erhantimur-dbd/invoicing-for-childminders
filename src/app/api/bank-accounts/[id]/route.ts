@@ -3,13 +3,14 @@ import { createClient } from '@/lib/supabase/server'
 import { encryptField, decryptField, maskAccountNumber, maskSortCode } from '@/lib/crypto'
 import { log } from '@/lib/log'
 import { z } from 'zod'
+import { sortCodeSchema, accountNumberSchema, normaliseSortCode } from '@/lib/validation'
 
 const PatchInput = z.object({
   nickname: z.string().max(40).optional(),
   bank_name: z.string().max(80).optional(),
   account_name: z.string().min(1).max(120).optional(),
-  sort_code: z.string().min(1).max(16).optional(),
-  account_number: z.string().min(4).max(16).optional(),
+  sort_code: sortCodeSchema.optional(),
+  account_number: accountNumberSchema.optional(),
 })
 
 type AccountRow = {
@@ -59,7 +60,7 @@ export async function PATCH(
   if (parsed.data.nickname !== undefined) update.nickname = parsed.data.nickname
   if (parsed.data.bank_name !== undefined) update.bank_name = parsed.data.bank_name
   if (parsed.data.account_name !== undefined) update.account_name = parsed.data.account_name
-  if (parsed.data.sort_code !== undefined) update.sort_code = encryptField(parsed.data.sort_code)
+  if (parsed.data.sort_code !== undefined) update.sort_code = encryptField(normaliseSortCode(parsed.data.sort_code))
   if (parsed.data.account_number !== undefined) update.account_number = encryptField(parsed.data.account_number)
 
   const { data, error } = await supabase

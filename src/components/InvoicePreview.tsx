@@ -222,7 +222,15 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
       {invoice.stripe_payment_link && (
         <div style={{ margin: '0 40px 32px', padding: '14px 16px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', fontFamily: 'Arial, sans-serif' }}>
           <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#2563EB', textTransform: 'uppercase', marginBottom: '6px' }}>Pay online</div>
-          <div style={{ fontSize: '13px', color: '#1D4ED8', wordBreak: 'break-all' }}>{invoice.stripe_payment_link}</div>
+          {/* Clickable on screen; prints as the plain URL so a paper copy still works */}
+          <a
+            href={invoice.stripe_payment_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: '13px', color: '#1D4ED8', wordBreak: 'break-all', textDecoration: 'underline' }}
+          >
+            {invoice.stripe_payment_link}
+          </a>
         </div>
       )}
 

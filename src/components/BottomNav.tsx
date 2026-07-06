@@ -30,7 +30,7 @@ export default function BottomNav() {
                 active ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'
               )}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className="h-5 w-5" aria-hidden="true" />
               <span>{label}</span>
             </Link>
           )

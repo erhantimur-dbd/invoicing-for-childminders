@@ -54,6 +54,19 @@ function baseLayout(content: string): string {
 </html>`
 }
 
+// Parent-facing templates interpolate user-supplied names (parent, child,
+// childminder) — always escape them. Same rules as esc() in the invoice
+// send route.
+function esc(str: string | null | undefined): string {
+  if (!str) return ''
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function ctaButton(label: string, href: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0;">
     <tr>
@@ -266,6 +279,145 @@ export function subscriptionConfirmEmail({
 
   return {
     subject: "You're all set! Dottie subscription confirmed",
+    html: baseLayout(content),
+  }
+}
+
+// ─── Template 4: Payment reminder (parent-facing) ─────────────────────────────
+//
+// Sent by the reminders cron to a parent when an invoice is unpaid past its
+// due date. Framed on behalf of the childminder — the parent has no Dottie
+// account, so keep it transactional and business-like.
+
+export function paymentReminderEmail({
+  parentName,
+  childFirstName,
+  invoiceNumber,
+  total,
+  dueDate,
+  publicUrl,
+  payUrl,
+  overdue,
+  childminderName,
+}: {
+  parentName: string
+  childFirstName: string
+  invoiceNumber: string
+  total: number
+  dueDate: string | null
+  publicUrl: string
+  payUrl?: string | null
+  overdue: boolean
+  childminderName: string
+}): { subject: string; html: string } {
+  const firstName = esc(parentName.split(' ')[0] || parentName)
+  const amount = `£${total.toFixed(2)}`
+  const dueLine = dueDate
+    ? `was due on <strong>${esc(dueDate)}</strong>`
+    : 'is awaiting payment'
+
+  const content = `
+    <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#111827;">${overdue ? 'Payment overdue' : 'Payment reminder'}</h1>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Invoice ${esc(invoiceNumber)} from ${esc(childminderName)}</p>
+
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+      Hi ${firstName}, this is a friendly reminder on behalf of <strong>${esc(childminderName)}</strong> that
+      invoice <strong>${esc(invoiceNumber)}</strong> for ${esc(childFirstName)}'s childcare ${dueLine}.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${overdue ? '#fef2f2' : '#fffbeb'};border:1px solid ${overdue ? '#fecaca' : '#fde68a'};border-radius:10px;margin:24px 0;">
+      <tr>
+        <td style="padding:20px 24px;">
+          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:${overdue ? '#991b1b' : '#92400e'};text-transform:uppercase;letter-spacing:0.5px;">Amount due</p>
+          <p style="margin:0;font-size:24px;font-weight:700;color:#111827;">${amount}</p>
+        </td>
+      </tr>
+    </table>
+
+    ${payUrl ? ctaButton('Pay now', payUrl) : ''}
+    ${ctaButton('View invoice', publicUrl)}
+
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
+      Bank transfer details are shown on the invoice. If you've already paid, you can safely ignore this email.
+    </p>
+
+    <p style="margin:20px 0 0;font-size:14px;color:#374151;">
+      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Dottie
+    </p>
+  `
+
+  return {
+    subject: overdue
+      ? `Overdue: invoice ${invoiceNumber} from ${childminderName}`
+      : `Reminder: invoice ${invoiceNumber} from ${childminderName}`,
+    html: baseLayout(content),
+  }
+}
+
+// ─── Template 5: Payment received (parent-facing) ─────────────────────────────
+//
+// Sent when the childminder marks an invoice as paid — acts as the parent's
+// receipt/confirmation.
+
+export function paymentReceivedEmail({
+  parentName,
+  childFirstName,
+  invoiceNumber,
+  total,
+  paidDate,
+  childminderName,
+}: {
+  parentName: string
+  childFirstName: string
+  invoiceNumber: string
+  total: number
+  paidDate: string
+  childminderName: string
+}): { subject: string; html: string } {
+  const firstName = esc(parentName.split(' ')[0] || parentName)
+  const amount = `£${total.toFixed(2)}`
+
+  const content = `
+    <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#111827;">Payment received — thank you! 💚</h1>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Invoice ${esc(invoiceNumber)} from ${esc(childminderName)}</p>
+
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+      Hi ${firstName}, ${esc(childminderName)} has confirmed your payment for
+      ${esc(childFirstName)}'s childcare. This email is your receipt.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin:24px 0;">
+      <tr>
+        <td style="padding:20px 24px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="padding:2px 0;font-size:14px;color:#6b7280;">Invoice</td>
+              <td style="padding:2px 0;font-size:14px;color:#111827;font-weight:600;text-align:right;">${esc(invoiceNumber)}</td>
+            </tr>
+            <tr>
+              <td style="padding:2px 0;font-size:14px;color:#6b7280;">Amount paid</td>
+              <td style="padding:2px 0;font-size:14px;color:#111827;font-weight:600;text-align:right;">${amount}</td>
+            </tr>
+            <tr>
+              <td style="padding:2px 0;font-size:14px;color:#6b7280;">Date</td>
+              <td style="padding:2px 0;font-size:14px;color:#111827;font-weight:600;text-align:right;">${esc(paidDate)}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
+      No action needed — this is just a confirmation for your records.
+    </p>
+
+    <p style="margin:20px 0 0;font-size:14px;color:#374151;">
+      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Dottie
+    </p>
+  `
+
+  return {
+    subject: `Payment received for invoice ${invoiceNumber}`,
     html: baseLayout(content),
   }
 }

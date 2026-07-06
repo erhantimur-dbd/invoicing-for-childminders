@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { Loader2, User, Phone, Landmark, Baby, Calendar } from 'lucide-react'
 import type { Child, FundingType, FundingScheme } from '@/lib/types'
 import { FUNDING_SCHEME_LABELS } from '@/lib/types'
+import { parentEmailSchema, moneyAmountSchema } from '@/lib/validation'
 
 type SavedBank = {
   label: string
@@ -229,6 +230,31 @@ export default function ChildForm({ child, mode }: Props) {
     if (form.funding_type !== 'none' && !form.funded_hours_per_day) {
       setRateError('Please set the funded hours per day.')
       return
+    }
+    // Parent email must be valid — it's where invoices and reminders go.
+    if (form.parent_email && !parentEmailSchema.safeParse(form.parent_email).success) {
+      toast.error('Enter a valid parent email address')
+      return
+    }
+    // Rates can't be negative and must be sane numbers.
+    for (const [label, value] of [
+      ['Daily rate', form.daily_rate],
+      ['Half-day rate', form.half_day_rate],
+      ['Hourly rate', form.hourly_rate],
+    ] as const) {
+      if (value && !moneyAmountSchema.safeParse(value).success) {
+        toast.error(`${label} must be a positive amount`)
+        return
+      }
+    }
+    // DOB is the parent's verification factor on the public invoice page —
+    // a future or clearly-wrong date locks them out.
+    if (form.date_of_birth) {
+      const dob = new Date(form.date_of_birth)
+      if (isNaN(dob.getTime()) || dob > new Date() || dob.getFullYear() < new Date().getFullYear() - 18) {
+        toast.error("Check the child's date of birth — it looks wrong")
+        return
+      }
     }
     setRateError('')
 

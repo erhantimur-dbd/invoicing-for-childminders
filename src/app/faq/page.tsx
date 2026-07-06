@@ -90,7 +90,7 @@ const CATEGORIES = [
       },
       {
         q: 'Can parents pay online through Dottie?',
-        a: "Online card payments via Stripe are on our roadmap. Currently, invoices show your bank details so parents can pay by bank transfer — the most common method for UK childminders.",
+        a: "Yes — attach a payment link (from Stripe, Monzo, PayPal or similar) to any invoice and parents see a \"Pay now\" button on the invoice page and in reminder emails. Invoices also show your bank details for bank transfer — still the most common method for UK childminders.",
       },
       {
         q: 'Can I charge hourly, as well as full-day and half-day rates?',

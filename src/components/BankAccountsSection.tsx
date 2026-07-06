@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { sortCodeSchema, accountNumberSchema } from '@/lib/validation'
 import { Landmark, Plus, Pencil, Trash2, Loader2, Star } from 'lucide-react'
 
 type AccountSummary = {
@@ -100,6 +101,16 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
     if (!editingId && (!form.account_number.trim() || !form.sort_code.trim())) {
       toast.error('Sort code and account number are required')
       return
+    }
+    // Mirror the server-side format checks so the user gets an instant,
+    // specific message instead of a generic "Failed to save".
+    if (form.sort_code.trim()) {
+      const check = sortCodeSchema.safeParse(form.sort_code)
+      if (!check.success) { toast.error(check.error.issues[0].message); return }
+    }
+    if (form.account_number.trim()) {
+      const check = accountNumberSchema.safeParse(form.account_number)
+      if (!check.success) { toast.error(check.error.issues[0].message); return }
     }
 
     setSaving(true)

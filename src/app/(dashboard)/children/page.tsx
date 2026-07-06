@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Plus, ChevronRight, User, Archive } from 'lucide-react'
+import { Plus, ChevronRight, User, Archive, Upload } from 'lucide-react'
 import UnarchiveButton from '@/components/UnarchiveButton'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
@@ -63,19 +63,28 @@ export default async function ChildrenPage({
           </p>
         </div>
         {!showHistory && (
-          <Link href="/children/new">
-            <Button
-              className={cn(
-                'h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm',
-                atLimit
-                  ? 'bg-amber-500 hover:bg-amber-600'
-                  : 'bg-emerald-600 hover:bg-emerald-700'
-              )}
-            >
-              <Plus className="h-4 w-4" />
-              {atLimit ? 'Upgrade to add more' : 'Add child'}
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/children/import">
+              <Button variant="outline" className="h-10 px-4 rounded-xl gap-2 text-sm font-medium">
+                <Upload className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Import CSV</span>
+                <span className="sm:hidden">Import</span>
+              </Button>
+            </Link>
+            <Link href="/children/new">
+              <Button
+                className={cn(
+                  'h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm',
+                  atLimit
+                    ? 'bg-amber-500 hover:bg-amber-600'
+                    : 'bg-emerald-600 hover:bg-emerald-700'
+                )}
+              >
+                <Plus className="h-4 w-4" />
+                {atLimit ? 'Upgrade to add more' : 'Add child'}
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import InvoicePreview from '@/components/InvoicePreview'
-import { Loader2, ShieldCheck, AlertCircle, CheckCircle } from 'lucide-react'
+import { Loader2, ShieldCheck, AlertCircle, CheckCircle, CreditCard } from 'lucide-react'
 
 const TOKEN_KEY = (id: string) => `inv_token_${id}`
 
@@ -257,6 +257,18 @@ function InvoiceView({ invoiceId, token }: { invoiceId: string; token: string })
 
       {/* Invoice */}
       <div className="max-w-3xl mx-auto px-4 py-6">
+        {/* Pay now — shown when the childminder attached a payment link */}
+        {invoice.stripe_payment_link && invoice.status !== 'paid' && (
+          <a
+            href={invoice.stripe_payment_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-4 flex items-center justify-center gap-2 w-full h-13 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm transition-colors print:hidden"
+          >
+            <CreditCard className="h-5 w-5" aria-hidden="true" />
+            Pay now online
+          </a>
+        )}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <InvoicePreview
             invoice={invoice}

@@ -11,15 +11,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { encryptField, decryptField, maskAccountNumber, maskSortCode } from '@/lib/crypto'
 import { log } from '@/lib/log'
-import { z } from 'zod'
+import { bankAccountSchema, normaliseSortCode } from '@/lib/validation'
 
-const BankAccountInput = z.object({
-  nickname: z.string().max(40).optional().default(''),
-  bank_name: z.string().max(80).optional().default(''),
-  account_name: z.string().min(1).max(120),
-  sort_code: z.string().min(1).max(16),
-  account_number: z.string().min(4).max(16),
-})
+const BankAccountInput = bankAccountSchema
 
 type AccountRow = {
   id: string
@@ -88,7 +82,7 @@ export async function POST(req: NextRequest) {
       nickname: parsed.data.nickname,
       bank_name: parsed.data.bank_name,
       account_name: parsed.data.account_name,
-      sort_code: encryptField(parsed.data.sort_code),
+      sort_code: encryptField(normaliseSortCode(parsed.data.sort_code)),
       account_number: encryptField(parsed.data.account_number),
       created_at: now,
       updated_at: now,

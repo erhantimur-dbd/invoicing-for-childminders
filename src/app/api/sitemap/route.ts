@@ -14,6 +14,7 @@ const urls = [
   { loc: `${BASE_URL}/guides/funded-hours`,                          changefreq: 'weekly',  priority: '0.9' },
   { loc: `${BASE_URL}/guides/funded-hours/2026-invoice-rules`,       changefreq: 'weekly',  priority: '0.9' },
   { loc: `${BASE_URL}/guides/funded-hours/30-hours-9-month-rollout-2025`, changefreq: 'weekly', priority: '0.9' },
+  { loc: `${BASE_URL}/guides/expenses`,                              changefreq: 'weekly',  priority: '0.9' },
   { loc: `${BASE_URL}/privacy`,                                      changefreq: 'yearly',  priority: '0.3' },
   { loc: `${BASE_URL}/terms`,                                        changefreq: 'yearly',  priority: '0.3' },
 ]

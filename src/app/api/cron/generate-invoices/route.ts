@@ -8,6 +8,8 @@ import {
   type AgentChild,
 } from '@/lib/agent/invoice-agent'
 import { persistInvoices } from '@/lib/agent/create-invoices'
+import { markOverdueInvoices } from '@/lib/cron/overdue'
+import { sendDueReminders } from '@/lib/cron/reminders'
 
 export async function GET(request: NextRequest) {
   // Verify cron secret — Vercel sends this as Authorization: Bearer <CRON_SECRET>.
@@ -33,6 +35,12 @@ export async function GET(request: NextRequest) {
     { auth: { persistSession: false } }
   )
 
+  // These two run every tick, regardless of whose invoice-generation day it
+  // is — overdue marking and reminder chasing are hourly jobs in their own
+  // right and must not be skipped by the generation early-returns below.
+  const overdue = await markOverdueInvoices(supabaseAdmin)
+  const reminders = await sendDueReminders(supabaseAdmin)
+
   const { dates: weekDates, start: weekStart, end: weekEnd } = getPreviousWeekDates()
   const bankHolidays = await fetchUKBankHolidays()
 
@@ -43,7 +51,7 @@ export async function GET(request: NextRequest) {
     .eq('onboarding_completed', true)
 
   if (profileError || !profiles?.length) {
-    return NextResponse.json({ message: 'No eligible childminders', week: weekStart })
+    return NextResponse.json({ message: 'No eligible childminders', week: weekStart, overdue, reminders })
   }
 
   // Determine today's day name and current hour (UTC)
@@ -145,7 +153,7 @@ export async function GET(request: NextRequest) {
     results.push({ childminder: profile.full_name || profile.email, created: created.length, skipped: skipped.length })
   }
 
-  return NextResponse.json({ success: true, week: weekStart, results })
+  return NextResponse.json({ success: true, week: weekStart, results, overdue, reminders })
 }
 
 async function sendCronNotificationEmail(
