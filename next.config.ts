@@ -27,7 +27,8 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   `script-src ${scriptSrc}`,
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
-  "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
+  // calendar.google.com — embedded appointment scheduler on /demo (Book a demo)
+  "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://calendar.google.com",
   "manifest-src 'self'",
   "worker-src 'self' blob:",
   ...(isDev ? [] : ['upgrade-insecure-requests']),

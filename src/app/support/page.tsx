@@ -12,9 +12,9 @@ const FAQ_ITEMS = [
       "You choose when invoices generate — weekly, fortnightly, or monthly. Set your schedule during onboarding or update it any time in Settings. At your chosen time, Dottie automatically creates draft invoices for each child based on their schedule and rates. They appear in your invoices list marked as 'Draft' — review them, make any changes, and send to parents when you're ready.",
   },
   {
-    question: 'Is there a free trial?',
+    question: 'Can I see it before I pay?',
     answer:
-      'Yes! Every new account gets a 7-day free trial with full access to all features. No credit card required to start.',
+      "Yes — book a free demo and we'll give you a full walkthrough and answer your questions, with no obligation. We don't run a self-serve free trial as standard, though qualifying childminders may be offered one after a chat.",
   },
   {
     question: 'How much does it cost?',

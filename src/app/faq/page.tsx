@@ -43,7 +43,7 @@ const CATEGORIES = [
     questions: [
       {
         q: 'How do I get started?',
-        a: "Sign up for a free 7-day trial — no credit card required. You'll be guided through a quick setup: add your details, bank account, and the children you look after. Your first invoices will be ready automatically from there.",
+        a: "Sign up and choose a plan, or book a quick demo and we'll walk you through it first. Once you're in, you'll be guided through a quick setup: add your details, bank account, and the children you look after. Your first invoices will be ready automatically from there.",
       },
       {
         q: 'How long does setup take?',
@@ -109,11 +109,11 @@ const CATEGORIES = [
       },
       {
         q: 'Is there a free trial?',
-        a: "Yes — every new account gets a 7-day free trial with full access to all features. No credit card required.",
+        a: "We don't offer a self-serve free trial as standard — you sign up and choose a plan to get started. Book a demo and we'll help you decide if Dottie's right for your setting; qualifying childminders may be offered a trial after a chat.",
       },
       {
-        q: 'What happens when my trial ends?',
-        a: "You'll be prompted to choose a plan. If you don't subscribe, access to the app pauses — but your data is safely stored for 30 days in case you return.",
+        q: 'Can I see it before I pay?',
+        a: "Yes — book a free demo and we'll give you a full walkthrough, answer your questions, and show you exactly how Dottie would work for your setting. No obligation.",
       },
       {
         q: 'Can I cancel at any time?',
@@ -281,10 +281,10 @@ export default function FaqPage() {
               Contact us
             </Link>
             <Link
-              href="/signup"
+              href="/demo"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-white/40 text-white font-semibold text-sm hover:bg-white/10 transition-colors"
             >
-              Start free trial
+              Book a demo
             </Link>
           </div>
         </div>

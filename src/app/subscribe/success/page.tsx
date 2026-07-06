@@ -93,7 +93,7 @@ export default function SubscribeSuccessPage() {
         </div>
         <h1 className="text-xl font-extrabold text-gray-900 mb-2">Almost there</h1>
         <p className="text-gray-500 text-sm leading-relaxed mb-6">
-          Stripe took a little longer than usual. Your payment went through — your subscription will appear shortly. Carry on to your dashboard, your trial is fully active in the meantime.
+          Stripe took a little longer than usual. Your payment went through — your subscription will appear shortly. Carry on to your dashboard in the meantime.
         </p>
         <Link
           href="/dashboard"

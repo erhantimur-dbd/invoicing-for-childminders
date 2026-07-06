@@ -14,7 +14,7 @@ const FEATURES_COMMON = [
   'PDF invoices',
   'Expense tracking',
   'Tax year reports',
-  '7-day free trial',
+  'Cancel anytime',
 ]
 
 const PLANS = [
@@ -27,7 +27,7 @@ const PLANS = [
     annualMonthly: 8.25,
     features: ['Up to 5 children', ...FEATURES_COMMON],
     highlight: false,
-    cta: 'Start free trial',
+    cta: 'Subscribe',
   },
   {
     id: 'professional',
@@ -38,7 +38,7 @@ const PLANS = [
     annualMonthly: 16.58,
     features: ['Up to 20 children', ...FEATURES_COMMON],
     highlight: true,
-    cta: 'Start free trial',
+    cta: 'Subscribe',
   },
 ] as const
 
@@ -107,7 +107,7 @@ export default function SubscribePage() {
             <span className="font-bold text-red-900 text-lg">Your last payment failed</span>
           </div>
           <p className="text-red-800/90 text-sm leading-relaxed">
-            Your trial has ended and we couldn&apos;t charge your card. Update your payment method below to keep your subscription active and avoid losing access to your records.
+            We couldn&apos;t charge your card. Update your payment method below to keep your subscription active and avoid losing access to your records.
           </p>
         </div>
       ) : sub?.status === 'active' ? (
@@ -135,11 +135,11 @@ export default function SubscribePage() {
       ) : (
         <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-400 p-5 text-white text-center shadow-lg shadow-emerald-200/40">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <span className="text-xl">🎉</span>
-            <span className="font-extrabold text-lg">Your 7-day free trial is active</span>
+            <span className="text-xl">👋</span>
+            <span className="font-extrabold text-lg">Choose your plan to get started</span>
           </div>
           <p className="text-white/85 text-sm">
-            Use Dottie freely for 7 days. Pick a plan when you&apos;re ready — we&apos;ll only charge after the trial.
+            Pick the plan that fits your setting. You can change or cancel anytime.
           </p>
         </div>
       )}
@@ -149,7 +149,7 @@ export default function SubscribePage() {
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-center">
           <div className="text-amber-700 font-semibold mb-1">💳 Hold on — billing is briefly unavailable</div>
           <p className="text-amber-800/80 text-sm">
-            We couldn&apos;t reach Stripe just now. Your trial is unaffected; please try again in a moment.
+            We couldn&apos;t reach Stripe just now. Please try again in a moment.
           </p>
         </div>
       )}

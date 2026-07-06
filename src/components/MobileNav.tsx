@@ -51,11 +51,18 @@ export default function MobileNav() {
             Sign in
           </Link>
           <Link
+            href="/demo"
+            onClick={() => setOpen(false)}
+            className="mt-1 py-3 px-3 text-sm font-semibold text-center text-emerald-700 border border-emerald-200 hover:bg-emerald-50 rounded-xl transition-colors"
+          >
+            Book a demo
+          </Link>
+          <Link
             href="/signup"
             onClick={() => setOpen(false)}
             className="mt-1 py-3 px-3 text-sm font-semibold text-center text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors"
           >
-            Start free trial
+            Sign up
           </Link>
         </div>
       </div>

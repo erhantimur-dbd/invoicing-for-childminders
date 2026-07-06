@@ -130,13 +130,21 @@ export default async function RootPage() {
             <Link href="/login" className="hover:text-emerald-600 transition-colors">Sign in</Link>
           </div>
 
-          {/* CTA — hidden on mobile, shown on md+ */}
-          <Link
-            href="/signup"
-            className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-md shadow-emerald-200 transition-all active:scale-95"
-          >
-            Start free trial
-          </Link>
+          {/* CTAs — hidden on mobile, shown on md+ */}
+          <div className="hidden md:flex items-center gap-2">
+            <Link
+              href="/demo"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold transition-all active:scale-95"
+            >
+              Book a demo
+            </Link>
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-md shadow-emerald-200 transition-all active:scale-95"
+            >
+              Sign up
+            </Link>
+          </div>
 
           {/* Mobile hamburger */}
           <MobileNav />
@@ -173,7 +181,7 @@ export default async function RootPage() {
           <div className="text-white">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold tracking-wide mb-5">
               <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2.5} />
-              No credit card needed to start
+              Built for UK childminders
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
               Invoicing on autopilot for <span className="text-emerald-100">UK childminders</span>
@@ -187,18 +195,18 @@ export default async function RootPage() {
                 href="/signup"
                 className="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-white text-emerald-700 font-bold text-base shadow-xl shadow-black/20 hover:bg-emerald-50 transition-all active:scale-95"
               >
-                Start free trial
+                Sign up
               </Link>
-              <a
-                href="#how-it-works"
+              <Link
+                href="/demo"
                 className="inline-flex items-center justify-center px-7 py-4 rounded-2xl border-2 border-white/40 text-white font-semibold text-base hover:bg-white/10 transition-all"
               >
-                See how it works ↓
-              </a>
+                Book a demo
+              </Link>
             </div>
 
             <p className="text-white/70 text-sm">
-              No credit card &middot; Cancel anytime &middot; 7 days completely free
+              Set up in minutes &middot; Cancel anytime &middot; UK-based support
             </p>
           </div>
 
@@ -397,7 +405,7 @@ export default async function RootPage() {
               Simple, transparent pricing
             </h2>
             <p className="text-gray-500 text-lg">
-              Pick the plan that fits your childminding practice. Start free — no credit card needed.
+              Pick the plan that fits your childminding practice. Cancel anytime.
             </p>
           </div>
 
@@ -414,7 +422,7 @@ export default async function RootPage() {
                 <p className="text-gray-500 text-sm font-medium mt-3">Up to 5 children</p>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
-                {['Up to 5 children', 'Auto-generate invoices', 'Funded hours tracking', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
+                {['Up to 5 children', 'Auto-generate invoices', 'Funded hours tracking', 'PDF invoices', 'Expense tracking', 'Tax year reports', 'Cancel anytime'].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
                     {f}
@@ -422,7 +430,7 @@ export default async function RootPage() {
                 ))}
               </ul>
               <Link href="/signup" className="block w-full text-center py-3 rounded-2xl border-2 border-emerald-600 text-emerald-700 font-bold hover:bg-emerald-50 transition-colors">
-                Start free trial
+                Sign up
               </Link>
             </div>
 
@@ -443,7 +451,7 @@ export default async function RootPage() {
                 <p className="text-gray-500 text-sm font-medium mt-3">Up to 20 children</p>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
-                {['Up to 20 children', 'Auto-generate invoices', 'Funded hours tracking', 'PDF invoices', 'Expense tracking', 'Tax year reports', '7-day free trial'].map(f => (
+                {['Up to 20 children', 'Auto-generate invoices', 'Funded hours tracking', 'PDF invoices', 'Expense tracking', 'Tax year reports', 'Cancel anytime'].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">✓</span>
                     {f}
@@ -451,7 +459,7 @@ export default async function RootPage() {
                 ))}
               </ul>
               <Link href="/signup" className="block w-full text-center py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-200 transition-colors">
-                Start free trial
+                Sign up
               </Link>
             </div>
 
@@ -525,15 +533,23 @@ export default async function RootPage() {
                 Ready to take the admin out of childminding?
               </h2>
               <p className="text-white/85 text-lg mb-8 max-w-lg mx-auto">
-                Sign up, look around, and only add a card when you&apos;re sure.
+                Sign up and pick a plan, or book a quick demo and we&apos;ll show you around first.
               </p>
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl bg-white text-emerald-700 font-extrabold text-lg shadow-xl shadow-black/20 hover:bg-emerald-50 transition-all active:scale-95"
-              >
-                Start free trial →
-              </Link>
-              <p className="text-white/60 text-sm mt-4">7 days free · No credit card · Cancel anytime</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl bg-white text-emerald-700 font-extrabold text-lg shadow-xl shadow-black/20 hover:bg-emerald-50 transition-all active:scale-95"
+                >
+                  Sign up →
+                </Link>
+                <Link
+                  href="/demo"
+                  className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl border-2 border-white/50 text-white font-bold text-lg hover:bg-white/10 transition-all active:scale-95"
+                >
+                  Book a demo
+                </Link>
+              </div>
+              <p className="text-white/60 text-sm mt-4">Set up in minutes · Cancel anytime</p>
             </div>
           </div>
         </div>

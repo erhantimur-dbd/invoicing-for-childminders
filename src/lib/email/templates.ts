@@ -90,14 +90,14 @@ export function welcomeEmail({ name }: { name: string }): {
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">I'll be handling your invoicing from here on in.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      You've got <strong>7 days completely free</strong> to see how much time I can save you.
+      You're one step away — <strong>choose your plan</strong> and I'll take invoicing off your plate.
       You didn't become a childminder to spend Sunday nights writing invoices — that's my job now.
     </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:4px;margin:24px 0;">
       <tr>
         <td style="padding:20px 24px;">
-          <p style="margin:0 0 14px;font-size:14px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;">What's included in your trial</p>
+          <p style="margin:0 0 14px;font-size:14px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;">What's included</p>
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td style="padding:5px 0;">
@@ -146,7 +146,7 @@ export function welcomeEmail({ name }: { name: string }): {
       </tr>
     </table>
 
-    ${ctaButton('Get started', APP_URL)}
+    ${ctaButton('Choose your plan', `${APP_URL}/subscribe`)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
       Any questions? Just reply — I'm always here to help.

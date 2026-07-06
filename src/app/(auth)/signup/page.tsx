@@ -82,8 +82,9 @@ export default function SignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: data.user?.id }),
       }).catch(console.error)
-      toast.success('Account created! Welcome aboard.')
-      router.push('/onboarding')
+      toast.success('Account created! Choose your plan to get started.')
+      // No free trial by default — go straight to plan selection / checkout.
+      router.push('/subscribe')
       router.refresh()
     }
   }
@@ -93,9 +94,9 @@ export default function SignupPage() {
       <div className="space-y-6">
         <ul className="space-y-2">
           {[
-            '7-day free trial — no credit card required',
             'Set up in under 5 minutes',
             'Cancel anytime',
+            'UK-based support',
           ].map((item) => (
             <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -190,7 +191,7 @@ export default function SignupPage() {
             className="w-full h-12 text-base bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-sm shadow-emerald-200"
             disabled={loading}
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create free account'}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create account'}
           </Button>
 
           <div className="space-y-1">

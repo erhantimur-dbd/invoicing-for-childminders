@@ -3,11 +3,11 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Plans & Pricing',
-  description: 'Simple, transparent pricing for Dottie. Starter from £9.99/mo for up to 5 children. Professional from £19.99/mo for up to 20 children. 7-day free trial, no credit card required.',
+  description: 'Simple, transparent pricing for Dottie. Starter from £9.99/mo for up to 5 children. Professional from £19.99/mo for up to 20 children. Cancel anytime.',
   alternates: { canonical: 'https://www.godottie.cloud/subscribe' },
   openGraph: {
     title: 'Plans & Pricing — Dottie',
-    description: 'Starter from £9.99/mo · Professional from £19.99/mo · 7-day free trial.',
+    description: 'Starter from £9.99/mo · Professional from £19.99/mo · Cancel anytime.',
     url: 'https://www.godottie.cloud/subscribe',
   },
 }

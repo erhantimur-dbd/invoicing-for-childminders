@@ -38,7 +38,7 @@ const TOC = [
   { id: 'eligibility', label: 'Eligibility' },
   { id: 'account', label: 'Your account' },
   { id: 'subscription', label: 'Subscription and billing' },
-  { id: 'free-trial', label: 'Free trial' },
+  { id: 'free-trial', label: 'Free trials' },
   { id: 'cancellation', label: 'Cancellation and refunds' },
   { id: 'acceptable-use', label: 'Acceptable use' },
   { id: 'your-data', label: 'Your data' },
@@ -143,7 +143,7 @@ export default function TermsPage() {
             </Section>
 
             <Section id="subscription" title="5. Subscription and billing">
-              <P>After your free trial ends, continued access to Dottie requires an active subscription. We offer the following plans:</P>
+              <P>Access to Dottie requires an active subscription. We offer the following plans:</P>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Starter</p>
@@ -167,12 +167,12 @@ export default function TermsPage() {
               </P>
             </Section>
 
-            <Section id="free-trial" title="6. Free trial">
+            <Section id="free-trial" title="6. Free trials">
               <P>
-                New accounts receive a 7-day free trial with full access to all features. No payment method is required to start your trial.
+                Free trials are not offered as standard. New accounts subscribe to a plan to access Dottie. We may, at our sole discretion, offer a free trial to selected accounts — for example following a demo or qualification conversation.
               </P>
               <P>
-                We reserve the right to modify or terminate free trial offers at any time. Only one free trial is permitted per person. Attempts to obtain multiple trials by creating multiple accounts are a violation of these Terms.
+                Where a trial is offered, we reserve the right to modify or terminate it at any time. Only one free trial is permitted per person, and attempting to obtain multiple trials by creating multiple accounts is a violation of these Terms.
               </P>
             </Section>
 
