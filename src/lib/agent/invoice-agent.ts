@@ -5,6 +5,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { buildLineItemsForDay, formatDateLabel } from '@/lib/funded-hours'
+import type { FundingScheme, LineItemCategory } from '@/lib/types'
 
 export type ScheduleDay = { day: string; type: 'full' | 'half' }
 
@@ -20,6 +21,7 @@ export type AgentChild = {
   schedule_days: ScheduleDay[]
   schedule_note: string | null
   funding_type: 'none' | '15' | '30'
+  funding_scheme: FundingScheme | null
   funded_hours_per_day: number | null
   funded_days: string[] | null
 }
@@ -31,6 +33,7 @@ export type AgentLineItem = {
   unit_price: number
   amount: number
   is_funded: boolean
+  category?: LineItemCategory
 }
 
 export type AgentDecision = {
@@ -182,7 +185,7 @@ Please check for any additional context needed, then call decide_invoices with y
   // Agentic loop
   for (let turn = 0; turn < 6; turn++) {
     const response = await client.messages.create({
-      model: 'claude-opus-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4096,
       system: systemPrompt,
       tools,
@@ -243,6 +246,7 @@ Please check for any additional context needed, then call decide_invoices with y
 
                 const dayItems = buildLineItemsForDay(dateStr, dayName, {
                   funding_type: child.funding_type,
+                  funding_scheme: child.funding_scheme,
                   funded_hours_per_day: child.funded_hours_per_day,
                   funded_days: child.funded_days,
                   hourly_rate: child.hourly_rate,
@@ -309,6 +313,7 @@ export function buildFallbackDecisions(
 
       const dayItems = buildLineItemsForDay(dateStr, dayName, {
         funding_type: child.funding_type,
+        funding_scheme: child.funding_scheme,
         funded_hours_per_day: child.funded_hours_per_day,
         funded_days: child.funded_days,
         hourly_rate: child.hourly_rate,

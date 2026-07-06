@@ -71,14 +71,16 @@ export default function InvoicePage() {
       if (inv) setInvoice(inv)
       if (prof) {
         setProfile(prof)
-        // Fetch primary bank account if set
+        // Bank details are encrypted at rest — fetch via the server route
+        // that decrypts before returning.
         if (prof.primary_bank_account_id) {
-          const { data: bank } = await supabase
-            .from('bank_accounts')
-            .select('*')
-            .eq('id', prof.primary_bank_account_id)
-            .single()
-          if (bank) setPrimaryBankAccount(bank)
+          try {
+            const r = await fetch('/api/bank-accounts/primary')
+            if (r.ok) {
+              const { account } = await r.json()
+              if (account) setPrimaryBankAccount(account)
+            }
+          } catch { /* non-fatal */ }
         }
       }
       if (reminder) {

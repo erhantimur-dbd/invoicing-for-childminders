@@ -5,6 +5,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import type { AgentDecision } from './invoice-agent'
+import { log } from '@/lib/log'
 
 export type CreatedInvoice = {
   id: string
@@ -98,11 +99,17 @@ export async function persistInvoices(
       .single()
 
     if (invError || !invoice) {
-      console.error('Failed to create invoice for', childName, invError)
+      log.error('invoice_create_failed', invError, {
+        child_id: decision.child_id,
+        child_name: childName,
+        childminder_id: childminderUserId,
+        generated_by: generatedBy,
+      })
       continue
     }
 
-    // Insert line items
+    // Insert line items. Category defaults to 'funded' / 'paid' based on
+    // is_funded so legacy agent decisions still produce categorised rows.
     await supabase.from('invoice_line_items').insert(
       decision.line_items.map(item => ({
         invoice_id: invoice.id,
@@ -112,6 +119,7 @@ export async function persistInvoices(
         unit_price: item.unit_price,
         amount: item.amount,
         is_funded: item.is_funded ?? false,
+        category: item.category ?? (item.is_funded ? 'funded' : 'paid'),
       }))
     )
 

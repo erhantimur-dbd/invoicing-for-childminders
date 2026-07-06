@@ -136,13 +136,26 @@ export default function OnboardingPage() {
           city: data.city || '',
           postcode: data.postcode || '',
         })
-        setBank({
-          default_bank_name: data.default_bank_name || '',
-          default_bank_account_name: data.default_bank_account_name || '',
-          default_bank_sort_code: data.default_bank_sort_code || '',
-          default_bank_account_number: data.default_bank_account_number || '',
-        })
       }
+
+      // Bank details: pre-fill non-sensitive fields from /api/bank-accounts.
+      // Sort code and account number are stored encrypted and never echoed
+      // back to the browser, so they must be re-entered.
+      try {
+        const r = await fetch('/api/bank-accounts')
+        if (r.ok) {
+          const j: { accounts: Array<{ bank_name: string; account_name: string }> } = await r.json()
+          const first = j.accounts?.[0]
+          if (first) {
+            setBank({
+              default_bank_name: first.bank_name || '',
+              default_bank_account_name: first.account_name || '',
+              default_bank_sort_code: '',
+              default_bank_account_number: '',
+            })
+          }
+        }
+      } catch { /* non-fatal — leave bank fields empty */ }
     }
     load()
   }, [])
@@ -161,45 +174,51 @@ export default function OnboardingPage() {
 
   async function saveStep2() {
     setSaving(true)
-    // Save to legacy profile columns for backward compat
-    await supabase.from('profiles')
-      .update({ ...bank, updated_at: new Date().toISOString() })
-      .eq('id', userId)
 
-    // Also save into bank_accounts table (upsert based on childminder + nickname)
-    if (bank.default_bank_account_number) {
-      // Check if one already exists
-      const { data: existing } = await supabase
-        .from('bank_accounts')
-        .select('id')
-        .eq('childminder_id', userId)
-        .limit(1)
-        .single()
+    // Bank details go through /api/bank-accounts so the server can encrypt
+    // them (the encryption key never reaches the browser).
+    if (bank.default_bank_account_number && bank.default_bank_sort_code) {
+      try {
+        // Find any existing account so we PATCH instead of creating duplicates.
+        const listRes = await fetch('/api/bank-accounts')
+        const existingId: string | null = listRes.ok
+          ? (await listRes.json()).accounts?.[0]?.id ?? null
+          : null
 
-      if (existing) {
-        // Update the first account
-        await supabase.from('bank_accounts').update({
-          bank_name: bank.default_bank_name || '',
-          account_name: bank.default_bank_account_name || '',
-          sort_code: bank.default_bank_sort_code || '',
-          account_number: bank.default_bank_account_number || '',
-          updated_at: new Date().toISOString(),
-        }).eq('id', existing.id)
-      } else {
-        // Insert new and set as primary
-        const { data: newBank } = await supabase.from('bank_accounts').insert({
-          childminder_id: userId,
+        const payload = {
           nickname: 'Default',
           bank_name: bank.default_bank_name || '',
           account_name: bank.default_bank_account_name || '',
-          sort_code: bank.default_bank_sort_code || '',
-          account_number: bank.default_bank_account_number || '',
-        }).select().single()
-        if (newBank) {
-          await supabase.from('profiles')
-            .update({ primary_bank_account_id: newBank.id })
-            .eq('id', userId)
+          sort_code: bank.default_bank_sort_code,
+          account_number: bank.default_bank_account_number,
         }
+
+        if (existingId) {
+          await fetch(`/api/bank-accounts/${existingId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+        } else {
+          const r = await fetch('/api/bank-accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+          if (r.ok) {
+            const { account } = await r.json()
+            if (account?.id) {
+              // Make this the primary account so invoices pick it up by default.
+              await supabase.from('profiles')
+                .update({ primary_bank_account_id: account.id, updated_at: new Date().toISOString() })
+                .eq('id', userId)
+            }
+          }
+        }
+      } catch {
+        toast.error('Could not save bank details')
+        setSaving(false)
+        return false
       }
     }
 

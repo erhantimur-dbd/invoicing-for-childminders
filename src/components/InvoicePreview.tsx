@@ -1,8 +1,25 @@
-import type { Invoice, Profile, BankAccount } from '@/lib/types'
+import type { Invoice, InvoiceLineItem, LineItemCategory, Profile, BankAccount } from '@/lib/types'
+import { LINE_ITEM_CATEGORY_LABELS } from '@/lib/types'
 import { format } from 'date-fns'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
+}
+
+// Resolve a category for legacy items that have null category.
+function categoryFor(item: InvoiceLineItem): LineItemCategory {
+  if (item.category) return item.category
+  return item.is_funded ? 'funded' : 'paid'
+}
+
+const CATEGORY_ORDER: LineItemCategory[] = ['funded', 'paid', 'food', 'consumable', 'activity', 'other']
+const CATEGORY_BG: Record<LineItemCategory, string> = {
+  funded: '#F0FDF4',
+  paid: '#FFFFFF',
+  food: '#FFFBEB',
+  consumable: '#F5F3FF',
+  activity: '#EFF6FF',
+  other: '#F9FAFB',
 }
 
 type Props = {
@@ -97,45 +114,66 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
         </div>
       </div>
 
-      {/* Line items table */}
+      {/* Line items — grouped by category per Jan 2026 invoice rules */}
       <div style={{ margin: '0 40px 40px', fontFamily: 'Arial, sans-serif' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
             <tr style={{ background: '#111827', color: 'white' }}>
               <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase' }}>Description</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', width: '60px' }}>Days</th>
+              <th style={{ padding: '10px 16px', textAlign: 'center', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', width: '60px' }}>Qty</th>
               <th style={{ padding: '10px 16px', textAlign: 'right', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', width: '80px' }}>Rate</th>
               <th style={{ padding: '10px 16px', textAlign: 'right', fontWeight: '600', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', width: '90px' }}>Amount</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((item, idx) => {
-              const funded = !!(item as any).is_funded
-              return (
-                <tr key={item.id} style={{ background: funded ? '#F0FDF4' : (idx % 2 === 0 ? '#ffffff' : '#F9FAFB'), borderBottom: '1px solid #F3F4F6' }}>
-                  <td style={{ padding: '12px 16px', color: '#374151' }}>
-                    {item.description}
-                    {funded && <span style={{ marginLeft: '8px', fontSize: '10px', fontWeight: '700', color: '#059669', background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Funded</span>}
+            {CATEGORY_ORDER.flatMap(cat => {
+              const rows = items.filter(it => categoryFor(it) === cat)
+              if (rows.length === 0) return []
+              const subtotal = rows.reduce((s, it) => s + Number(it.amount || 0), 0)
+              return [
+                <tr key={`hdr-${cat}`} style={{ background: '#F3F4F6' }}>
+                  <td colSpan={4} style={{ padding: '8px 16px', fontSize: '10px', fontWeight: '700', color: '#6B7280', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+                    {LINE_ITEM_CATEGORY_LABELS[cat]}
                   </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'center', color: funded ? '#059669' : '#6B7280' }}>
-                    {funded ? `${item.quantity} hrs` : item.quantity}
-                  </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', color: funded ? '#059669' : '#6B7280' }}>
-                    {funded ? 'FUNDED' : formatGBP(Number(item.unit_price))}
-                  </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: funded ? '#059669' : '#111827' }}>
-                    {funded ? '£0.00' : formatGBP(Number(item.amount))}
-                  </td>
-                </tr>
-              )
+                </tr>,
+                ...rows.map(item => {
+                  const funded = cat === 'funded'
+                  return (
+                    <tr key={item.id} style={{ background: CATEGORY_BG[cat], borderBottom: '1px solid #F3F4F6' }}>
+                      <td style={{ padding: '12px 16px', color: '#374151' }}>
+                        {item.description}
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'center', color: funded ? '#059669' : '#6B7280' }}>
+                        {funded ? `${item.quantity} hrs` : item.quantity}
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: funded ? '#059669' : '#6B7280' }}>
+                        {funded ? 'FUNDED' : formatGBP(Number(item.unit_price))}
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: funded ? '#059669' : '#111827' }}>
+                        {formatGBP(Number(item.amount))}
+                      </td>
+                    </tr>
+                  )
+                }),
+                rows.length > 1 ? (
+                  <tr key={`sub-${cat}`} style={{ background: CATEGORY_BG[cat] }}>
+                    <td colSpan={3} style={{ padding: '6px 16px', textAlign: 'right', fontSize: '11px', color: '#6B7280', fontStyle: 'italic' }}>
+                      {LINE_ITEM_CATEGORY_LABELS[cat]} subtotal
+                    </td>
+                    <td style={{ padding: '6px 16px', textAlign: 'right', fontSize: '12px', fontWeight: '700', color: '#374151' }}>
+                      {formatGBP(subtotal)}
+                    </td>
+                  </tr>
+                ) : null,
+              ].filter(Boolean) as React.ReactNode[]
             })}
           </tbody>
         </table>
 
-        {/* Funded hours notice */}
-        {items.some(i => (i as any).is_funded) && (
+        {/* Funded hours notice — Jan 2026 compliance footer */}
+        {items.some(i => categoryFor(i) === 'funded') && (
           <div style={{ margin: '12px 0', padding: '10px 16px', background: '#F0FDF4', borderLeft: '3px solid #059669', borderRadius: '4px', fontSize: '11px', color: '#065F46', fontFamily: 'Arial, sans-serif' }}>
-            Government-funded hours shown as FREE per DfE guidance. Total reflects private hours only.
+            Government-funded hours shown explicitly at £0 per DfE invoicing guidance (effective January 2026). Additional paid hours, food, consumables, and activities are itemised separately and are voluntary — not a condition of the funded place.
           </div>
         )}
 

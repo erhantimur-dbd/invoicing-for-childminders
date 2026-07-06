@@ -10,10 +10,15 @@ import {
 import { persistInvoices } from '@/lib/agent/create-invoices'
 
 export async function GET(request: NextRequest) {
-  // Verify cron secret — Vercel sends this automatically; also checked manually
-  const authHeader = request.headers.get('authorization')
+  // Verify cron secret — Vercel sends this as Authorization: Bearer <CRON_SECRET>.
+  // Hard-fail if the secret isn't configured: an unauthenticated cron endpoint
+  // is a public job-runner anyone can trigger.
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
+  }
+  const authHeader = request.headers.get('authorization')
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -71,7 +76,7 @@ export async function GET(request: NextRequest) {
     // Get children with schedules for this childminder
     const { data: childRows } = await supabaseAdmin
       .from('children')
-      .select('id, first_name, last_name, parent_name, daily_rate, half_day_rate, hourly_rate, hours_per_day, schedule_days, schedule_note, funding_type, funded_hours_per_day, funded_days')
+      .select('id, first_name, last_name, parent_name, daily_rate, half_day_rate, hourly_rate, hours_per_day, schedule_days, schedule_note, funding_type, funding_scheme, funded_hours_per_day, funded_days')
       .eq('childminder_id', profile.id)
       .eq('is_active', true)
       .is('archived_at', null)
@@ -92,6 +97,7 @@ export async function GET(request: NextRequest) {
       schedule_days: Array.isArray(c.schedule_days) ? c.schedule_days : [],
       schedule_note: c.schedule_note || null,
       funding_type: c.funding_type || 'none',
+      funding_scheme: c.funding_scheme || null,
       funded_hours_per_day: c.funded_hours_per_day ? Number(c.funded_hours_per_day) : null,
       funded_days: Array.isArray(c.funded_days) ? c.funded_days : null,
     }))
@@ -151,7 +157,7 @@ async function sendCronNotificationEmail(
 ) {
   const { Resend } = await import('resend')
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://invoicing-for-childminders.vercel.app'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
 
   const weekLabel = `${new Date(weekStart + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(weekEnd + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
   const totalAmount = created.reduce((s, i) => s + i.total, 0)
@@ -169,7 +175,7 @@ async function sendCronNotificationEmail(
     : ''
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'invoices@invoicing-for-childminders.vercel.app',
+    from: process.env.RESEND_FROM_EMAIL || 'Dottie <invoices@godottie.cloud>',
     to: profile.email,
     subject: `✨ ${created.length} draft invoice${created.length !== 1 ? 's' : ''} generated — w/c ${weekLabel}`,
     html: `

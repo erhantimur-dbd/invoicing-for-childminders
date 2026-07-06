@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { createInvoiceToken } from '@/lib/invoiceToken'
+import { rateLimit, clientIp } from '@/lib/rate-limit'
 
 const MAX_ATTEMPTS = 5
 const WINDOW_MINUTES = 15
@@ -15,9 +17,25 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: invoiceId } = await params
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const ip = clientIp(req.headers)
 
-  // 1. Rate limit — count failed attempts in the last WINDOW_MINUTES
+  // 1a. Per-invoice global rate limit (defends against botnet / IP rotation).
+  // 30 verify attempts per invoice per 15 minutes — a real parent retrying
+  // their child's DOB will need <5 tries; anything more is enumeration.
+  const globalRl = await rateLimit({
+    bucket: `invoice_verify:${invoiceId}`,
+    identifier: 'global',
+    limit: 30,
+    windowMs: WINDOW_MINUTES * 60 * 1000,
+  })
+  if (!globalRl.ok) {
+    return NextResponse.json(
+      { error: 'Too many attempts on this invoice. Please contact your childminder.', locked: true },
+      { status: 429, headers: { 'Retry-After': String(globalRl.retryAfterSeconds) } }
+    )
+  }
+
+  // 1b. Per-IP failed attempts, audit-logged in invoice_access_attempts.
   const windowStart = new Date(Date.now() - WINDOW_MINUTES * 60 * 1000).toISOString()
   const { count: recentFailures } = await supabaseAdmin
     .from('invoice_access_attempts')
@@ -62,9 +80,14 @@ export async function POST(
   const child = (invoice as any).children
   const storedDob: string | null = child?.date_of_birth ?? null
 
-  // 4. Compare DOB (both normalised to YYYY-MM-DD)
+  // 4. Compare DOB (both normalised to YYYY-MM-DD), constant-time.
   const normalise = (d: string) => d.trim().replace(/\//g, '-')
-  const match = storedDob && normalise(dob) === normalise(storedDob)
+  let match = false
+  if (storedDob) {
+    const a = Buffer.from(normalise(dob))
+    const b = Buffer.from(normalise(storedDob))
+    if (a.length === b.length) match = timingSafeEqual(a, b)
+  }
 
   // 5. Record attempt
   await supabaseAdmin.from('invoice_access_attempts').insert({

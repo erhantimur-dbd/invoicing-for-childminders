@@ -1,28 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { rateLimit, clientIp } from '@/lib/rate-limit'
+import { log } from '@/lib/log'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-
-// ── Simple in-memory rate limiter ──────────────────────────────────────────
-// Max 3 submissions per IP per 15 minutes
-const RATE_LIMIT = 3
-const RATE_WINDOW_MS = 15 * 60 * 1000
-const ipSubmissions = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = ipSubmissions.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    ipSubmissions.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS })
-    return true
-  }
-
-  if (entry.count >= RATE_LIMIT) return false
-
-  entry.count++
-  return true
-}
 
 // ── Spam keyword filter ────────────────────────────────────────────────────
 const SPAM_PATTERNS = [
@@ -36,16 +17,19 @@ function isSpam(text: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    req.headers.get('x-real-ip') ??
-    'unknown'
+  const ip = clientIp(req.headers)
 
-  // ── Rate limit ─────────────────────────────────────────────────────────
-  if (!checkRateLimit(ip)) {
+  // ── Rate limit: 3 submissions per IP per 15 minutes ─────────────────────
+  const rl = await rateLimit({
+    bucket: 'contact',
+    identifier: ip,
+    limit: 3,
+    windowMs: 15 * 60 * 1000,
+  })
+  if (!rl.ok) {
     return NextResponse.json(
       { error: 'Too many requests. Please wait a few minutes before trying again.' },
-      { status: 429 },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSeconds) } },
     )
   }
 
@@ -94,14 +78,14 @@ export async function POST(req: NextRequest) {
 
   try {
     await resend.emails.send({
-      from: 'Dottie Contact Form <hello@dottie.cloud>',
-      to: 'support@dottie.cloud',
+      from: 'Dottie Contact Form <hello@godottie.cloud>',
+      to: 'support@godottie.cloud',
       replyTo: email.trim(),
       subject: `[Contact] ${safeSubject}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
           <h2 style="color: #059669; margin-bottom: 4px;">New contact form submission</h2>
-          <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via dottie.cloud/support</p>
+          <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via godottie.cloud/support</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
           <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <tr><td style="padding: 6px 0; color: #6b7280; width: 80px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${name.trim()}</td></tr>
@@ -118,7 +102,7 @@ export async function POST(req: NextRequest) {
 
     // Send confirmation to the sender
     await resend.emails.send({
-      from: 'Dottie <hello@dottie.cloud>',
+      from: 'Dottie <hello@godottie.cloud>',
       to: email.trim(),
       subject: "Got your message — I'll be in touch soon 👋",
       html: `
@@ -139,7 +123,7 @@ export async function POST(req: NextRequest) {
             </p>
           </div>
           <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; padding: 16px 32px; text-align: center;">
-            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Dottie · <a href="https://www.dottie.cloud" style="color: #059669;">www.dottie.cloud</a></p>
+            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Dottie · <a href="https://www.godottie.cloud" style="color: #059669;">www.godottie.cloud</a></p>
           </div>
         </div>
       `,
@@ -147,9 +131,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('Contact form email error:', err)
+    log.error('contact_form_send_failed', err, { ip })
     return NextResponse.json(
-      { error: 'Failed to send message. Please email us directly at support@dottie.cloud.' },
+      { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
       { status: 500 },
     )
   }

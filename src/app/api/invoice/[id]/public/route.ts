@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { verifyInvoiceToken } from '@/lib/invoiceToken'
+import { decryptField } from '@/lib/crypto'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,7 +45,22 @@ export async function GET(
       .select('bank_name, account_name, sort_code, account_number')
       .eq('id', profile.primary_bank_account_id)
       .single()
-    bankAccount = bank
+    if (bank) {
+      bankAccount = {
+        bank_name: bank.bank_name,
+        account_name: bank.account_name,
+        sort_code: decryptField(bank.sort_code),
+        account_number: decryptField(bank.account_number),
+      }
+    }
+  }
+
+  // Legacy per-child bank fields stored on the children row may also be
+  // encrypted (after the backfill). Decrypt before returning.
+  const child = (invoice as { children?: Record<string, string | null> }).children
+  if (child) {
+    child.bank_sort_code = decryptField(child.bank_sort_code)
+    child.bank_account_number = decryptField(child.bank_account_number)
   }
 
   return NextResponse.json({ invoice, profile, bankAccount })

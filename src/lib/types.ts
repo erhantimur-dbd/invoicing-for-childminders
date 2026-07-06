@@ -28,6 +28,69 @@ export type Profile = {
 
 export type FundingType = 'none' | '15' | '30'
 
+/**
+ * Specific UK funded-childcare entitlement the child is on.
+ *
+ * Used purely for invoice labelling and reporting; the *number of hours* is
+ * still controlled by `funding_type` (15 or 30) so existing data keeps working.
+ *
+ * Schemes (May 2026):
+ *   - '3to4_universal'      Universal 15h for 3–4yo (regardless of work status)
+ *   - '3to4_working'        Working-parents 30h for 3–4yo
+ *   - '2yo_disadvantaged'   Disadvantaged 2yo 15h (long-standing)
+ *   - '2yo_working'         Working-parents 2yo 15h (rolled out April 2024)
+ *   - 'wp_under2'           Working-parents 9mo–2yo 15h (rolled out Sep 2024)
+ *   - 'wp_under5'           Working-parents 9mo+ 30h (rolled out Sep 2025)
+ */
+export type FundingScheme =
+  | '3to4_universal'
+  | '3to4_working'
+  | '2yo_disadvantaged'
+  | '2yo_working'
+  | 'wp_under2'
+  | 'wp_under5'
+
+export const FUNDING_SCHEME_LABELS: Record<FundingScheme, string> = {
+  '3to4_universal': 'Universal 15h (3–4yo)',
+  '3to4_working': 'Working-parents 30h (3–4yo)',
+  '2yo_disadvantaged': 'Disadvantaged 2yo 15h',
+  '2yo_working': 'Working-parents 2yo 15h',
+  'wp_under2': 'Working-parents 9mo–2yo 15h',
+  'wp_under5': 'Working-parents 9mo+ 30h',
+}
+
+export const FUNDING_SCHEME_INVOICE_LABELS: Record<FundingScheme, string> = {
+  '3to4_universal': '15h universal entitlement',
+  '3to4_working': '30h working-parents entitlement',
+  '2yo_disadvantaged': '15h 2yo entitlement',
+  '2yo_working': '15h working-parents entitlement (2yo)',
+  'wp_under2': '15h working-parents entitlement (under 2)',
+  'wp_under5': '30h working-parents entitlement (under 5)',
+}
+
+/**
+ * Jan 2026 invoice rules categorise every line as one of these. New invoices
+ * created from the auto-generator and the AI agent will populate `category`;
+ * older line items leave it null and are treated as 'funded' or 'paid' by the
+ * UI based on `is_funded`.
+ */
+export type LineItemCategory =
+  | 'funded'
+  | 'paid'
+  | 'food'
+  | 'consumable'
+  | 'activity'
+  | 'other'
+
+export const LINE_ITEM_CATEGORY_LABELS: Record<LineItemCategory, string> = {
+  funded: 'Funded hours',
+  paid: 'Additional paid hours',
+  food: 'Food',
+  consumable: 'Consumables',
+  activity: 'Activities & trips',
+  other: 'Other',
+}
+
 export type Child = {
   id: string
   childminder_id: string
@@ -50,6 +113,7 @@ export type Child = {
   schedule_days: { day: string; type: 'full' | 'half' }[] | null
   schedule_note: string | null
   funding_type: FundingType
+  funding_scheme: FundingScheme | null
   funded_hours_per_day: number | null
   funded_days: string[] | null
   archived_at: string | null
@@ -105,6 +169,7 @@ export type InvoiceLineItem = {
   unit_price: number
   amount: number
   is_funded: boolean
+  category: LineItemCategory | null
   created_at: string
 }
 
