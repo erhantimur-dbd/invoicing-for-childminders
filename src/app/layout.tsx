@@ -27,10 +27,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dottie — Invoicing simplified.",
+    default: "Dottie — for UK childminders",
     template: "%s | Dottie",
   },
-  description: "You didn't become a childminder to spend Sunday nights writing invoices. That's Dottie's job. Invoicing on autopilot for UK childcare professionals.",
+  description: "Dottie answers new parents while you're with the children — start date, days, and 15/30-hour funding. Add invoicing when a child starts.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://www.godottie.cloud"),
   verification: {
@@ -38,15 +38,15 @@ export const metadata: Metadata = {
   },
   openGraph: {
     siteName: "Dottie",
-    title: "Dottie — Invoicing simplified.",
-    description: "Invoicing on autopilot for UK childminders and childcare professionals.",
+    title: "Dottie Enquiries — never miss a new parent",
+    description: "Answer new parents, qualify funded hours, and book visits while you're with the children. Add invoicing when they start.",
     url: "https://www.godottie.cloud",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dottie — Invoicing simplified.",
-    description: "Invoicing on autopilot for UK childminders and childcare professionals.",
+    title: "Dottie Enquiries — never miss a new parent",
+    description: "Answer new parents, qualify funded hours, and book visits while you're with the children.",
   },
 };
 

@@ -53,7 +53,10 @@ const PROTECTED_PREFIXES = [
   '/onboarding',
   '/admin',
   '/subscribe',
+  '/enquiries',
 ]
+
+const INVOICING_PREFIXES = ['/children', '/invoices', '/expenses', '/reports', '/onboarding']
 
 function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
@@ -67,7 +70,13 @@ function isSubscriptionExempt(pathname: string): boolean {
   if (pathname.startsWith('/onboarding')) return true
   if (pathname.startsWith('/admin')) return true
   if (pathname.startsWith('/api')) return true
+  // Paywall + setup live on these routes; the pages check entitlements.
+  if (pathname.startsWith('/enquiries')) return true
   return false
+}
+
+function needsInvoicing(pathname: string): boolean {
+  return INVOICING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))
 }
 
 export async function proxy(request: NextRequest) {
@@ -113,6 +122,7 @@ export async function proxy(request: NextRequest) {
     if (isProtectedRoute(pathname)) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'
+      url.search = ''
       return NextResponse.redirect(url)
     }
     return supabaseResponse
@@ -148,19 +158,28 @@ export async function proxy(request: NextRequest) {
   if (isProtectedRoute(pathname) && !isSubscriptionExempt(pathname)) {
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select('status, trial_end')
+      .select('status, trial_end, enquiries_status')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    const isActive = subscription?.status === 'active'
-    const isValidTrial =
-      subscription?.status === 'trialing' &&
-      subscription.trial_end != null &&
-      new Date(subscription.trial_end) > new Date()
+    const invoicingOk =
+      subscription?.status === 'active' ||
+      (subscription?.status === 'trialing' &&
+        subscription.trial_end != null &&
+        new Date(subscription.trial_end) > new Date())
+    const enquiriesOk = subscription?.enquiries_status === 'active'
 
-    if (!isActive && !isValidTrial) {
+    if (needsInvoicing(pathname)) {
+      if (!invoicingOk) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/subscribe'
+        url.search = '?product=invoicing'
+        return NextResponse.redirect(url)
+      }
+    } else if (!invoicingOk && !enquiriesOk) {
       const url = request.nextUrl.clone()
       url.pathname = '/subscribe'
+      url.search = '?product=enquiries'
       return NextResponse.redirect(url)
     }
   }

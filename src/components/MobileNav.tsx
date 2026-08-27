@@ -37,8 +37,14 @@ export default function MobileNav() {
         className={`absolute top-16 left-0 right-0 bg-white border-b border-gray-100 shadow-lg transition-all duration-200 ease-out ${open ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-1">
-          <a href="#features" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
-            Features
+          <a href="#enquiries" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+            Enquiries
+          </a>
+          <a href="#how-it-works" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+            How it works
+          </a>
+          <a href="#invoicing" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+            Invoicing
           </a>
           <a href="#pricing" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
             Pricing

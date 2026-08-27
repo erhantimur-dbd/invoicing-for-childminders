@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Plans & Pricing',
-  description: 'Simple, transparent pricing for Dottie. Starter from £9.99/mo for up to 5 children. Professional from £19.99/mo for up to 20 children. Cancel anytime.',
+  description: 'Start with Dottie Enquiries at £19/mo or £190/year. Add invoicing when a child starts. Same account. Cancel anytime.',
   alternates: { canonical: 'https://www.godottie.cloud/subscribe' },
   openGraph: {
     title: 'Plans & Pricing — Dottie',
-    description: 'Starter from £9.99/mo · Professional from £19.99/mo · Cancel anytime.',
+    description: 'Enquiries £19/mo · add invoicing from £9.99/mo when a child starts.',
     url: 'https://www.godottie.cloud/subscribe',
   },
 }
@@ -27,8 +28,8 @@ export default function SubscribeLayout({ children }: { children: React.ReactNod
 
       {/* Page content */}
       <main className="flex-1 flex flex-col items-center justify-start py-8 px-4 sm:px-6">
-        <div className="w-full max-w-3xl">
-          {children}
+        <div className="w-full max-w-4xl">
+          <Suspense fallback={null}>{children}</Suspense>
         </div>
       </main>
 

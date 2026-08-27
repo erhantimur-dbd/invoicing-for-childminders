@@ -146,7 +146,7 @@ export function welcomeEmail({ name }: { name: string }): {
       </tr>
     </table>
 
-    ${ctaButton('Choose your plan', `${APP_URL}/subscribe`)}
+    ${ctaButton('Start with Enquiries', `${APP_URL}/subscribe?product=enquiries`)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
       Any questions? Just reply — I'm always here to help.
@@ -214,7 +214,7 @@ export function trialExpiringEmail({
       </tr>
     </table>
 
-    ${ctaButton('Choose your plan', `${APP_URL}/subscribe`)}
+    ${ctaButton('Start with Enquiries', `${APP_URL}/subscribe?product=enquiries`)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
       Questions about which plan is right for you? Just reply — I'll point you in the right direction.

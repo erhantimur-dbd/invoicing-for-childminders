@@ -12,7 +12,7 @@ export async function GET() {
 
   const { data } = await supabase
     .from('subscriptions')
-    .select('status, plan, trial_end, current_period_end, stripe_subscription_id')
+    .select('status, plan, trial_end, current_period_end, stripe_subscription_id, enquiries_status, enquiries_plan, enquiries_stripe_subscription_id, enquiries_current_period_end')
     .eq('user_id', user.id)
     .maybeSingle()
 

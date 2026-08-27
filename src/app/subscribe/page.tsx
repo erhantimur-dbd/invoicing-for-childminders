@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
 
 type SubState = {
   status: string | null
   trial_end: string | null
   stripe_subscription_id: string | null
+  enquiries_status?: string | null
+  enquiries_stripe_subscription_id?: string | null
 }
 
 const FEATURES_COMMON = [
@@ -27,7 +31,7 @@ const PLANS = [
     annualMonthly: 8.25,
     features: ['Up to 5 children', ...FEATURES_COMMON],
     highlight: false,
-    cta: 'Subscribe',
+    cta: 'Add invoicing',
   },
   {
     id: 'professional',
@@ -37,14 +41,16 @@ const PLANS = [
     annual: 199,
     annualMonthly: 16.58,
     features: ['Up to 20 children', ...FEATURES_COMMON],
-    highlight: true,
-    cta: 'Subscribe',
+    highlight: false,
+    cta: 'Add invoicing',
   },
 ] as const
 
 type PlanId = 'starter' | 'professional'
 
 export default function SubscribePage() {
+  const searchParams = useSearchParams()
+  const highlightEnquiries = searchParams.get('product') !== 'invoicing'
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual')
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [stripeUnavailable, setStripeUnavailable] = useState(false)
@@ -63,7 +69,7 @@ export default function SubscribePage() {
     ? Math.ceil((new Date(sub.trial_end).getTime() - Date.now()) / 86_400_000)
     : null
 
-  async function handleCheckout(planId: PlanId) {
+  async function handleCheckout(planId: PlanId | 'enquiries') {
     setLoadingPlan(planId)
     setStripeUnavailable(false)
 
@@ -71,7 +77,11 @@ export default function SubscribePage() {
       const res = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: billing, tier: planId }),
+        body: JSON.stringify(
+          planId === 'enquiries'
+            ? { product: 'enquiries', plan: billing }
+            : { plan: billing, tier: planId },
+        ),
       })
 
       if (!res.ok) {
@@ -139,7 +149,7 @@ export default function SubscribePage() {
             <span className="font-extrabold text-lg">Choose your plan to get started</span>
           </div>
           <p className="text-white/85 text-sm">
-            Pick the plan that fits your setting. You can change or cancel anytime.
+            Start with Enquiries. Add invoicing when a child is on roll. Same account. Cancel anytime.
           </p>
         </div>
       )}
@@ -171,6 +181,50 @@ export default function SubscribePage() {
         </button>
       </div>
 
+      {/* Enquiries — the hero product */}
+      <div className={`relative rounded-3xl p-8 ${highlightEnquiries ? 'border-2 border-emerald-500 bg-white shadow-xl shadow-emerald-100/50' : 'border border-gray-200 bg-white shadow-md'}`}>
+        {highlightEnquiries && (
+          <div className="absolute -top-3.5 left-8">
+            <span className="px-4 py-1.5 rounded-full bg-amber-400 text-amber-950 text-xs font-extrabold shadow-md whitespace-nowrap">
+              Start here
+            </span>
+          </div>
+        )}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">Dottie Enquiries</div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-4xl font-extrabold text-gray-900">
+                £{billing === 'annual' ? ENQUIRIES_PRICE.annual : ENQUIRIES_PRICE.monthly}
+              </span>
+              <span className="text-gray-400 text-sm">/{billing === 'annual' ? 'year' : 'month'}</span>
+            </div>
+            {billing === 'annual' && (
+              <p className="text-gray-400 text-sm mt-1">Equivalent to £{ENQUIRIES_PRICE.annualMonthly}/month</p>
+            )}
+            <p className="text-gray-600 text-sm mt-3 max-w-md">
+              Answer new parents, qualify 15/30-hour funding, book visits. One extra child pays for years of this.
+            </p>
+          </div>
+          {sub?.enquiries_status === 'active' ? (
+            <p className="text-emerald-700 font-semibold text-sm">Already on your account</p>
+          ) : (
+            <button
+              onClick={() => handleCheckout('enquiries')}
+              disabled={loadingPlan !== null}
+              className="shrink-0 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold disabled:opacity-60"
+            >
+              {loadingPlan === 'enquiries' ? 'Redirecting…' : 'Start with Enquiries'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">When a child starts — invoicing</p>
+        <p className="text-gray-500 text-sm mt-1">Same login. Add it once they are on roll — funded hours, PDFs, Sunday invoices.</p>
+      </div>
+
       {/* Plan cards */}
       <div className="grid sm:grid-cols-2 gap-6">
         {PLANS.map((plan) => (
@@ -182,14 +236,6 @@ export default function SubscribePage() {
                 : 'border border-gray-200 bg-white shadow-md'
             }`}
           >
-            {plan.highlight && (
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="px-4 py-1.5 rounded-full bg-amber-400 text-amber-950 text-xs font-extrabold shadow-md whitespace-nowrap">
-                  Most popular
-                </span>
-              </div>
-            )}
-
             <div className="mb-6">
               <div className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">{plan.label}</div>
               <div className="flex items-baseline gap-1">

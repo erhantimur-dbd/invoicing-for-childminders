@@ -2,23 +2,37 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Users, FileText, BarChart3, Settings, Receipt, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, FileText, BarChart3, Settings, Receipt, LogOut, Baby } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
-const navItems = [
-  { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
-  { href: '/children', label: 'Children', icon: Users },
-  { href: '/invoices', label: 'Invoices', icon: FileText },
-  { href: '/expenses', label: 'Expenses', icon: Receipt },
-  { href: '/reports', label: 'Reports', icon: BarChart3 },
-  { href: '/profile', label: 'Settings', icon: Settings },
-]
+type NavItem = {
+  href: string
+  label: string
+  icon: typeof LayoutDashboard
+  show: boolean
+}
 
-export default function SideNav({ name }: { name?: string }) {
+export default function SideNav({
+  name,
+  invoicing = true,
+}: {
+  name?: string
+  invoicing?: boolean
+}) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+
+  const navItems: NavItem[] = [
+    { href: '/dashboard', label: 'Home', icon: LayoutDashboard, show: true },
+    { href: '/enquiries', label: 'Parents', icon: Baby, show: true },
+    { href: '/children', label: 'Children', icon: Users, show: invoicing },
+    { href: '/invoices', label: 'Invoices', icon: FileText, show: invoicing },
+    { href: '/expenses', label: 'Expenses', icon: Receipt, show: invoicing },
+    { href: '/reports', label: 'Reports', icon: BarChart3, show: invoicing },
+    { href: '/profile', label: 'Settings', icon: Settings, show: true },
+  ]
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -27,7 +41,6 @@ export default function SideNav({ name }: { name?: string }) {
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-full w-60 bg-white border-r border-gray-100 flex-col z-40 print:hidden">
-      {/* Brand */}
       <div className="px-5 py-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-sky-500 rounded-xl flex items-center justify-center shadow-sm">
@@ -35,14 +48,13 @@ export default function SideNav({ name }: { name?: string }) {
           </div>
           <div>
             <p className="font-bold text-gray-900 text-sm leading-tight">Dottie</p>
-            <p className="text-xs text-gray-400 leading-tight">Invoicing simplified.</p>
+            <p className="text-xs text-gray-400 leading-tight">Answers new parents</p>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {navItems.filter((item) => item.show).map(({ href, label, icon: Icon }) => {
           const active =
             pathname === href ||
             (href !== '/dashboard' && pathname.startsWith(href + '/')) ||
@@ -55,7 +67,7 @@ export default function SideNav({ name }: { name?: string }) {
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative',
                 active
                   ? 'bg-emerald-50 text-emerald-700'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
               )}
             >
               {active && (
@@ -72,7 +84,6 @@ export default function SideNav({ name }: { name?: string }) {
         })}
       </nav>
 
-      {/* User + Sign out */}
       {name && (
         <div className="px-3 py-3 border-t border-gray-100 space-y-0.5">
           <Link

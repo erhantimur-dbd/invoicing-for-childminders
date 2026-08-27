@@ -82,9 +82,8 @@ export default function SignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: data.user?.id }),
       }).catch(console.error)
-      toast.success('Account created! Choose your plan to get started.')
-      // No free trial by default — go straight to plan selection / checkout.
-      router.push('/subscribe')
+      toast.success('Account created — start with Enquiries.')
+      router.push('/subscribe?product=enquiries')
       router.refresh()
     }
   }
@@ -94,9 +93,9 @@ export default function SignupPage() {
       <div className="space-y-6">
         <ul className="space-y-2">
           {[
-            'Set up in under 5 minutes',
-            'Cancel anytime',
-            'UK-based support',
+            'Start with Enquiries — new parents, funded hours, visits',
+            'Add invoicing later, same login, when a child starts',
+            'Set up in minutes · Cancel anytime',
           ].map((item) => (
             <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />

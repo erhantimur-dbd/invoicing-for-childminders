@@ -5,7 +5,6 @@ import { join } from 'path'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import HeroVisual from '@/components/HeroVisual'
 import MobileNav from '@/components/MobileNav'
 import {
   FileText, Receipt, CalendarDays, ShieldCheck, Banknote, Sparkles,
@@ -47,11 +46,12 @@ function findTestimonialPhoto(): string | null {
 }
 
 export const metadata: Metadata = {
-  title: 'Automated Invoicing for UK Childminders',
+  title: 'Dottie Enquiries — never miss a new parent',
+  description: 'Dottie answers new parents while you look after the children. Start date, days, 15/30-hour funding, and a visit in your hours. Add invoicing when they start.',
   alternates: { canonical: 'https://www.godottie.cloud' },
   openGraph: {
-    title: 'Dottie | Automated Invoicing for UK Childminders',
-    description: 'Invoicing on autopilot for UK childminders. Set up once, invoices generate automatically.',
+    title: 'Dottie Enquiries — never miss a new parent',
+    description: 'Answer new parents while you\'re with the children. Add invoicing when a child starts. Book a demo or sign up.',
     url: 'https://www.godottie.cloud',
     type: 'website',
   },
@@ -64,23 +64,31 @@ const jsonLd = {
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: 'https://www.godottie.cloud',
-  description: 'Invoicing on autopilot for UK childminders. Auto-generate invoices, track expenses, and manage payments.',
+  description: 'Dottie Enquiries answers new parents for UK childminders. Add invoicing when a child starts.',
   offers: [
     {
       '@type': 'Offer',
-      name: 'Starter',
-      price: '9.99',
+      name: 'Enquiries',
+      price: '19',
       priceCurrency: 'GBP',
       billingIncrement: 'P1M',
-      description: 'Up to 5 children',
+      description: 'Parent enquiries, 15/30-hour qualification, visit booking',
     },
     {
       '@type': 'Offer',
-      name: 'Professional',
+      name: 'Starter invoicing',
+      price: '9.99',
+      priceCurrency: 'GBP',
+      billingIncrement: 'P1M',
+      description: 'Invoicing add-on — up to 5 children',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Professional invoicing',
       price: '19.99',
       priceCurrency: 'GBP',
       billingIncrement: 'P1M',
-      description: 'Up to 20 children',
+      description: 'Invoicing add-on — up to 20 children',
     },
   ],
   publisher: {
@@ -117,14 +125,16 @@ export default async function RootPage() {
             </span>
             <div>
               <p className="text-gray-900 font-bold text-base sm:text-lg tracking-tight leading-tight">Dottie</p>
-              <p className="text-gray-400 text-xs leading-tight">Invoicing simplified.</p>
+              <p className="text-gray-400 text-xs leading-tight">For childminders</p>
             </div>
           </Link>
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-            <a href="#features" className="hover:text-emerald-600 transition-colors">Features</a>
+            <a href="#enquiries" className="hover:text-emerald-600 transition-colors">Enquiries</a>
+            <a href="#how-it-works" className="hover:text-emerald-600 transition-colors">How it works</a>
             <a href="#pricing" className="hover:text-emerald-600 transition-colors">Pricing</a>
+            <a href="#invoicing" className="hover:text-emerald-600 transition-colors">Invoicing</a>
             <Link href="/guides/funded-hours/2026-invoice-rules" className="hover:text-emerald-600 transition-colors">2026 invoice rules</Link>
             <Link href="/support" className="hover:text-emerald-600 transition-colors">Support</Link>
             <Link href="/login" className="hover:text-emerald-600 transition-colors">Sign in</Link>
@@ -181,13 +191,13 @@ export default async function RootPage() {
           <div className="text-white">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold tracking-wide mb-5">
               <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2.5} />
-              Built for UK childminders
+              Dottie Enquiries · built for UK childminders
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
-              Invoicing on autopilot for <span className="text-emerald-100">UK childminders</span>
+              Never miss a new parent because you were changing a nappy
             </h1>
             <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-lg">
-              Set up your children&apos;s schedules once. Invoices generate automatically, ready for you to review and approve.
+              Dottie answers the email, checks start date, days, and 15/30-hour funding, and books a visit in <em>your</em> hours. When they start, invoicing is waiting.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -210,8 +220,24 @@ export default async function RootPage() {
             </p>
           </div>
 
-          {/* Right column: animated WhatsApp chat + invoice card */}
-          <HeroVisual />
+          <div className="rounded-3xl bg-white/95 text-gray-800 p-6 sm:p-8 shadow-2xl shadow-black/20">
+            <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-4">A typical first reply</p>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{`Hi Sara,
+
+Thanks for getting in touch about a place for Amira. I'm Mary's assistant — she is with the children during the day, so I help with enquiries.
+
+I have space on Monday, Tuesday and Wednesday from September. I do take working-parent 30 hours.
+
+Could you confirm:
+1. The days and hours you need
+2. Whether you have a 30-hour code, 15 hours, or will pay privately
+3. Amira's date of birth
+
+If that looks like a fit, I can offer a visit on Thursday 18:30.
+
+Mary's assistant`}</p>
+            <p className="text-xs text-gray-500 mt-4">Dottie only uses what you wrote in Your answers. She does not invent spaces or fees.</p>
+          </div>
         </div>
       </section>
 
@@ -223,9 +249,9 @@ export default async function RootPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { icon: '🛡️', title: 'Encrypted, UK-hosted', desc: 'TLS 1.2+ in transit, AES-256 at rest, on UK/EU infrastructure.' },
-              { icon: '🔒', title: 'UK GDPR compliant', desc: 'Built around the UK GDPR and Data Protection Act 2018.' },
-              { icon: '📋', title: 'Ready for the 2026 invoice rules', desc: 'Funded vs. paid hours, food, consumables, and activities itemised separately — as required from January 2026.' },
+              { icon: '⚡', title: 'Replies while you\'re busy', desc: 'Parents email at lunch. Dottie drafts from Your answers so you are not catching up at 9pm.' },
+              { icon: '🏛️', title: 'Knows 15 and 30 hours', desc: 'England funded-hours schemes, stretched vs term-time, private pay — she does not pretend funded means free wraparound.' },
+              { icon: '🔒', title: 'UK GDPR, UK-hosted', desc: 'TLS 1.2+ in transit, AES-256 at rest, on UK/EU infrastructure.' },
             ].map((item) => (
               <div key={item.title} className="flex flex-col items-center text-center gap-2">
                 <span className="text-3xl">{item.icon}</span>
@@ -237,44 +263,43 @@ export default async function RootPage() {
         </div>
       </section>
 
-      {/* ── FEATURES ── */}
-      <section id="features" className="py-20 sm:py-28 bg-white">
+      {/* ── ENQUIRIES FEATURES ── */}
+      <section id="enquiries" className="py-20 sm:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
+            <p className="text-emerald-600 font-semibold text-sm uppercase tracking-widest mb-2">Dottie Enquiries</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-              Everything you need, nothing you don&apos;t
+              The desk you never had time to sit at
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              Built from scratch for UK childminders — no bloat, no confusion, just tools that actually help.
+              Children leave for school. You always need the next family. Parents who emailed three childminders at breakfast book the one who replied first.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* HERO feature — spans full width */}
             <div className="sm:col-span-2 lg:col-span-3 relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-amber-400 p-8 text-white shadow-xl shadow-emerald-200/40">
               <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
               <div className="relative">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-3xl">🤖</span>
+                  <span className="text-3xl">📩</span>
                   <span className="px-2.5 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wide">
-                    Hero Feature
+                    Why this exists
                   </span>
                 </div>
-                <h3 className="text-2xl font-extrabold mb-2">Auto-generate invoices</h3>
+                <h3 className="text-2xl font-extrabold mb-2">Answer new parents without leaving the children</h3>
                 <p className="text-white/85 text-base max-w-2xl leading-relaxed">
-                  Set your children&apos;s schedules once and choose when invoices generate — weekly, fortnightly, whenever suits you. They arrive ready to review and approve. No manual entry, no forgotten invoices, no stress.
+                  Dottie drafts from Your answers — spaces, funded hours, visiting times. You read it, send it from your Gmail, and get on with the day. One extra child pays for years of Dottie.
                 </p>
               </div>
             </div>
 
-            {/* Regular feature cards */}
             {[
-              { icon: '📅', title: 'Fixed schedule support', desc: 'Set Mon–Fri schedules with full or half days. The app calculates everything for you.' },
-              { icon: '🏛️', title: 'Funded hours done right', desc: 'Tracks 15h and 30h entitlements — including the September 2025 expansion to 9-month-olds — and itemises funded vs. paid hours on every invoice.' },
-              { icon: '📋', title: '2026 invoice rules ready', desc: 'Funded hours, additional paid hours, food, consumables, and activities itemised separately — exactly as required from January 2026.' },
-              { icon: '📊', title: 'Tax year reports', desc: 'Income summaries and expense reports lined up to your accountant\'s self-assessment workflow.' },
-              { icon: '💸', title: 'Expense tracking', desc: 'Log childcare expenses by HMRC-friendly category. Snap a receipt — AI fills in the rest.' },
-              { icon: '📄', title: 'PDF-ready invoices', desc: 'Professional, print-ready A4 invoices sent directly to parents.' },
+              { icon: '🗓️', title: 'Start date, days, funding', desc: 'She asks for what you actually need: when they want to start, which days, and private vs 15 vs 30 hours.' },
+              { icon: '🏡', title: 'Visits in your hours', desc: 'You set Tuesday and Thursday evenings. Dottie only offers those slots — never a 11am visit while you have four children.' },
+              { icon: '📝', title: 'Your answers, not a script', desc: 'Pets, meals, school run, garden. She only says what you wrote. If she does not know, she says she will check with you.' },
+              { icon: '📄', title: 'Starter pack when they say yes', desc: 'Contract, child form, privacy notice — you tap “they want to start” and send the pack you already use.' },
+              { icon: '🏛️', title: 'Funded hours, said plainly', desc: '15 and 30 hours, stretched or term-time. She never promises free wraparound or invents a space.' },
+              { icon: '🔐', title: 'Same Dottie login', desc: 'No second password. When a child is on roll, add invoicing on the same account — funded vs paid hours, already built.' },
             ].map((feature) => (
               <div
                 key={feature.title}
@@ -290,13 +315,16 @@ export default async function RootPage() {
       </section>
 
       {/* ── TESTIMONIAL ── */}
-      <section className="py-20 sm:py-24 bg-gradient-to-br from-emerald-50 via-[#fdf8f1] to-amber-50">
+      <section id="invoicing" className="py-20 sm:py-24 bg-gradient-to-br from-emerald-50 via-[#fdf8f1] to-amber-50 scroll-mt-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <p className="text-emerald-600 font-semibold text-sm uppercase tracking-widest mb-2">Real childminders. Real results.</p>
+            <p className="text-emerald-600 font-semibold text-sm uppercase tracking-widest mb-2">When they start — add invoicing</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-              From admin overload to paid by lunch
+              Then the invoices look after themselves
             </h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">
+              Same Dottie account. Once a child is on roll, funded vs paid hours, PDFs, and Sunday-morning invoices are waiting.
+            </p>
           </div>
 
           <div className="relative bg-white rounded-3xl shadow-xl shadow-emerald-100/60 border border-emerald-100 p-8 sm:p-10">
@@ -350,10 +378,10 @@ export default async function RootPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-              Up and running in minutes
+              Three steps. Then you are back with the children.
             </h2>
             <p className="text-gray-500 text-lg">
-              Three simple steps and your invoicing is on autopilot.
+              No second login. No CRM. You tell Dottie about your setting once.
             </p>
           </div>
 
@@ -361,21 +389,21 @@ export default async function RootPage() {
             {[
               {
                 step: '1',
-                icon: '👧',
-                title: 'Add your children',
-                desc: 'Enter each child\'s details, weekly schedule, and parent contact info. Takes under 5 minutes.',
+                icon: '🏡',
+                title: 'Your setting, your answers',
+                desc: 'Spaces, funded hours, visiting times, and the questions parents always ask. About ten minutes.',
               },
               {
                 step: '2',
-                icon: '⚡',
-                title: 'Invoices generate automatically',
-                desc: 'Choose your own schedule — invoices are created automatically based on each child\'s hours and rates, exactly when you want them.',
+                icon: '📩',
+                title: 'A parent emails',
+                desc: 'Add them (Gmail will do this itself next). Dottie drafts the reply from what you wrote — start date, days, 15 or 30 hours.',
               },
               {
                 step: '3',
-                icon: '✉️',
-                title: 'Review, approve & send',
-                desc: 'Check your drafts, make any adjustments, and send to parents in one tap.',
+                icon: '☕',
+                title: 'Visit, then they start',
+                desc: 'She only offers your visiting hours. When they want to go ahead, you send your contract pack. Then add invoicing.',
               },
             ].map((item, i) => (
               <div key={item.step} className="relative text-center">
@@ -402,13 +430,35 @@ export default async function RootPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-              Simple, transparent pricing
+              Start with Enquiries
             </h2>
             <p className="text-gray-500 text-lg">
-              Pick the plan that fits your childminding practice. Cancel anytime.
+              One extra child pays for years of Dottie. Add invoicing when they are on roll. No trial — book a demo if you want a walkthrough first.
             </p>
           </div>
 
+          <div className="relative rounded-3xl border-2 border-emerald-500 bg-white p-8 mb-8 shadow-xl shadow-emerald-100/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className="absolute -top-3.5 left-8">
+              <span className="px-4 py-1.5 rounded-full bg-amber-400 text-amber-950 text-xs font-extrabold shadow-md whitespace-nowrap">
+                Start here
+              </span>
+            </div>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-2">Dottie Enquiries</div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-extrabold text-gray-900">£19</span>
+                <span className="text-gray-400 text-sm">/month</span>
+              </div>
+              <p className="text-gray-400 text-sm mt-1">or £190/year · save 17%</p>
+              <p className="text-gray-600 text-sm mt-3 max-w-md">New parent emails, 15/30-hour qualification, visits, starter pack. Same login you will use for invoices later.</p>
+            </div>
+            <Link href="/signup" className="shrink-0 inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+              Sign up
+            </Link>
+          </div>
+
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-2">When a child starts — invoicing</p>
+          <p className="text-gray-500 text-sm mb-4">The upsell that pays for itself on Sunday morning. Same account, one tap to add.</p>
           <div className="grid sm:grid-cols-3 gap-6">
             {/* Starter */}
             <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-md flex flex-col">
@@ -429,18 +479,13 @@ export default async function RootPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block w-full text-center py-3 rounded-2xl border-2 border-emerald-600 text-emerald-700 font-bold hover:bg-emerald-50 transition-colors">
-                Sign up
+              <Link href="/subscribe?product=invoicing" className="block w-full text-center py-3 rounded-2xl border-2 border-emerald-600 text-emerald-700 font-bold hover:bg-emerald-50 transition-colors">
+                Add invoicing
               </Link>
             </div>
 
             {/* Professional — highlighted */}
-            <div className="relative rounded-3xl border-2 border-emerald-500 bg-white p-8 shadow-xl shadow-emerald-100/50 flex flex-col">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="px-4 py-1.5 rounded-full bg-amber-400 text-amber-950 text-xs font-extrabold shadow-md whitespace-nowrap">
-                  Most popular
-                </span>
-              </div>
+            <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-md flex flex-col">
               <div className="mb-6">
                 <div className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">Professional</div>
                 <div className="flex items-baseline gap-1">
@@ -458,8 +503,8 @@ export default async function RootPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block w-full text-center py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-200 transition-colors">
-                Sign up
+              <Link href="/subscribe?product=invoicing" className="block w-full text-center py-3 rounded-2xl border-2 border-emerald-600 text-emerald-700 font-bold hover:bg-emerald-50 transition-colors">
+                Add invoicing
               </Link>
             </div>
 
@@ -530,10 +575,10 @@ export default async function RootPage() {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/3 -translate-x-1/4" />
             <div className="relative">
               <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 leading-tight">
-                Ready to take the admin out of childminding?
+                Start with the emails you never have time to answer
               </h2>
               <p className="text-white/85 text-lg mb-8 max-w-lg mx-auto">
-                Sign up and pick a plan, or book a quick demo and we&apos;ll show you around first.
+                Sign up for Enquiries, or book a demo and we&apos;ll walk through a real parent email with you.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
@@ -572,7 +617,8 @@ export default async function RootPage() {
 
             {/* Nav */}
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-              <a href="#features" className="hover:text-white transition-colors">Features</a>
+              <a href="#enquiries" className="hover:text-white transition-colors">Enquiries</a>
+              <a href="#invoicing" className="hover:text-white transition-colors">Invoicing</a>
               <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
               <Link href="/support" className="hover:text-white transition-colors">Support</Link>
               <Link href="/faq" className="hover:text-white transition-colors">FAQ</Link>

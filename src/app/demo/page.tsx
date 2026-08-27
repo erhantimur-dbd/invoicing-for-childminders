@@ -13,11 +13,11 @@ const EMBED_URL = `${BOOKING_URL}?gv=true`
 export const metadata: Metadata = {
   title: 'Book a demo',
   description:
-    'Book a free 1:1 demo of Dottie — automated invoicing for UK childminders. Pick a time that suits you and we&apos;ll walk you through it.',
+    'Book a free 1:1 demo of Dottie Enquiries — how we answer new parents, qualify 15/30-hour funding, and book visits. Invoicing is the add-on when they start.',
   alternates: { canonical: URL },
   openGraph: {
     title: 'Book a demo — Dottie',
-    description: 'Pick a time and we&apos;ll show you how Dottie puts your childminding invoices on autopilot.',
+    description: 'See Dottie Enquiries on a real parent email. Invoicing is waiting when they start.',
     url: URL,
     type: 'website',
   },
@@ -35,7 +35,7 @@ export default function DemoPage() {
             </span>
             <div>
               <p className="text-gray-900 font-bold text-base sm:text-lg tracking-tight leading-tight">Dottie</p>
-              <p className="text-gray-400 text-xs leading-tight">Invoicing simplified.</p>
+              <p className="text-gray-400 text-xs leading-tight">For childminders</p>
             </div>
           </Link>
           <Link
@@ -51,10 +51,10 @@ export default function DemoPage() {
         <div className="text-center mb-8">
           <p className="text-emerald-700 text-xs font-semibold uppercase tracking-widest mb-3">Book a demo</p>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 mb-3">
-            See Dottie in action
+            See Enquiries on a real parent email
           </h1>
           <p className="text-gray-600 text-lg leading-relaxed max-w-xl mx-auto">
-            Pick a time that suits you and we&apos;ll walk you through how Dottie puts your childminding invoices on autopilot — no pressure, no prep needed.
+            Pick a time. We&apos;ll walk through how Dottie answers new parents, qualifies funded hours, and books a visit — then how invoicing waits when they start.
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export default function DemoPage() {
           <Link href="/signup" className="text-emerald-700 font-semibold hover:text-emerald-800">
             Sign up
           </Link>{' '}
-          and choose a plan.
+          and start with Enquiries.
         </p>
       </main>
     </div>

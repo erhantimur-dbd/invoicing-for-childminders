@@ -63,16 +63,13 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         // Attach Stripe customer + subscription IDs to the user's row.
-        // Status / trial_end come from customer.subscription.created/updated,
-        // which Stripe sends alongside this event — DO NOT hardcode 'active'
-        // here, the subscription is actually 'trialing' for the first 7 days.
+        // Status comes from customer.subscription.created/updated — do not
+        // hardcode 'active' here (invoicing trials still exist for admin grants).
         const session = event.data.object as import('stripe').Stripe.Checkout.Session
         const userId = session.metadata?.user_id
-        // We store both billing cadence ("monthly"/"annual") and tier
-        // ("starter"/"professional") on the subscriptions row, joined as
-        // "<tier>_<plan>" so existing admin/UI code keeps working with one column.
         const plan = session.metadata?.plan
         const tier = session.metadata?.tier
+        const product = session.metadata?.product ?? 'invoicing'
         const planTier = tier && plan ? `${tier}_${plan}` : (plan ?? null)
 
         if (!userId) {
@@ -80,18 +77,42 @@ export async function POST(request: NextRequest) {
           break
         }
 
-        await supabase
+        const now = new Date().toISOString()
+        const customerId = session.customer as string
+        const stripeSubId = session.subscription as string
+
+        const { data: existingRow } = await supabase
           .from('subscriptions')
-          .upsert(
-            {
-              user_id: userId,
-              stripe_customer_id: session.customer as string,
-              stripe_subscription_id: session.subscription as string,
-              plan: planTier,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: 'user_id' }
-          )
+          .select('user_id')
+          .eq('user_id', userId)
+          .maybeSingle()
+
+        if (product === 'enquiries') {
+          const patch = {
+            stripe_customer_id: customerId,
+            enquiries_stripe_subscription_id: stripeSubId,
+            enquiries_plan: plan ?? 'monthly',
+            updated_at: now,
+          }
+          if (existingRow) {
+            await supabase.from('subscriptions').update(patch).eq('user_id', userId)
+          } else {
+            await supabase.from('subscriptions').insert({ user_id: userId, ...patch })
+          }
+        } else {
+          await supabase
+            .from('subscriptions')
+            .upsert(
+              {
+                user_id: userId,
+                stripe_customer_id: customerId,
+                stripe_subscription_id: stripeSubId,
+                plan: planTier,
+                updated_at: now,
+              },
+              { onConflict: 'user_id' },
+            )
+        }
         break
       }
 
@@ -101,7 +122,9 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object as unknown as {
           customer: string
           trial_end: number | null
+          metadata?: Record<string, string>
         }
+        if (subscription.metadata?.product === 'enquiries') break
         const trialEndIso = typeof subscription.trial_end === 'number'
           ? new Date(subscription.trial_end * 1000).toISOString()
           : null
@@ -144,60 +167,129 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
-        // Source of truth for status, trial_end, current_period_end. Stripe
-        // emits both events; we treat them identically.
+        // Source of truth for status. A customer can have invoicing AND
+        // enquiries as two Stripe subscriptions — never copy enquiries status
+        // onto the invoicing columns.
         const subscription = event.data.object as unknown as {
+          id: string
           customer: string
           status: string
           trial_end: number | null
           current_period_end: number | null
+          metadata?: Record<string, string>
         }
         const stripeCustomerId = subscription.customer
-
-        const trialEnd = typeof subscription.trial_end === 'number'
-          ? new Date(subscription.trial_end * 1000).toISOString()
-          : null
         const currentPeriodEnd = typeof subscription.current_period_end === 'number'
           ? new Date(subscription.current_period_end * 1000).toISOString()
           : null
+        const now = new Date().toISOString()
 
-        await supabase
+        const { data: row } = await supabase
           .from('subscriptions')
-          .update({
-            status: subscription.status,
-            trial_end: trialEnd,
-            current_period_end: currentPeriodEnd,
-            updated_at: new Date().toISOString(),
-          })
+          .select('enquiries_stripe_subscription_id, stripe_subscription_id')
           .eq('stripe_customer_id', stripeCustomerId)
+          .maybeSingle()
+
+        const isEnquiries =
+          subscription.metadata?.product === 'enquiries' ||
+          row?.enquiries_stripe_subscription_id === subscription.id
+
+        if (isEnquiries) {
+          await supabase
+            .from('subscriptions')
+            .update({
+              enquiries_status: subscription.status,
+              enquiries_current_period_end: currentPeriodEnd,
+              enquiries_stripe_subscription_id: subscription.id,
+              updated_at: now,
+            })
+            .eq('stripe_customer_id', stripeCustomerId)
+        } else {
+          const trialEnd = typeof subscription.trial_end === 'number'
+            ? new Date(subscription.trial_end * 1000).toISOString()
+            : null
+          await supabase
+            .from('subscriptions')
+            .update({
+              status: subscription.status,
+              trial_end: trialEnd,
+              current_period_end: currentPeriodEnd,
+              updated_at: now,
+            })
+            .eq('stripe_customer_id', stripeCustomerId)
+        }
         break
       }
 
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as any
-        const stripeCustomerId = subscription.customer as string
-
-        await supabase
+        const subscription = event.data.object as {
+          id: string
+          customer: string
+          metadata?: Record<string, string>
+        }
+        const stripeCustomerId = subscription.customer
+        const { data: row } = await supabase
           .from('subscriptions')
-          .update({
-            status: 'canceled',
-            updated_at: new Date().toISOString(),
-          })
+          .select('enquiries_stripe_subscription_id')
           .eq('stripe_customer_id', stripeCustomerId)
+          .maybeSingle()
+
+        const isEnquiries =
+          subscription.metadata?.product === 'enquiries' ||
+          row?.enquiries_stripe_subscription_id === subscription.id
+
+        if (isEnquiries) {
+          await supabase
+            .from('subscriptions')
+            .update({
+              enquiries_status: 'canceled',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_customer_id', stripeCustomerId)
+        } else {
+          await supabase
+            .from('subscriptions')
+            .update({
+              status: 'canceled',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_customer_id', stripeCustomerId)
+        }
         break
       }
 
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as import('stripe').Stripe.Invoice
+        const invoice = event.data.object as import('stripe').Stripe.Invoice & {
+          subscription?: string | { id?: string } | null
+          parent?: { subscription_details?: { subscription?: string } }
+        }
         const stripeCustomerId = invoice.customer as string
+        const subRef = invoice.subscription ?? invoice.parent?.subscription_details?.subscription
+        const stripeSubId = typeof subRef === 'string' ? subRef : subRef?.id
 
-        await supabase
+        const { data: row } = await supabase
           .from('subscriptions')
-          .update({
-            status: 'past_due',
-            updated_at: new Date().toISOString(),
-          })
+          .select('enquiries_stripe_subscription_id')
           .eq('stripe_customer_id', stripeCustomerId)
+          .maybeSingle()
+
+        if (stripeSubId && row?.enquiries_stripe_subscription_id === stripeSubId) {
+          await supabase
+            .from('subscriptions')
+            .update({
+              enquiries_status: 'past_due',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_customer_id', stripeCustomerId)
+        } else if (stripeSubId) {
+          await supabase
+            .from('subscriptions')
+            .update({
+              status: 'past_due',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('stripe_customer_id', stripeCustomerId)
+        }
         break
       }
 

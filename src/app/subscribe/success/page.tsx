@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 
 type Subscription = {
@@ -10,6 +11,8 @@ type Subscription = {
   trial_end: string | null
   current_period_end: string | null
   stripe_subscription_id: string | null
+  enquiries_status?: string | null
+  enquiries_stripe_subscription_id?: string | null
 }
 
 const POLL_INTERVAL_MS = 1500
@@ -39,6 +42,8 @@ function planLabel(plan: string | null): string {
 }
 
 export default function SubscribeSuccessPage() {
+  const searchParams = useSearchParams()
+  const product = searchParams.get('product')
   const [sub, setSub] = useState<Subscription | null>(null)
   const [timedOut, setTimedOut] = useState(false)
 
@@ -52,9 +57,12 @@ export default function SubscribeSuccessPage() {
         const r = await fetch('/api/me/subscription', { cache: 'no-store' })
         if (r.ok) {
           const j: { subscription: Subscription | null } = await r.json()
-          if (j.subscription?.stripe_subscription_id) {
+          const landed = product === 'enquiries'
+            ? Boolean(j.subscription?.enquiries_stripe_subscription_id)
+            : Boolean(j.subscription?.stripe_subscription_id)
+          if (landed) {
             if (!cancelled) setSub(j.subscription)
-            return // landed — stop polling
+            return
           }
         }
       } catch { /* swallow + retry */ }
@@ -67,7 +75,7 @@ export default function SubscribeSuccessPage() {
     }
     tick()
     return () => { cancelled = true }
-  }, [])
+  }, [product])
 
   // ── Still polling ────────────────────────────────────────────────────────
   if (!sub && !timedOut) {
@@ -105,10 +113,12 @@ export default function SubscribeSuccessPage() {
     )
   }
 
-  // ── Trial-with-card on Stripe ─────────────────────────────────────────────
-  const isTrialing = sub?.status === 'trialing'
+  const isEnquiries = product === 'enquiries'
+  const isTrialing = !isEnquiries && sub?.status === 'trialing'
   const trialEndLabel = formatDate(sub?.trial_end ?? null)
   const renewLabel = formatDate(sub?.current_period_end ?? null)
+  const nextHref = isEnquiries ? '/enquiries/setup' : '/dashboard'
+  const nextLabel = isEnquiries ? 'Set up Enquiries →' : 'Go to dashboard →'
 
   return (
     <Shell>
@@ -116,7 +126,14 @@ export default function SubscribeSuccessPage() {
         <CheckCircle2 className="w-9 h-9 text-emerald-600" />
       </div>
 
-      {isTrialing ? (
+      {isEnquiries ? (
+        <>
+          <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Enquiries is on</h1>
+          <p className="text-gray-500 text-sm leading-relaxed mb-6">
+            Next: tell Dottie about your setting, spaces, funded hours, and visiting times. Takes a few minutes.
+          </p>
+        </>
+      ) : isTrialing ? (
         <>
           <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Card on file ✓</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-1">
@@ -143,10 +160,10 @@ export default function SubscribeSuccessPage() {
       )}
 
       <Link
-        href="/dashboard"
+        href={nextHref}
         className="inline-flex items-center justify-center w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
       >
-        Go to dashboard →
+        {nextLabel}
       </Link>
     </Shell>
   )
