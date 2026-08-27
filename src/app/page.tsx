@@ -47,7 +47,7 @@ function findTestimonialPhoto(): string | null {
 
 export const metadata: Metadata = {
   title: 'Dottie Enquiries — never miss a new parent',
-  description: 'Dottie answers new parents while you look after the children. Start date, days, 15/30-hour funding, and a visit in your hours. Add invoicing when they start.',
+  description: 'Dottie writes back to new parents, asks the questions you would, and only offers a visit if they fit a space you actually have. Add invoicing when they start.',
   alternates: { canonical: 'https://www.godottie.cloud' },
   openGraph: {
     title: 'Dottie Enquiries — never miss a new parent',
@@ -197,7 +197,7 @@ export default async function RootPage() {
               Never miss a new parent because you were changing a nappy
             </h1>
             <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-lg">
-              Dottie answers the email, checks start date, days, and 15/30-hour funding, and books a visit in <em>your</em> hours. When they start, invoicing is waiting.
+              Dottie writes back, asks the questions you would, and only offers a visit if they fit a space you actually have. When they start, invoicing is waiting.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
