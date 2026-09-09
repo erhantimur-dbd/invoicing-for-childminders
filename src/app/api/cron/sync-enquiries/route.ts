@@ -3,6 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 import { syncEnquiryGmail } from '@/lib/enquiries/gmail/sync'
 import { log } from '@/lib/log'
 
+/**
+ * Soft Launch poll path. Gmail push / GCP Pub/Sub is not required to ship.
+ * The Parents page also polls on open, and she can tap Check Gmail.
+ */
 export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET
   if (!cronSecret) {
