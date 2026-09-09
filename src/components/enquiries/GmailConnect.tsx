@@ -228,7 +228,7 @@ export default function GmailConnect({
             </Button>
           </div>
           <p className="text-xs text-gray-400">
-            Always watching: {DEFAULT_ENQUIRY_LABELS.join(', ')}. Receipts and newsletters are ignored.
+            Dottie polls Gmail when you open this page, when you tap Check, and every few minutes — no Pub/Sub required. Always watching: {DEFAULT_ENQUIRY_LABELS.join(', ')}. Receipts and newsletters are ignored.
             {status.account?.last_sync_at
               ? ` Last check ${new Date(status.account.last_sync_at).toLocaleString('en-GB')}.`
               : ''}
