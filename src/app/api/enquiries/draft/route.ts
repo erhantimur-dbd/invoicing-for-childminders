@@ -1,24 +1,15 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { enquiriesActive } from '@/lib/enquiries/access'
+import { requireEnquiriesUser } from '@/lib/enquiries/require'
+import { AGENT_PAUSED_MESSAGE, isAgentPaused } from '@/lib/enquiries/pause'
 import { draftEnquiryReply } from '@/lib/enquiries/grok'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from '@/lib/enquiries/types'
 import { log } from '@/lib/log'
 import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('enquiries_status')
-    .eq('user_id', user.id)
-    .maybeSingle()
-  if (!enquiriesActive(sub)) {
-    return NextResponse.json({ error: 'Turn on Enquiries first.' }, { status: 403 })
-  }
+  const auth = await requireEnquiriesUser()
+  if ('error' in auth) return auth.error
+  const { supabase, user } = auth
 
   const limited = await rateLimit({
     bucket: 'enquiry-draft',
@@ -53,6 +44,9 @@ export async function POST(request: Request) {
   if (!prospect) return NextResponse.json({ error: 'Parent not found.' }, { status: 404 })
   if (!settings) {
     return NextResponse.json({ error: 'Finish the short setup first.' }, { status: 400 })
+  }
+  if (isAgentPaused(settings)) {
+    return NextResponse.json({ error: AGENT_PAUSED_MESSAGE }, { status: 403 })
   }
 
   try {

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/ai/*.test.ts"
+    "test": "node --experimental-strip-types --test src/lib/ai/*.test.ts src/lib/enquiries/*.test.ts src/lib/enquiries/gmail/*.test.ts src/lib/supabase/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",

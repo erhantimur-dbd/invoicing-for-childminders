@@ -3,13 +3,19 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ENQUIRY_STAGE_LABELS, ENQUIRY_STAGES, FUNDING_OPTIONS, type EnquiryProspect } from '@/lib/enquiries/types'
 import { Plus, Settings2 } from 'lucide-react'
+import GmailConnect from '@/components/enquiries/GmailConnect'
 
 function fundingLabel(id: string | null) {
   if (!id) return null
   return FUNDING_OPTIONS.find((f) => f.id === id)?.label ?? id
 }
 
-export default async function EnquiriesPage() {
+export default async function EnquiriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ gmail?: string }>
+}) {
+  const { gmail } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -38,8 +44,8 @@ export default async function EnquiriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">New parents</h1>
           <p className="text-gray-500 text-sm mt-1">
             {settings.agent_paused
-              ? 'Dottie is paused — she will not draft replies until you turn her back on.'
-              : 'Add a parent who emailed you. Dottie can draft the reply from your answers.'}
+              ? 'Dottie is paused — she will not draft or send replies until you turn her back on.'
+              : 'Gmail brings parent emails here. Dottie drafts a reply; you approve before anything is sent.'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -60,11 +66,13 @@ export default async function EnquiriesPage() {
         </div>
       </div>
 
+      <GmailConnect initialPaused={settings.agent_paused} gmailResult={gmail} />
+
       {open.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-emerald-200 bg-white p-10 text-center">
           <p className="font-semibold text-gray-900 mb-2">No one waiting</p>
           <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
-            When a parent emails about a place, tap Add a parent, paste their message, and let Dottie draft the reply. Connecting Gmail so this happens by itself comes next.
+            Connect Gmail and label parent emails Enquiries or New parent. You can still add a parent by hand if they messaged you somewhere else.
           </p>
           <Link href="/enquiries/new" className="text-emerald-700 font-semibold">
             Add the first parent →

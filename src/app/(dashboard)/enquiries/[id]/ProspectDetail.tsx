@@ -22,20 +22,33 @@ import {
 export default function ProspectDetail({
   prospect: initial,
   messages: initialMessages,
+  agentPaused,
+  gmailConnected,
 }: {
   prospect: EnquiryProspect
   messages: EnquiryMessage[]
+  agentPaused: boolean
+  gmailConnected: boolean
 }) {
   const router = useRouter()
   const supabase = createClient()
   const [prospect, setProspect] = useState(initial)
   const [messages, setMessages] = useState(initialMessages)
   const [drafting, setDrafting] = useState(false)
+  const [sending, setSending] = useState(false)
   const [saving, setSaving] = useState(false)
   const [lostReason, setLostReason] = useState(prospect.lost_reason || '')
+  const [draftBody, setDraftBody] = useState(() => {
+    const draft = [...initialMessages].reverse().find((m) => m.direction === 'draft' && m.status !== 'approved')
+    return draft?.body || ''
+  })
+  const [draftSubject, setDraftSubject] = useState(
+    `Your enquiry${initial.child_name ? ` — ${initial.child_name}` : ''}`,
+  )
 
   const latestInbound = [...messages].reverse().find((m) => m.direction === 'in')
-  const latestDraft = [...messages].reverse().find((m) => m.direction === 'draft')
+  const latestDraft = [...messages].reverse().find((m) => m.direction === 'draft' && m.status !== 'approved')
+  const latestOut = [...messages].reverse().find((m) => m.direction === 'out')
 
   async function savePatch(patch: Partial<EnquiryProspect>) {
     setSaving(true)
@@ -74,8 +87,9 @@ export default function ProspectDetail({
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Draft failed')
       setMessages((prev) => [...prev, data.draft])
+      setDraftBody(data.draft.body)
       if (prospect.stage === 'new') setProspect({ ...prospect, stage: 'chatting' })
-      toast.success('Draft ready — read it, then send from your own email.')
+      toast.success('Draft ready — read it, then approve to send from Gmail.')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not draft a reply.')
     } finally {
@@ -84,16 +98,54 @@ export default function ProspectDetail({
   }
 
   function mailtoDraft() {
-    if (!latestDraft || !prospect.parent_email) return
-    const subject = encodeURIComponent(`Your enquiry${prospect.child_name ? ` — ${prospect.child_name}` : ''}`)
-    const body = encodeURIComponent(latestDraft.body)
+    if (!draftBody || !prospect.parent_email) return
+    const subject = encodeURIComponent(draftSubject)
+    const body = encodeURIComponent(draftBody)
     window.location.href = `mailto:${prospect.parent_email}?subject=${subject}&body=${body}`
   }
 
   async function copyDraft() {
+    if (!draftBody) return
+    await navigator.clipboard.writeText(draftBody)
+    toast.success('Copied.')
+  }
+
+  async function approveAndSend() {
     if (!latestDraft) return
-    await navigator.clipboard.writeText(latestDraft.body)
-    toast.success('Copied. Paste it into Gmail.')
+    setSending(true)
+    try {
+      const res = await fetch('/api/enquiries/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prospectId: prospect.id,
+          draftId: latestDraft.id,
+          body: draftBody,
+          subject: draftSubject,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Send failed')
+      setMessages((prev) => [
+        ...prev.map((m) => (m.id === latestDraft.id ? { ...m, status: 'approved', body: draftBody } : m)),
+        {
+          ...latestDraft,
+          id: `out-${data.gmailMessageId || Date.now()}`,
+          direction: 'out',
+          status: 'sent',
+          body: draftBody,
+          subject: draftSubject,
+          from_address: null,
+          to_address: prospect.parent_email,
+        },
+      ])
+      toast.success('Sent from your Gmail. Dottie will not send again unless you approve.')
+      router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not send that reply.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -142,9 +194,15 @@ export default function ProspectDetail({
         <p className="text-xs text-gray-400">Google Calendar booking comes next. For now, put the time you agreed.</p>
       </div>
 
+      {agentPaused ? (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
+          Dottie is paused. Turn her back on from the Parents page to draft or send.
+        </div>
+      ) : null}
+
       {prospect.stage === 'lost' || prospect.stage === 'started' ? null : (
         <div className="flex flex-wrap gap-2">
-          <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={draftReply} disabled={drafting}>
+          <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={draftReply} disabled={drafting || agentPaused}>
             {drafting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
             Draft a reply
           </Button>
@@ -165,10 +223,23 @@ export default function ProspectDetail({
 
       {latestDraft ? (
         <div className="rounded-2xl border border-emerald-100 bg-white p-4 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">Draft to send</p>
-          <pre className="whitespace-pre-wrap font-sans text-sm text-gray-800 leading-relaxed">{latestDraft.body}</pre>
+          <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">Draft to approve</p>
+          <div className="space-y-1.5">
+            <Label>Subject</Label>
+            <Input value={draftSubject} onChange={(e) => setDraftSubject(e.target.value)} />
+          </div>
+          <Textarea rows={12} value={draftBody} onChange={(e) => setDraftBody(e.target.value)} />
           <div className="flex flex-wrap gap-2">
-            <Button type="button" className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={copyDraft}>
+            <Button
+              type="button"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700"
+              onClick={approveAndSend}
+              disabled={sending || agentPaused || !gmailConnected || !prospect.parent_email}
+            >
+              {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Approve and send from Gmail
+            </Button>
+            <Button type="button" variant="outline" className="rounded-xl" onClick={copyDraft}>
               Copy
             </Button>
             {prospect.parent_email ? (
@@ -177,7 +248,19 @@ export default function ProspectDetail({
               </Button>
             ) : null}
           </div>
-          <p className="text-xs text-gray-400">Read it before you send. Dottie writes from Your answers — she does not send this herself yet.</p>
+          <p className="text-xs text-gray-400">
+            {gmailConnected
+              ? 'Nothing goes to the parent until you tap Approve. Dottie does not send on her own.'
+              : 'Connect Gmail on the Parents page to send after you approve. Copy is only a backup.'}
+          </p>
+        </div>
+      ) : null}
+
+      {latestOut ? (
+        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Last sent</p>
+          {latestOut.subject ? <p className="text-sm font-medium text-gray-700 mb-1">{latestOut.subject}</p> : null}
+          <p className="text-sm text-gray-800 whitespace-pre-wrap">{latestOut.body}</p>
         </div>
       ) : null}
 

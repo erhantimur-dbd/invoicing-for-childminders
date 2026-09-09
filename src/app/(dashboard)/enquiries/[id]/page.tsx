@@ -23,10 +23,25 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
     .eq('prospect_id', id)
     .order('created_at', { ascending: true })
 
+  const [{ data: settings }, { data: gmail }] = await Promise.all([
+    supabase
+      .from('enquiry_settings')
+      .select('agent_paused')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('enquiry_gmail_accounts')
+      .select('email')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+  ])
+
   return (
     <ProspectDetail
       prospect={prospect as EnquiryProspect}
       messages={(messages ?? []) as EnquiryMessage[]}
+      agentPaused={Boolean(settings?.agent_paused)}
+      gmailConnected={Boolean(gmail?.email)}
     />
   )
 }
