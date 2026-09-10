@@ -1,9 +1,15 @@
 /**
- * Shared text-chat helper: try xAI/Grok first, fall back to Anthropic.
+ * Shared text-chat helper: xAI/Grok is the documented primary.
+ * Anthropic is a silent failover only — log when it fires; never surface
+ * Anthropic as an Enquiries drafting path in UI or marketing copy.
  *
  * Wired today: Soft Launch Enquiries drafts (`draftEnquiryReply`).
  * Not wired (higher risk): invoice-agent tool loop, receipt vision.
  * See `AI_CALL_SITES` in ./inventory.ts.
+ *
+ * Privacy: live notice says Enquiries drafting uses xAI. John Legal may
+ * need a Privacy/subprocessor update before Soft Launch relies on this
+ * failover. Soft Launch #3 merge and Checkout are out of scope.
  */
 import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
@@ -104,9 +110,7 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
   const anthropic = anthropicClient()
 
   if (!xai && !anthropic) {
-    throw new Error(
-      'Dottie cannot draft a reply right now. Add XAI_API_KEY (primary) or ANTHROPIC_API_KEY (failover).',
-    )
+    throw new Error('Dottie is not connected to Grok yet. Add XAI_API_KEY.')
   }
 
   if (xai) {
@@ -129,9 +133,13 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
   }
 
   if (!anthropic) {
-    throw new Error('Dottie cannot draft a reply right now. Add ANTHROPIC_API_KEY as failover.')
+    throw new Error('Dottie could not reach Grok. Try again in a moment.')
   }
 
   const text = await completeWithAnthropic(anthropic, input)
+  log.warn('ai_anthropic_failover_used', {
+    purpose: input.purpose ?? 'chat',
+    model: ANTHROPIC_CHAT_MODEL,
+  })
   return { text, provider: 'anthropic', model: ANTHROPIC_CHAT_MODEL, failedOver: true }
 }

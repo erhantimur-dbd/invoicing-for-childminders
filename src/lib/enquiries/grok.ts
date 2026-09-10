@@ -1,6 +1,7 @@
 /**
  * Draft a parent-enquiry reply from the childminder's own answers.
- * Grok (xAI) is primary; Anthropic is seamless failover via completeChat.
+ * Documented path is Grok (xAI). Anthropic is silent failover only
+ * (logged in completeChat) — not a marketed Enquiries drafting path.
  * Never invents places, fees, or Ofsted ratings.
  */
 import { completeChat } from '@/lib/ai/complete-chat'
