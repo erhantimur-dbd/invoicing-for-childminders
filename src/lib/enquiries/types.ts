@@ -68,6 +68,8 @@ export type EnquirySettings = {
   inbound_slug: string | null
   voice_notes: string | null
   setup_completed_at: string | null
+  certifications?: string | null
+  payment_instructions?: string | null
 }
 
 export type EnquiryVacancy = {
@@ -87,6 +89,7 @@ export type EnquiryKnowledge = {
   question: string | null
   answer: string | null
   file_name: string | null
+  file_path?: string | null
 }
 
 export type EnquiryProspect = {

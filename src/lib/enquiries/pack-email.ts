@@ -81,10 +81,11 @@ export function buildParentLetter(input: {
   const afterVisit = name
     ? `Thank you for coming to visit, ${name}.`
     : 'Thank you for coming to visit.'
+  const stage = String(input.prospect.stage)
   const visited = Boolean(input.prospect.visit_at)
-    || input.prospect.stage === 'visit'
-    || input.prospect.stage === 'awaiting'
-    || input.prospect.stage === 'accepted'
+    || stage === 'visit'
+    || stage === 'awaiting'
+    || stage === 'accepted'
   const sign = signOff(input.settings)
   const ofsted = input.settings.ofsted_urn
     ? `We are registered with Ofsted (URN ${input.settings.ofsted_urn}).`
