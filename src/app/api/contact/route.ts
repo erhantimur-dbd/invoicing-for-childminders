@@ -3,7 +3,12 @@ import { Resend } from 'resend'
 import { rateLimit, clientIp } from '@/lib/rate-limit'
 import { log } from '@/lib/log'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy-init: `new Resend(undefined)` throws and fails `next build` page-data collection.
+function getResend() {
+  const key = process.env.RESEND_API_KEY
+  if (!key) return null
+  return new Resend(key)
+}
 
 // ── Spam keyword filter ────────────────────────────────────────────────────
 const SPAM_PATTERNS = [
@@ -74,6 +79,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Send email via Resend ───────────────────────────────────────────────
+  const resend = getResend()
+  if (!resend) {
+    return NextResponse.json(
+      { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
+      { status: 500 },
+    )
+  }
+
   const safeSubject = subject?.trim() || '(no subject)'
 
   try {

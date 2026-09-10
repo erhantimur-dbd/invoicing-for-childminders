@@ -80,8 +80,18 @@ function needsInvoicing(pathname: string): boolean {
 }
 
 export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Public marketing pages (including `/` and `/privacy`) must not touch
+  // Supabase. Preview has crashed with 500 both when env is missing *and*
+  // when it is present but createServerClient / getUser throws.
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next({ request })
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
+  try {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -104,8 +114,6 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  const { pathname } = request.nextUrl
 
   // ── 1. Unauthenticated access ─────────────────────────────────────────────
   if (!user) {
@@ -185,6 +193,9 @@ export async function proxy(request: NextRequest) {
   }
 
   return supabaseResponse
+  } catch {
+    return NextResponse.next({ request })
+  }
 }
 
 export const config = {
