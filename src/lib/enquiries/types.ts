@@ -64,8 +64,10 @@ export type EnquirySettings = {
   quote_fees_in_email: boolean
   visiting_windows: VisitingWindow[]
   agent_paused: boolean
+  send_mode: 'approve' | 'auto'
   send_pack_on_approve: boolean
   inbound_slug: string | null
+  gmail_label: string | null
   voice_notes: string | null
   setup_completed_at: string | null
 }
@@ -111,6 +113,7 @@ export type EnquiryProspect = {
   lost_reason: string | null
   notes: string | null
   last_email_at: string | null
+  gmail_thread_id: string | null
   created_at: string
   updated_at: string
 }
@@ -126,7 +129,19 @@ export type EnquiryMessage = {
   to_address: string | null
   status: string
   model: string | null
+  gmail_message_id: string | null
+  gmail_thread_id: string | null
+  rfc_message_id: string | null
   created_at: string
+}
+
+export type EnquiryGmailAccountPublic = {
+  email: string
+  label_id: string | null
+  label_name: string | null
+  last_sync_at: string | null
+  last_error: string | null
+  connected_at: string
 }
 
 export const ENQUIRIES_PRICE = {
