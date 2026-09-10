@@ -41,8 +41,8 @@ export default function HeroVisual() {
   }, [runAnimation])
 
   return (
-    <div className="hidden lg:flex justify-center items-center">
-      <div className="flex items-start gap-3">
+    <div className="hidden lg:flex justify-center items-start min-h-[460px]">
+      <div className="flex items-start gap-3 min-h-[460px]">
 
         {/* ── WhatsApp chat + replay column ── */}
         <div className="flex flex-col flex-shrink-0">
@@ -73,7 +73,7 @@ export default function HeroVisual() {
             </div>
 
             {/* Chat area */}
-            <div className="px-3 py-3 space-y-2 min-h-[120px]" style={{ background: '#ECE5DD' }}>
+            <div className="px-3 py-3 space-y-2 h-[268px] overflow-hidden" style={{ background: '#ECE5DD' }}>
               {/* Typing indicator */}
               <div
                 className={`transition-all duration-300 ${(step === 0 || step === 2) ? 'opacity-100 max-h-12' : 'opacity-0 max-h-0 overflow-hidden'}`}
