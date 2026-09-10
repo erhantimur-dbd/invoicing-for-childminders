@@ -91,6 +91,9 @@ export async function proxy(request: NextRequest) {
   }
 
   let supabaseResponse = NextResponse.next({ request })
+
+  // Preview (and any host without Supabase env) must still render the public
+  // marketing homepage. createServerClient throws without URL/key → 500.
   const supabaseEnv = getSupabasePublicEnv()
   if (!supabaseEnv) {
     if (isProtectedRoute(pathname)) {
