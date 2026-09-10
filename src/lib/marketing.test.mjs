@@ -205,6 +205,8 @@ test('a homepage refresh starts at the top, not a leftover #invoicing hash', () 
   assert.match(script, /['"]reload['"]/)
   assert.match(script, /replaceState/)
   assert.match(script, /scrollTo\(0,\s*0\)/)
+  assert.match(script, /addEventListener\('load'/)
+  assert.match(script, /addEventListener\('pageshow'/)
 })
 
 test('homepage overflow does not create a scroll container that unsticks the header', () => {
