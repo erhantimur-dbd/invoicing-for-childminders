@@ -91,7 +91,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ draft: saved })
   } catch (err) {
     log.error('enquiry_draft_failed', err, { user_id: user.id, prospect_id: prospectId })
-    const message = err instanceof Error ? err.message : 'Could not draft a reply.'
+    const raw = err instanceof Error ? err.message : ''
+    // Never mention Anthropic/Claude in the Enquiries UI — xAI is the documented path.
+    const message =
+      /anthropic|claude/i.test(raw) || !raw ? 'Could not draft a reply.' : raw
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

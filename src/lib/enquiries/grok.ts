@@ -1,18 +1,12 @@
 /**
- * Grok (xAI) drafts a parent-enquiry reply from the childminder's own answers.
+ * Draft a parent-enquiry reply from the childminder's own answers.
+ * Production is xAI/Grok only. Anthropic silent failover is Preview-only
+ * behind ENQUIRIES_ANTHROPIC_FAILOVER=true until Privacy names it.
  * Never invents places, fees, or Ofsted ratings.
  */
-import OpenAI from 'openai'
+import { completeChat } from '@/lib/ai/complete-chat'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from './types'
 import { ENQUIRY_STAGE_LABELS, FUNDING_OPTIONS, WEEKDAYS } from './types'
-
-const MODEL = 'grok-4.6'
-
-function client(): OpenAI | null {
-  const key = process.env.XAI_API_KEY
-  if (!key) return null
-  return new OpenAI({ apiKey: key, baseURL: 'https://api.x.ai/v1' })
-}
 
 function fundingLabel(id: string | null): string {
   if (!id) return 'not captured yet'
@@ -54,11 +48,6 @@ export async function draftEnquiryReply(input: {
   prospect: EnquiryProspect
   parentMessage?: string
 }): Promise<{ body: string; model: string }> {
-  const grok = client()
-  if (!grok) {
-    throw new Error('Dottie is not connected to Grok yet. Add XAI_API_KEY.')
-  }
-
   const windows = (input.settings.visiting_windows ?? [])
     .map((w) => `${w.days.join(', ')} ${w.start}–${w.end} (${w.slot_minutes} min)`)
     .join('\n') || 'No visiting hours set — ask the parent for evenings that work and say you will confirm.'
@@ -115,8 +104,8 @@ Extra needs they mentioned: ${input.prospect.sen_notes || 'none'}
 
 ${input.parentMessage ? `Their latest message:\n${input.parentMessage}` : 'They have not sent a message in the app yet. Write a first reply that welcomes them and captures missing facts.'}`
 
-  const resp = await grok.chat.completions.create({
-    model: MODEL,
+  const { text, model } = await completeChat({
+    purpose: 'enquiry_draft',
     temperature: 0.4,
     messages: [
       { role: 'system', content: system },
@@ -124,7 +113,5 @@ ${input.parentMessage ? `Their latest message:\n${input.parentMessage}` : 'They 
     ],
   })
 
-  const body = resp.choices[0]?.message?.content?.trim()
-  if (!body) throw new Error('Grok returned an empty reply.')
-  return { body, model: MODEL }
+  return { body: text, model }
 }
