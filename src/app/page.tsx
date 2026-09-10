@@ -1,5 +1,3 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/marketing/SiteHeader'
@@ -46,11 +44,7 @@ const jsonLd = {
   ],
 }
 
-export default async function RootPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) redirect('/dashboard')
-
+export default function RootPage() {
   return (
     <div
       className={`${marketing.pageClass} min-h-screen overflow-x-hidden`}

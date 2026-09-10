@@ -36,6 +36,7 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith('/auth/')) return true
   // Public marketing content
   if (pathname === '/guides' || pathname.startsWith('/guides/')) return true
+  if (pathname === '/pack' || pathname.startsWith('/pack/')) return true
   return false
 }
 

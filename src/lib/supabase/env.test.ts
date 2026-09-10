@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 import { createServerClient } from '@supabase/ssr'
 import { getSupabasePublicEnv } from './env.ts'
@@ -49,5 +52,18 @@ describe('createServerClient without public env', () => {
       () => createServerClient(undefined as unknown as string, undefined as unknown as string, { cookies: emptyCookies }),
       /URL and Key are required to create a Supabase client/,
     )
+  })
+})
+
+describe('public homepage stays Preview-safe on navy chrome', () => {
+  it('does not construct a Supabase client on /', () => {
+    const home = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), '../../app/page.tsx'),
+      'utf8',
+    )
+    assert.doesNotMatch(home, /createClient/)
+    assert.doesNotMatch(home, /getUser/)
+    assert.match(home, /marketing\.headline/)
+    assert.match(home, /marketing\.hero/)
   })
 })
