@@ -27,10 +27,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dottie — for UK childminders",
+    default: "Dottie — AI assistant for UK childminders",
     template: "%s | Dottie",
   },
-  description: "Dottie answers new parents while you're with the children — start date, days, and 15/30-hour funding. Add invoicing when a child starts.",
+  description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://www.godottie.cloud"),
   verification: {
@@ -38,22 +38,22 @@ export const metadata: Metadata = {
   },
   openGraph: {
     siteName: "Dottie",
-    title: "Dottie Enquiries — never miss a new parent",
-    description: "Answer new parents, qualify funded hours, and book visits while you're with the children. Add invoicing when they start.",
+    title: "Dottie — AI for UK childminders",
+    description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
     url: "https://www.godottie.cloud",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dottie Enquiries — never miss a new parent",
-    description: "Answer new parents, qualify funded hours, and book visits while you're with the children.",
+    title: "Dottie — AI for UK childminders",
+    description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
   },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#059669",
+  themeColor: "#0b1220",
 };
 
 export default function RootLayout({
@@ -63,7 +63,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-GB" className={`${nunito.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#fdf8f1]">
+      <body className="min-h-full flex flex-col bg-white">
         {children}
         <Toaster richColors position="top-center" />
         <CookieConsent gaId="G-CCYVZXRWK0" />

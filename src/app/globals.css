@@ -164,9 +164,85 @@
   }
 }
 
+/* Unlayered so it wins over inherited wrapper font-family on public pages. */
+.marketing-page {
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+.marketing-page h1,
+.marketing-page h2,
+.marketing-page h3,
+.marketing-page h4,
+.marketing-page h5 {
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  font-variation-settings: normal;
+  font-weight: 650;
+}
+.marketing-kicker {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.marketing-hero-field {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 70% 20%, rgba(246, 247, 249, 0.06), transparent 60%),
+    linear-gradient(rgba(246, 247, 249, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(246, 247, 249, 0.035) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+}
+
 @keyframes dotBounce {
   0%, 60%, 100% { transform: translateY(0); }
   30% { transform: translateY(-4px); }
+}
+
+@keyframes efIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes efCheck {
+  from { stroke-dashoffset: 18; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes efGrowX {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes efPop {
+  from { opacity: 0; transform: scale(0.72); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+[data-email-flow] .ef-in {
+  animation: efIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+[data-email-flow] .ef-check {
+  stroke-dasharray: 18;
+  stroke-dashoffset: 18;
+  animation: efCheck 0.35s 0.28s ease-out forwards;
+}
+[data-email-flow] .ef-grow {
+  transform-origin: left center;
+  animation: efGrowX 0.4s 0.12s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+[data-email-flow] .ef-pop {
+  animation: efPop 0.32s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-email-flow] .ef-in,
+  [data-email-flow] .ef-check,
+  [data-email-flow] .ef-grow,
+  [data-email-flow] .ef-pop {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+  }
 }
 
 @media print {

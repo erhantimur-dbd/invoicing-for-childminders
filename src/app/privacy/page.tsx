@@ -1,5 +1,7 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
+import SiteHeader from '@/components/marketing/SiteHeader'
+import SiteFooter from '@/components/marketing/SiteFooter'
+import { marketing } from '@/lib/marketing.mjs'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -50,17 +52,18 @@ const TOC = [
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#fdf8f1]">
-      <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6">
+    <div
+      className={`${marketing.pageClass} min-h-screen flex flex-col`}
+      style={{ backgroundColor: marketing.canvas, color: marketing.ink, fontFamily: marketing.fontFamily }}
+    >
+      <SiteHeader />
+      <div className="flex-1 max-w-4xl mx-auto px-4 py-16 sm:px-6 w-full">
 
         {/* Header */}
         <div className="mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-            ← Back to Dottie
-          </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Privacy Policy</h1>
           <p className="mt-2 text-sm text-gray-500">Last updated: {LAST_UPDATED}</p>
-          <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800">
+          <div className="mt-4 p-4 rounded-xl bg-[#eef0f3] border text-sm text-[#123a4a]">
             We've written this policy in plain English. We want you to understand exactly what we do with your data — and why.
           </div>
         </div>
@@ -76,7 +79,7 @@ export default function PrivacyPage() {
                   <a
                     key={item.id}
                     href={`#${item.id}`}
-                    className="block text-sm text-gray-500 hover:text-emerald-600 py-1 transition-colors"
+                    className="block text-sm text-gray-500 hover:text-[#123a4a] py-1 transition-colors"
                   >
                     {item.label}
                   </a>
@@ -94,7 +97,7 @@ export default function PrivacyPage() {
               </P>
               <P>
                 We are the data controller for the personal data you provide to us. If you have any questions about this policy or how we handle your data, please contact us at{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>.
               </P>
             </Section>
 
@@ -154,7 +157,7 @@ export default function PrivacyPage() {
                 'To allow parents to securely access their child\'s invoices (using DOB as verification)',
                 'To process subscription payments via Stripe',
                 'To send transactional emails (welcome, trial reminders, payment confirmations) via Resend',
-                'To generate draft invoices using AI assistance (Anthropic Claude) — see Third-party Processors',
+                'To generate draft invoices and parent-enquiry replies using AI assistance (xAI Grok) — see Third-party Processors',
                 'To provide expense tracking and tax-year reports',
                 'To respond to support requests',
                 'To comply with our legal obligations',
@@ -234,6 +237,7 @@ export default function PrivacyPage() {
                   <tbody>
                     {[
                       ['Providing the invoicing service', 'Contract (Article 6(1)(b))'],
+                      ['Generating parent-enquiry AI drafts', 'Contract (Article 6(1)(b))'],
                       ['Processing subscription payments', 'Contract (Article 6(1)(b))'],
                       ['Sending transactional emails', 'Contract (Article 6(1)(b))'],
                       ['Security monitoring and fraud prevention', 'Legitimate interests (Article 6(1)(f))'],
@@ -314,6 +318,9 @@ export default function PrivacyPage() {
                 We store children&apos;s dates of birth for the sole purpose of verifying parent identity when they access an invoice. This verification step protects your bank details from unauthorised access.
               </P>
               <P>
+                Enquiries also store parent and child names, ages, and optional extra-needs (SEN) notes you type. Extra-needs notes can be health data (UK GDPR Article 9). We store them for you as processor; we do not send those notes to xAI or Anthropic. You remain the controller for family data and confirm you have a lawful basis to record it.
+              </P>
+              <P>
                 We do not share children&apos;s data with any third party other than the sub-processors listed above, and only to the extent necessary to deliver the service.
               </P>
             </Section>
@@ -351,7 +358,7 @@ export default function PrivacyPage() {
 
             <Section id="your-rights" title="9. Your rights">
               <P>Under UK GDPR, you have the following rights. To exercise any of them, email us at{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>.
                 We will respond within 30 days.
               </P>
               <div className="space-y-3">
@@ -399,7 +406,7 @@ export default function PrivacyPage() {
               ]} />
               <P>
                 While we take all reasonable precautions, no internet service is completely secure. If you believe your account has been compromised, contact us immediately at{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>.
               </P>
             </Section>
 
@@ -419,7 +426,7 @@ export default function PrivacyPage() {
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1">
                 <p className="font-semibold text-gray-900">Dottie</p>
                 <p>
-                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>
                 </p>
                 <p className="text-gray-500">www.godottie.cloud</p>
               </div>
@@ -432,6 +439,7 @@ export default function PrivacyPage() {
           </div>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

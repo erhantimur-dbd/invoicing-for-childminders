@@ -2,6 +2,10 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import SiteHeader from '@/components/marketing/SiteHeader'
+import SiteFooter from '@/components/marketing/SiteFooter'
+import { marketing } from '@/lib/marketing.mjs'
+import { howMuchDoesDottieCost, noSelfServeTrial } from '@/lib/plans-copy.mjs'
 
 const SUPPORT_EMAIL = 'support@godottie.cloud'
 
@@ -19,7 +23,7 @@ const FAQ_ITEMS = [
   {
     question: 'How much does it cost?',
     answer:
-      'Dottie has two plans: Starter (up to 5 children) at £9.99/month or £99/year, and Professional (up to 20 children) at £19.99/month or £199/year. For unlimited children, contact us. All plans include auto-invoice generation, PDF invoices, expense tracking, and tax year reports.',
+      howMuchDoesDottieCost(),
   },
   {
     question: 'Is my data secure?',
@@ -32,14 +36,13 @@ const FAQ_ITEMS = [
       "Yes, cancel your subscription any time from your account settings. You'll keep full access until the end of your billing period.",
   },
   {
-    question: 'What happens when my trial ends?',
-    answer:
-      "You'll be prompted to choose a plan. If you don't subscribe, access to the app pauses — but your data is safely stored for 30 days in case you return.",
+    question: 'Is there a free trial?',
+    answer: noSelfServeTrial,
   },
   {
     question: 'Do you support childminders with multiple children?',
     answer:
-      "Yes! The Starter plan supports up to 5 children, and the Professional plan supports up to 20 children. For larger settings, get in touch about our Unlimited plan. Each child can have their own schedule, rates, and parent contact details.",
+      'Yes. Enquiries is not capped by child count. The invoicing add-on has Starter (up to 5 children) and Professional (up to 20). For larger settings, contact us. Each child can have their own schedule, rates, and parent details.',
   },
   {
     question: 'Can I export my invoices as PDF?',
@@ -92,14 +95,15 @@ export default function SupportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fdf8f1]">
-      <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6">
+    <div
+      className={`${marketing.pageClass} min-h-screen flex flex-col`}
+      style={{ backgroundColor: marketing.canvas, color: marketing.ink, fontFamily: marketing.fontFamily }}
+    >
+      <SiteHeader />
+      <div className="flex-1 max-w-3xl mx-auto px-4 py-16 sm:px-6 w-full">
 
         {/* Header */}
         <div className="text-center mb-12">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-            ← Back to Dottie
-          </Link>
           <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">We&apos;re here to help</h1>
           <p className="mt-3 text-lg text-gray-500">Send us a message or browse our FAQ below.</p>
         </div>
@@ -110,13 +114,13 @@ export default function SupportPage() {
           <p className="text-sm text-gray-500 mb-6">We aim to respond within 24 hours on business days.</p>
 
           {status === 'sent' ? (
-            <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-6 text-center">
-              <div className="text-3xl mb-3">💚</div>
-              <h3 className="font-semibold text-emerald-900 text-base mb-1">Message sent!</h3>
-              <p className="text-emerald-700 text-sm">Thanks for getting in touch. I'll get back to you soon.</p>
+            <div className="rounded-md bg-[#eef0f3] border p-6 text-center" style={{ borderColor: marketing.hairline }}>
+              <h3 className="font-semibold text-base mb-1" style={{ color: marketing.ink }}>Message sent</h3>
+              <p className="text-sm" style={{ color: marketing.muted }}>Thanks for getting in touch. We will get back to you soon.</p>
               <button
                 onClick={() => setStatus('idle')}
-                className="mt-4 text-sm text-emerald-600 underline hover:text-emerald-700"
+                className="mt-4 text-sm underline"
+                style={{ color: marketing.accent }}
               >
                 Send another message
               </button>
@@ -201,7 +205,7 @@ export default function SupportPage() {
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full h-12 bg-[#123a4a] hover:bg-[#0c2c38] text-white font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {status === 'sending' ? (
                   <>
@@ -218,7 +222,7 @@ export default function SupportPage() {
         <section>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-semibold text-gray-900">Frequently asked questions</h2>
-            <Link href="/faq" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+            <Link href="/faq" className="text-sm text-[#123a4a] hover:text-emerald-700 font-medium">
               See all FAQs →
             </Link>
           </div>
@@ -252,7 +256,7 @@ export default function SupportPage() {
             Prefer to email directly?{' '}
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="text-emerald-600 hover:text-emerald-700 font-medium underline underline-offset-2 transition-colors"
+              className="text-[#123a4a] hover:text-emerald-700 font-medium underline underline-offset-2 transition-colors"
             >
               {SUPPORT_EMAIL}
             </a>
@@ -260,6 +264,7 @@ export default function SupportPage() {
         </div>
 
       </div>
+      <SiteFooter />
     </div>
   )
 }

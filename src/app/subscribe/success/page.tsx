@@ -81,8 +81,8 @@ export default function SubscribeSuccessPage() {
   if (!sub && !timedOut) {
     return (
       <Shell>
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-5 mx-auto">
-          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-[#eef0f3] mb-5 mx-auto">
+          <Loader2 className="w-8 h-8 text-[#123a4a] animate-spin" />
         </div>
         <h1 className="text-xl font-extrabold text-gray-900 mb-2">Confirming your subscription…</h1>
         <p className="text-gray-500 text-sm leading-relaxed">
@@ -105,7 +105,7 @@ export default function SubscribeSuccessPage() {
         </p>
         <Link
           href="/dashboard"
-          className="inline-flex items-center justify-center w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
+          className="inline-flex items-center justify-center w-full py-3 bg-[#123a4a] hover:bg-[#0c2c38] text-white font-semibold text-base"
         >
           Go to dashboard →
         </Link>
@@ -118,17 +118,17 @@ export default function SubscribeSuccessPage() {
   const trialEndLabel = formatDate(sub?.trial_end ?? null)
   const renewLabel = formatDate(sub?.current_period_end ?? null)
   const nextHref = isEnquiries ? '/enquiries/setup' : '/dashboard'
-  const nextLabel = isEnquiries ? 'Set up Enquiries →' : 'Go to dashboard →'
+  const nextLabel = isEnquiries ? 'Set up Dottie →' : 'Go to dashboard →'
 
   return (
     <Shell>
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-5 mx-auto">
-        <CheckCircle2 className="w-9 h-9 text-emerald-600" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-[#eef0f3] mb-5 mx-auto">
+        <CheckCircle2 className="w-9 h-9 text-[#123a4a]" />
       </div>
 
       {isEnquiries ? (
         <>
-          <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Enquiries is on</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dottie is on</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-6">
             Next: tell Dottie about your setting, spaces, funded hours, and visiting times. Takes a few minutes.
           </p>
@@ -161,7 +161,7 @@ export default function SubscribeSuccessPage() {
 
       <Link
         href={nextHref}
-        className="inline-flex items-center justify-center w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
+        className="inline-flex items-center justify-center w-full py-3 bg-[#123a4a] hover:bg-[#0c2c38] text-white font-semibold text-base"
       >
         {nextLabel}
       </Link>
@@ -171,12 +171,12 @@ export default function SubscribeSuccessPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white flex flex-col items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-10 text-center">
+    <div className="flex flex-col items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md bg-white border border-gray-100 p-10 text-center">
         {children}
       </div>
       <p className="mt-8 text-gray-400 text-sm text-center">
-        Part of the <span className="text-amber-600 font-medium">Dottie OS</span> ecosystem
+        The business end, handled.
       </p>
     </div>
   )

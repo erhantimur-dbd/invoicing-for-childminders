@@ -1,5 +1,9 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import SiteHeader from '@/components/marketing/SiteHeader'
+import SiteFooter from '@/components/marketing/SiteFooter'
+import { marketing, formatGbp, pricingAmounts } from '@/lib/marketing.mjs'
+import { enquiriesQuotaCopy } from '@/lib/enquiries/quota.mjs'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -52,17 +56,18 @@ const TOC = [
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#fdf8f1]">
-      <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6">
+    <div
+      className={`${marketing.pageClass} min-h-screen flex flex-col`}
+      style={{ backgroundColor: marketing.canvas, color: marketing.ink, fontFamily: marketing.fontFamily }}
+    >
+      <SiteHeader />
+      <div className="flex-1 max-w-4xl mx-auto px-4 py-16 sm:px-6 w-full">
 
         {/* Header */}
         <div className="mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-            ← Back to Dottie
-          </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Terms of Service</h1>
           <p className="mt-2 text-sm text-gray-500">Last updated: {LAST_UPDATED}</p>
-          <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800">
+          <div className="mt-4 p-4 rounded-xl bg-[#eef0f3] border text-sm text-[#123a4a]">
             Please read these terms carefully before using Dottie. By creating an account, you agree to be bound by them.
           </div>
         </div>
@@ -78,7 +83,7 @@ export default function TermsPage() {
                   <a
                     key={item.id}
                     href={`#${item.id}`}
-                    className="block text-sm text-gray-500 hover:text-emerald-600 py-1 transition-colors"
+                    className="block text-sm text-gray-500 hover:text-[#123a4a] py-1 transition-colors"
                   >
                     {item.label}
                   </a>
@@ -96,7 +101,7 @@ export default function TermsPage() {
               </P>
               <P>
                 By creating an account or using the service, you agree to these Terms and our{' '}
-                <Link href="/privacy" className="text-emerald-600 underline">Privacy Policy</Link>.
+                <Link href="/privacy" className="text-[#123a4a] underline">Privacy Policy</Link>.
                 If you do not agree, you must not use Dottie.
               </P>
             </Section>
@@ -134,7 +139,7 @@ export default function TermsPage() {
               </P>
               <P>
                 Notify us immediately at{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>{' '}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>{' '}
                 if you believe your account has been compromised.
               </P>
               <P>
@@ -143,22 +148,22 @@ export default function TermsPage() {
             </Section>
 
             <Section id="subscription" title="5. Subscription and billing">
-              <P>Access to Dottie requires an active subscription. We offer the following plans:</P>
+              <P>Access to Dottie requires an active subscription. Current list prices:</P>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Starter</p>
-                  <p className="text-sm text-gray-500 mb-2">Up to 5 children</p>
-                  <p className="text-xl font-bold text-gray-900">£9.99<span className="text-sm font-normal text-gray-400">/month</span></p>
-                  <p className="text-xs text-gray-500 mt-1">or £99/year · save 17%</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries</p>
+                  <p className="text-sm text-gray-500 mb-2">Parent emails, visits, onboarding</p>
+                  <p className="text-xl font-bold text-gray-900">{formatGbp(pricingAmounts.enquiries.monthly)}<span className="text-sm font-normal text-gray-400">/month</span></p>
+                  <p className="text-xs text-gray-500 mt-1">or {formatGbp(pricingAmounts.enquiries.annual)}/year · save {pricingAmounts.discountPct}%</p>
                 </div>
                 <div className="p-4 rounded-xl bg-white border-2 border-emerald-200">
-                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Professional</p>
-                  <p className="text-sm text-gray-500 mb-2">Up to 20 children</p>
-                  <p className="text-xl font-bold text-gray-900">£19.99<span className="text-sm font-normal text-gray-400">/month</span></p>
-                  <p className="text-xs text-gray-500 mt-1">or £199/year · save 17%</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries + invoicing</p>
+                  <p className="text-sm text-gray-500 mb-2">Whole business end, one login</p>
+                  <p className="text-xl font-bold text-gray-900">from {formatGbp(pricingAmounts.bothFrom.monthly)}<span className="text-sm font-normal text-gray-400">/month</span></p>
+                  <p className="text-xs text-gray-500 mt-1">from {formatGbp(pricingAmounts.bothFrom.annual)}/year · save {pricingAmounts.discountPct}%</p>
                 </div>
               </div>
-              <P>For larger childminding settings requiring more than 20 children, please contact us about our Unlimited plan.</P>
+              <P>{enquiriesQuotaCopy()} Invoicing add-on child limits: Starter up to 5 children, Professional up to 20. Contact us for larger settings.</P>
               <P>
                 Subscriptions are processed by Stripe. By subscribing, you authorise Stripe to charge your payment method on a recurring basis. Prices are displayed in GBP and include applicable taxes.
               </P>
@@ -216,7 +221,7 @@ export default function TermsPage() {
               </P>
               <P>
                 You are responsible for ensuring that the personal data you enter (particularly about children and their parents) is accurate and that you have the appropriate legal basis to process it. See our{' '}
-                <Link href="/privacy" className="text-emerald-600 underline">Privacy Policy</Link> for full details.
+                <Link href="/privacy" className="text-[#123a4a] underline">Privacy Policy</Link> for full details.
               </P>
             </Section>
 
@@ -247,7 +252,7 @@ export default function TermsPage() {
                 'Indirect, incidental, or consequential losses',
                 'Loss of income or business arising from service downtime',
                 'Errors or omissions in invoices based on data you provided',
-                'Actions of third-party processors (Stripe, Resend, Supabase, Anthropic)',
+                'Actions of third-party processors (Stripe, Resend, Supabase, xAI, Anthropic)',
                 'Data loss caused by factors outside our reasonable control',
               ]} />
               <P>
@@ -274,7 +279,7 @@ export default function TermsPage() {
               <P>For questions about these Terms, please contact us:</P>
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1">
                 <p className="font-semibold text-gray-900">Dottie</p>
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline block">{CONTACT_EMAIL}</a>
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline block">{CONTACT_EMAIL}</a>
                 <p className="text-gray-500">www.godottie.cloud</p>
               </div>
             </Section>
@@ -282,6 +287,7 @@ export default function TermsPage() {
           </div>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }
