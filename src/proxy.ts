@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getSupabasePublicEnv } from '@/lib/supabase/env'
 
 // Routes that require no authentication
 const PUBLIC_ROUTES = [
@@ -72,9 +73,16 @@ function isSubscriptionExempt(pathname: string): boolean {
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
+  // Preview (and any host without Supabase env) must still render the public
+  // marketing homepage. createServerClient throws without URL/key → 500.
+  const supabaseEnv = getSupabasePublicEnv()
+  if (!supabaseEnv) {
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseEnv.url,
+    supabaseEnv.anonKey,
     {
       cookies: {
         getAll() {
