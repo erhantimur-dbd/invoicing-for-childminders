@@ -1,11 +1,13 @@
-export const SEND_MODES = ['approve', 'auto'] as const
+export const SEND_MODES = ['auto', 'approve'] as const
 
 export type SendMode = (typeof SEND_MODES)[number]
 
-export const DEFAULT_SEND_MODE: SendMode = 'approve'
+export const DEFAULT_SEND_MODE: SendMode = 'auto'
 
 export function parseSendMode(value: string | null | undefined): SendMode {
-  return value === 'auto' ? 'auto' : DEFAULT_SEND_MODE
+  if (value === 'approve') return 'approve'
+  if (value === 'auto') return 'auto'
+  return DEFAULT_SEND_MODE
 }
 
 export function isAutoSendEnabled(settings: {

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ENQUIRY_STAGE_LABELS, ENQUIRY_STAGES, FUNDING_OPTIONS, type EnquiryProspect } from '@/lib/enquiries/types'
+import { parseSendMode } from '@/lib/enquiries/send-mode'
 import { Plus, Settings2 } from 'lucide-react'
 import GmailConnect from '@/components/enquiries/GmailConnect'
 
@@ -45,9 +46,9 @@ export default async function EnquiriesPage({
           <p className="text-gray-500 text-sm mt-1">
             {settings.agent_paused
               ? 'Dottie is paused — she will not draft or send replies until you turn her back on.'
-              : settings.send_mode === 'auto'
+              : parseSendMode(settings.send_mode) === 'auto'
                 ? 'Auto-send is on. Dottie drafts and sends filtered parent emails from your Gmail. Pause still stops everything.'
-                : 'Gmail brings parent emails here. Dottie drafts a reply; you approve before anything is sent.'}
+                : 'Draft & approve is on. Dottie drafts a reply; you approve before anything is sent.'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -70,7 +71,7 @@ export default async function EnquiriesPage({
 
       <GmailConnect
         initialPaused={settings.agent_paused}
-        initialSendMode={settings.send_mode === 'auto' ? 'auto' : 'approve'}
+        initialSendMode={parseSendMode(settings.send_mode)}
         gmailResult={gmail}
       />
 

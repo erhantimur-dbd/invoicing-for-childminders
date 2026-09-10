@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ProspectDetail from './ProspectDetail'
 import type { EnquiryMessage, EnquiryProspect } from '@/lib/enquiries/types'
+import { parseSendMode } from '@/lib/enquiries/send-mode'
 
 export default async function ProspectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -41,7 +42,7 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
       prospect={prospect as EnquiryProspect}
       messages={(messages ?? []) as EnquiryMessage[]}
       agentPaused={Boolean(settings?.agent_paused)}
-      sendMode={settings?.send_mode === 'auto' ? 'auto' : 'approve'}
+      sendMode={parseSendMode(settings?.send_mode)}
       gmailConnected={Boolean(gmail?.email)}
     />
   )

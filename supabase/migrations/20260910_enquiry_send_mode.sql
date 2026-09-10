@@ -1,8 +1,8 @@
--- Soft Launch send mode: draft & approve (default) or auto-send after draft.
+-- Soft Launch send mode: auto-send (default) or draft & approve.
 -- Pause still blocks draft and send in both modes.
 
 alter table public.enquiry_settings
-  add column if not exists send_mode text not null default 'approve';
+  add column if not exists send_mode text not null default 'auto';
 
 do $$
 begin
