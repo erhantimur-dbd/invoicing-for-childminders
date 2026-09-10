@@ -4,17 +4,9 @@
  * Soft CTA). Preview still requires ENQUIRIES_ANTHROPIC_FAILOVER=true.
  * Never invents places, fees, or Ofsted ratings.
  *
-<<<<<<< HEAD
  * Successful drafts emit `ai_usage` from `completeChat` (rate card 2026-09-10.3).
  */
 import { completeChat } from '@/lib/ai/complete-chat'
-=======
- * This dormant tip is Grok-only — no Anthropic Enquiries failover.
- * Successful drafts emit `ai_usage` (rate card 2026-09-10.3).
- */
-import OpenAI from 'openai'
-import { METERED_MODELS, PRODUCT_TAGS, emitAiUsage, preferVendorModel, usageFromOpenAI } from '@/lib/ai/usage'
->>>>>>> c4bc3b1 (Stamp AI usage events with rate card 2026-09-10.3)
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from './types'
 import { ENQUIRY_STAGE_LABELS, FUNDING_OPTIONS, WEEKDAYS } from './types'
 
@@ -123,19 +115,5 @@ ${input.parentMessage ? `Their latest message:\n${input.parentMessage}` : 'They 
     ],
   })
 
-<<<<<<< HEAD
   return { body: text, model }
-=======
-  emitAiUsage({
-    product_tag: PRODUCT_TAGS.enquiries,
-    vendor: 'xai',
-    model: preferVendorModel(resp.model, MODEL),
-    purpose: 'enquiry_draft',
-    ...usageFromOpenAI(resp),
-  })
-
-  const body = resp.choices[0]?.message?.content?.trim()
-  if (!body) throw new Error('Grok returned an empty reply.')
-  return { body, model: MODEL }
->>>>>>> c4bc3b1 (Stamp AI usage events with rate card 2026-09-10.3)
 }

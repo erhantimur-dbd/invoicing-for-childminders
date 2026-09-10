@@ -1,5 +1,5 @@
 /**
- * Shared AI usage meter (Jim P0 / Ethan rate card `2026-09-10.3`).
+ * Shared AI usage meter (Jim Architecture-OK / Ethan Finance SoT `2026-09-10.3`).
  *
  * Emits a single-line JSON `ai_usage` event (same shape as `log.info`) so
  * Vercel Preview logs are greppable. Never throws — Soft Launch seats must
@@ -8,9 +8,9 @@
  * Preview-first: `env` is `prod` only when VERCEL_ENV=production. Local and
  * Preview deploys are `preview`. Do not promote main from this spike.
  *
- * On this dormant tip Enquiries are Grok-only. Anthropic Enquiries failover
- * is not wired here (that lives on branches with ENQUIRIES_ANTHROPIC_FAILOVER
- * + Privacy Soft CTA).
+ * Enquiries: Grok primary; silent Anthropic failover is on in production
+ * (Privacy Soft CTA). When xAI returns `usage.cost_in_usd_ticks`, that
+ * vendor-actual value is included on the event (Ethan).
  */
 
 export const RATE_CARD_VERSION = '2026-09-10.3' as const
@@ -27,7 +27,6 @@ export type AiVendor = 'xai' | 'anthropic'
 /** Live SKUs Noah’s lane reports to Finance. */
 export const METERED_MODELS = {
   enquiriesLive: 'grok-4.6',
-  /** Documented SKU only — not called on this tip (Grok-only Enquiries). */
   enquiriesFailover: 'claude-sonnet-4-6',
   invoiceAgent: 'claude-sonnet-4-6',
   receiptVision: 'claude-haiku-4-5-20251001',
@@ -59,10 +58,13 @@ export type AiUsageEvent = {
   tool_calls: number
   request_id: string
   rate_card_version: typeof RATE_CARD_VERSION
+  /** xAI vendor-actual billed cost. Omitted when the provider did not send it. */
+  cost_in_usd_ticks?: number
 }
 
-export type AiUsageEmitInput = Omit<AiUsageEvent, 'env' | 'rate_card_version'> & {
+export type AiUsageEmitInput = Omit<AiUsageEvent, 'env' | 'rate_card_version' | 'cost_in_usd_ticks'> & {
   env?: AiEnv
+  cost_in_usd_ticks?: number
   /** Call-site label for logs only (not on Ethan’s rate card). */
   purpose?: string
 }
@@ -82,11 +84,13 @@ export type AnthropicUsageLike = {
 export type OpenAIUsageLike = {
   id?: string
   model?: string
+  cost_in_usd_ticks?: number
   usage?: {
     prompt_tokens?: number
     completion_tokens?: number
     input_tokens?: number
     output_tokens?: number
+    cost_in_usd_ticks?: number
     prompt_tokens_details?: {
       cached_tokens?: number
       cache_write_tokens?: number
@@ -106,6 +110,13 @@ export function productTagForPurpose(purpose: string | undefined): AiProductTag 
 
 function asCount(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : 0
+}
+
+/** Finite non-negative integer ticks. Rejects strings / NaN / negatives. */
+export function asUsdTicks(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0
+    ? Math.floor(value)
+    : undefined
 }
 
 function requestIdFrom(id: unknown): string {
@@ -144,10 +155,14 @@ export function usageFromAnthropic(response: AnthropicUsageLike): Pick<
 /**
  * OpenAI / xAI: `prompt_tokens` includes cached tokens when details are
  * present. Subtract cached so `tokens_in` is the full-rate bucket.
+ *
+ * When xAI sends `usage.cost_in_usd_ticks` (vendor-actual billed ticks,
+ * 1 USD = 1e10 ticks), include it. Prefer that over computing cost from
+ * tokens. Omit the field when the provider did not send a valid value.
  */
 export function usageFromOpenAI(response: OpenAIUsageLike): Pick<
   AiUsageEvent,
-  'tokens_in' | 'tokens_out' | 'tokens_cached' | 'tool_calls' | 'request_id'
+  'tokens_in' | 'tokens_out' | 'tokens_cached' | 'tool_calls' | 'request_id' | 'cost_in_usd_ticks'
 > {
   const usage = response.usage ?? {}
   const tokens_cached = asCount(
@@ -158,16 +173,19 @@ export function usageFromOpenAI(response: OpenAIUsageLike): Pick<
   const tokens_in = Math.max(0, prompt - tokens_cached) + writes
   const tokens_out = asCount(usage.completion_tokens ?? usage.output_tokens)
   const tool_calls = response.choices?.[0]?.message?.tool_calls?.length ?? 0
+  const cost_in_usd_ticks = asUsdTicks(usage.cost_in_usd_ticks ?? response.cost_in_usd_ticks)
   return {
     tokens_in,
     tokens_out,
     tokens_cached,
     tool_calls,
     request_id: requestIdFrom(response.id),
+    ...(cost_in_usd_ticks !== undefined ? { cost_in_usd_ticks } : {}),
   }
 }
 
 export function buildAiUsageEvent(input: AiUsageEmitInput): AiUsageEvent {
+  const cost_in_usd_ticks = asUsdTicks(input.cost_in_usd_ticks)
   return {
     product_tag: input.product_tag,
     env: input.env ?? resolveAiEnv(),
@@ -180,6 +198,7 @@ export function buildAiUsageEvent(input: AiUsageEmitInput): AiUsageEvent {
     tool_calls: asCount(input.tool_calls),
     request_id: requestIdFrom(input.request_id),
     rate_card_version: RATE_CARD_VERSION,
+    ...(cost_in_usd_ticks !== undefined ? { cost_in_usd_ticks } : {}),
   }
 }
 

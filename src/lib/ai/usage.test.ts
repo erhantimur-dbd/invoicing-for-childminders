@@ -10,6 +10,7 @@ import {
   preferVendorModel,
   productTagForPurpose,
   resolveAiEnv,
+  asUsdTicks,
   usageFromAnthropic,
   usageFromOpenAI,
 } from './usage.ts'
@@ -101,6 +102,44 @@ describe('usageFromOpenAI', () => {
       tool_calls: 0,
       request_id: 'chatcmpl_grok_1',
     })
+    assert.equal('cost_in_usd_ticks' in extracted, false)
+  })
+
+  it('prefers vendor-actual usage.cost_in_usd_ticks when xAI sends it', () => {
+    const extracted = usageFromOpenAI({
+      id: 'chatcmpl_grok_ticks',
+      usage: {
+        prompt_tokens: 199,
+        completion_tokens: 1,
+        cost_in_usd_ticks: 158500,
+      },
+    })
+    assert.equal(extracted.cost_in_usd_ticks, 158500)
+    assert.equal(extracted.tokens_in, 199)
+    assert.equal(extracted.tokens_out, 1)
+  })
+
+  it('accepts top-level cost_in_usd_ticks and includes a zero tick bill', () => {
+    assert.equal(
+      usageFromOpenAI({
+        id: 'chatcmpl_zero',
+        cost_in_usd_ticks: 0,
+        usage: { prompt_tokens: 10, completion_tokens: 1 },
+      }).cost_in_usd_ticks,
+      0,
+    )
+  })
+
+  it('omits invalid cost_in_usd_ticks (string / negative / NaN)', () => {
+    assert.equal(
+      usageFromOpenAI({
+        id: 'chatcmpl_bad',
+        usage: { prompt_tokens: 1, completion_tokens: 1, cost_in_usd_ticks: -1 },
+      }).cost_in_usd_ticks,
+      undefined,
+    )
+    assert.equal(asUsdTicks('158500'), undefined)
+    assert.equal(asUsdTicks(Number.NaN), undefined)
   })
 })
 
@@ -116,6 +155,7 @@ describe('buildAiUsageEvent / emitAiUsage', () => {
       tokens_cached: 0,
       tool_calls: 0,
       request_id: 'req_1',
+      cost_in_usd_ticks: 158500,
     })
     assert.deepEqual(event, {
       product_tag: 'godottie-enquiries',
@@ -128,8 +168,10 @@ describe('buildAiUsageEvent / emitAiUsage', () => {
       tool_calls: 0,
       request_id: 'req_1',
       rate_card_version: '2026-09-10.3',
+      cost_in_usd_ticks: 158500,
     })
     assert.equal(event.rate_card_version, RATE_CARD_VERSION)
+    assert.equal(event.cost_in_usd_ticks, 158500)
   })
 
   it('logs ai_usage JSON and never throws', () => {
@@ -158,6 +200,37 @@ describe('buildAiUsageEvent / emitAiUsage', () => {
       assert.equal(parsed.model, 'claude-sonnet-4-6')
       assert.equal(parsed.rate_card_version, '2026-09-10.3')
       assert.equal(parsed.purpose, 'invoice_agent')
+      assert.equal('cost_in_usd_ticks' in parsed, false)
+    } finally {
+      console.log = orig
+    }
+  })
+
+  it('includes cost_in_usd_ticks on the ai_usage log line when provided', () => {
+    const lines: string[] = []
+    const orig = console.log
+    console.log = (line: string) => {
+      lines.push(String(line))
+    }
+    try {
+      const emitted = emitAiUsage({
+        product_tag: PRODUCT_TAGS.enquiries,
+        env: 'preview',
+        vendor: 'xai',
+        model: METERED_MODELS.enquiriesLive,
+        tokens_in: 199,
+        tokens_out: 1,
+        tokens_cached: 0,
+        tool_calls: 0,
+        request_id: 'chatcmpl_ticks',
+        purpose: 'enquiry_draft',
+        cost_in_usd_ticks: 158500,
+      })
+      assert.equal(emitted?.rate_card_version, '2026-09-10.3')
+      assert.equal(emitted?.cost_in_usd_ticks, 158500)
+      const parsed = JSON.parse(lines[0]) as Record<string, unknown>
+      assert.equal(parsed.rate_card_version, '2026-09-10.3')
+      assert.equal(parsed.cost_in_usd_ticks, 158500)
     } finally {
       console.log = orig
     }
