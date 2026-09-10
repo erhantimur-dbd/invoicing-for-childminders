@@ -1,10 +1,9 @@
 /**
  * Shared text-chat helper: xAI/Grok is primary everywhere.
  *
- * Enquiries drafting (`purpose: enquiry_draft`): Anthropic failover is
- * Preview-only and requires ENQUIRIES_ANTHROPIC_FAILOVER=true. Production
- * never sends enquiry content to Anthropic until Privacy names that path
- * (John Legal Soft CTA). Invoice AI stays on Anthropic (already listed).
+ * Enquiries drafting (`purpose: enquiry_draft`): Anthropic silent failover
+ * is on in production (Privacy Soft CTA live). Preview still requires
+ * ENQUIRIES_ANTHROPIC_FAILOVER=true. Invoice AI stays on Anthropic.
  *
  * Never surface Anthropic as an Enquiries drafting path in UI or marketing.
  * See `AI_CALL_SITES` in ./inventory.ts.
@@ -35,8 +34,8 @@ export type CompleteChatInput = {
   /** Log label, e.g. enquiry_draft */
   purpose?: string
   /**
-   * Override Anthropic failover. enquiry_draft defaults to the Privacy gate
-   * (off in production; Preview needs ENQUIRIES_ANTHROPIC_FAILOVER=true).
+   * Override Anthropic failover. enquiry_draft defaults to on in production
+   * (Privacy Soft CTA) and Preview needs ENQUIRIES_ANTHROPIC_FAILOVER=true.
    * Other purposes default to allowed (invoice AI is already Privacy-listed).
    */
   allowAnthropicFailover?: boolean

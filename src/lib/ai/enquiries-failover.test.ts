@@ -16,20 +16,25 @@ describe('isProductionDeploy', () => {
 })
 
 describe('enquiriesAnthropicFailoverEnabled', () => {
-  it('is hard-blocked in production even if the Preview flag is on', () => {
+  it('is on in production without the Preview flag (Privacy Soft CTA live)', () => {
     assert.equal(
       enquiriesAnthropicFailoverEnabled({
         VERCEL_ENV: 'production',
-        ENQUIRIES_ANTHROPIC_FAILOVER: 'true',
       }),
-      false,
+      true,
+    )
+    assert.equal(
+      enquiriesAnthropicFailoverEnabled({
+        VERCEL_ENV: 'production',
+        ENQUIRIES_ANTHROPIC_FAILOVER: 'false',
+      }),
+      true,
     )
     assert.equal(
       enquiriesFailoverBlockReason({
         VERCEL_ENV: 'production',
-        ENQUIRIES_ANTHROPIC_FAILOVER: 'true',
       }),
-      'production_privacy',
+      null,
     )
   })
 

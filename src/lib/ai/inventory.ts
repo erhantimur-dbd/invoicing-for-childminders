@@ -1,26 +1,26 @@
 /**
  * Spike inventory of AI provider call sites.
- * Enquiries drafting in production is xAI/Grok only until Privacy names
- * Anthropic failover. Preview: ENQUIRIES_ANTHROPIC_FAILOVER=true.
+ * Enquiries drafting: Grok primary; silent Anthropic failover on in
+ * production (Privacy Soft CTA). Preview: ENQUIRIES_ANTHROPIC_FAILOVER=true.
  * Invoice AI stays on Anthropic (already Privacy-listed).
  */
 export const AI_CALL_SITES = [
   {
     path: 'src/lib/ai/complete-chat.ts',
-    role: 'Shared chat helper: Grok primary; Enquiries Anthropic failover gated',
+    role: 'Shared chat helper: Grok primary; Enquiries Anthropic failover on in prod',
     env: 'XAI_API_KEY; ENQUIRIES_ANTHROPIC_FAILOVER (Preview only); ANTHROPIC_API_KEY',
     wired: true,
   },
   {
     path: 'src/lib/ai/enquiries-failover.ts',
-    role: 'Privacy gate + John’s required Privacy line for Soft CTA failover',
+    role: 'Prod Soft CTA failover on; Preview flag; John’s Privacy lines',
     env: 'VERCEL_ENV, ENQUIRIES_ANTHROPIC_FAILOVER',
     wired: true,
   },
   {
     path: 'src/lib/enquiries/grok.ts',
     role: 'Soft Launch Enquiries draft: builds the parent-reply prompt',
-    env: 'via completeChat — prod xAI only; Preview failover flag',
+    env: 'via completeChat — prod silent Anthropic failover; Preview flag',
     wired: true,
   },
   {

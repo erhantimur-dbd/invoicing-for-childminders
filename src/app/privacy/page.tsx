@@ -203,10 +203,10 @@ export default function PrivacyPage() {
                 </div>
 
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">AI processing (xAI)</p>
+                  <p className="font-semibold text-gray-800 mb-2">AI processing (xAI, Anthropic failover)</p>
                   <Ul items={[
-                    <><strong>Drafting</strong> enquiry replies may use AI services from <strong>xAI</strong> (Grok). Sending the reply is via your Gmail (gmail.send), not via xAI.</>,
-                    <>Drafting may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI processes data). We only send what&apos;s needed to draft the reply for that enquiry thread.</>,
+                    <>Drafting enquiry replies uses AI services from <strong>xAI (Grok)</strong>. If xAI is unavailable, drafting may fall back to <strong>Anthropic (Claude)</strong>. Sending the reply is via your Gmail (gmail.send), not via xAI or Anthropic.</>,
+                    <>Drafting may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI or Anthropic process data). We only send what is needed to draft the reply for that enquiry thread.</>,
                     <>See the <a href="#third-party-processors" className="text-emerald-600 underline">subprocessors / international transfers</a> section for more detail.</>,
                   ]} />
                 </div>
@@ -278,7 +278,7 @@ export default function PrivacyPage() {
                   },
                   {
                     name: 'Anthropic (Claude AI)',
-                    role: 'AI-assisted invoice generation. When invoices are auto-generated, schedule and rate data is sent to Anthropic\'s API. No child names or contact details are included in these requests.',
+                    role: 'AI-assisted invoice generation, and (when xAI is unavailable) failover drafting of enquiry replies for Soft Launch Gmail Enquiries. Sending the reply is via the childminder’s Gmail, not via Anthropic. We only send what is needed to draft that reply. When invoices are auto-generated, schedule and rate data is sent to Anthropic\'s API. No child names or contact details are included in these invoice requests.',
                     location: 'USA (Standard Contractual Clauses apply)',
                     link: 'https://www.anthropic.com/privacy',
                   },
