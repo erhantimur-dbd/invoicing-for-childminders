@@ -3,6 +3,7 @@ import { Nunito, Fraunces, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import CookieConsent from "@/components/CookieConsent";
+import { RELOAD_TO_TOP_SCRIPT } from "@/lib/reload-to-top.mjs";
 
 // Warm, friendly body face with rounded terminals.
 const nunito = Nunito({
@@ -63,6 +64,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-GB" className={`${nunito.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: RELOAD_TO_TOP_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-white">
         {children}
         <Toaster richColors position="top-center" />

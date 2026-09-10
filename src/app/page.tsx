@@ -53,7 +53,7 @@ export default async function RootPage() {
 
   return (
     <div
-      className={`${marketing.pageClass} min-h-screen overflow-x-hidden`}
+      className={`${marketing.pageClass} min-h-screen overflow-x-clip`}
       style={{ backgroundColor: marketing.canvas, color: marketing.ink, fontFamily: marketing.fontFamily }}
     >
       <script

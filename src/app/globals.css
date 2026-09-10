@@ -132,6 +132,11 @@
     @apply font-sans;
     scroll-behavior: smooth;
   }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
   /* Headings use the warm display serif site-wide, with a soft optical axis. */
   h1, h2, h3, h4, h5 {
     font-family: var(--font-heading);

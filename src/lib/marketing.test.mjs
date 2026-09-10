@@ -196,3 +196,18 @@ test('visits are disclosed as Gmail Calendar', () => {
   assert.match(marketing.worksWith.toLowerCase(), /works with gmail/)
   assert.doesNotMatch(blob, /outlook|apple calendar|any calendar/)
 })
+
+test('a homepage refresh starts at the top, not a leftover #invoicing hash', () => {
+  const layout = readFileSync(join(root, 'app/layout.tsx'), 'utf8')
+  assert.match(layout, /RELOAD_TO_TOP_SCRIPT/)
+  const script = readFileSync(join(root, 'lib/reload-to-top.mjs'), 'utf8')
+  assert.match(script, /scrollRestoration\s*=\s*['"]manual['"]/)
+  assert.match(script, /['"]reload['"]/)
+  assert.match(script, /replaceState/)
+  assert.match(script, /scrollTo\(0,\s*0\)/)
+})
+
+test('homepage overflow does not create a scroll container that unsticks the header', () => {
+  const home = readFileSync(join(root, 'app/page.tsx'), 'utf8')
+  assert.doesNotMatch(home, /overflow-x-hidden/)
+})
