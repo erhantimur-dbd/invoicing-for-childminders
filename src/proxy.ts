@@ -91,9 +91,6 @@ export async function proxy(request: NextRequest) {
   }
 
   let supabaseResponse = NextResponse.next({ request })
-
-  // Preview (and any host without Supabase env) must still render the public
-  // marketing homepage. createServerClient throws without URL/key → 500.
   const supabaseEnv = getSupabasePublicEnv()
   if (!supabaseEnv) {
     if (isProtectedRoute(pathname)) {
@@ -106,107 +103,97 @@ export async function proxy(request: NextRequest) {
   }
 
   try {
-  const supabase = createServerClient(
-    supabaseEnv.url,
-    supabaseEnv.anonKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
+    const supabase = createServerClient(
+      supabaseEnv.url,
+      supabaseEnv.anonKey,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+            supabaseResponse = NextResponse.next({ request })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              supabaseResponse.cookies.set(name, value, options)
+            )
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
+      }
+    )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  // ── 1. Unauthenticated access ─────────────────────────────────────────────
-  if (!user) {
-    if (isPublicRoute(pathname)) {
-      return supabaseResponse
-    }
-    // API routes get a 401 so client fetches can handle it.
-    if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-    }
-    // Known app areas redirect to login; everything else (unknown URLs,
-    // static files like /manifest.json or /.well-known/*) falls through so
-    // Next can serve the file or render a real 404.
-    if (isProtectedRoute(pathname)) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      url.search = ''
-      return NextResponse.redirect(url)
-    }
-    return supabaseResponse
-  }
-
-  // ── 2. Authenticated — root redirect ─────────────────────────────────────
-  if (pathname === '/') {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
-  }
-
-  // ── 3. Admin route guard ──────────────────────────────────────────────────
-  if (pathname.startsWith('/admin')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || profile.role !== 'admin') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
-    }
-
-    return supabaseResponse
-  }
-
-  // ── 4. Subscription check for protected app routes ───────────────────────
-  // Scoped to known protected routes so unknown URLs render a 404 for logged-in
-  // users too, rather than bouncing them to /subscribe.
-  if (isProtectedRoute(pathname) && !isSubscriptionExempt(pathname)) {
-    const { data: subscription } = await supabase
-      .from('subscriptions')
-      .select('status, trial_end, enquiries_status')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    const invoicingOk =
-      subscription?.status === 'active' ||
-      (subscription?.status === 'trialing' &&
-        subscription.trial_end != null &&
-        new Date(subscription.trial_end) > new Date())
-    const enquiriesOk = subscription?.enquiries_status === 'active'
-
-    if (needsInvoicing(pathname)) {
-      if (!invoicingOk) {
+    // ── 1. Unauthenticated access ─────────────────────────────────────────────
+    if (!user) {
+      // API routes get a 401 so client fetches can handle it.
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+      }
+      // Known app areas redirect to login; everything else (unknown URLs,
+      // static files like /manifest.json or /.well-known/*) falls through so
+      // Next can serve the file or render a real 404.
+      if (isProtectedRoute(pathname)) {
         const url = request.nextUrl.clone()
-        url.pathname = '/subscribe'
-        url.search = '?product=invoicing'
+        url.pathname = '/login'
+        url.search = ''
         return NextResponse.redirect(url)
       }
-    } else if (!invoicingOk && !enquiriesOk) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/subscribe'
-      url.search = '?product=enquiries'
-      return NextResponse.redirect(url)
+      return supabaseResponse
     }
-  }
 
-  return supabaseResponse
+    // ── 2. Admin route guard ──────────────────────────────────────────────────
+    if (pathname.startsWith('/admin')) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile || profile.role !== 'admin') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+
+      return supabaseResponse
+    }
+
+    // ── 3. Subscription check for protected app routes ───────────────────────
+    // Scoped to known protected routes so unknown URLs render a 404 for logged-in
+    // users too, rather than bouncing them to /subscribe.
+    if (isProtectedRoute(pathname) && !isSubscriptionExempt(pathname)) {
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('status, trial_end, enquiries_status')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      const invoicingOk =
+        subscription?.status === 'active' ||
+        (subscription?.status === 'trialing' &&
+          subscription.trial_end != null &&
+          new Date(subscription.trial_end) > new Date())
+      const enquiriesOk = subscription?.enquiries_status === 'active'
+
+      if (needsInvoicing(pathname)) {
+        if (!invoicingOk) {
+          const url = request.nextUrl.clone()
+          url.pathname = '/subscribe'
+          url.search = '?product=invoicing'
+          return NextResponse.redirect(url)
+        }
+      } else if (!invoicingOk && !enquiriesOk) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/subscribe'
+        url.search = '?product=enquiries'
+        return NextResponse.redirect(url)
+      }
+    }
+
+    return supabaseResponse
   } catch {
     return NextResponse.next({ request })
   }
