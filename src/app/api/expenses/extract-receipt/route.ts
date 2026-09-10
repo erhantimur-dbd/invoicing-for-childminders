@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { METERED_MODELS, PRODUCT_TAGS, emitAiUsage, usageFromAnthropic } from '@/lib/ai/usage'
+
+/** Exact Anthropic model id for receipt vision (extract-receipt). Tagged godottie-invoice. */
+export const RECEIPT_VISION_MODEL = METERED_MODELS.receiptVision
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +38,7 @@ export async function POST(request: NextRequest) {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
     const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: RECEIPT_VISION_MODEL,
       max_tokens: 1024,
       messages: [{
         role: 'user',
@@ -63,6 +67,14 @@ Omit any field you cannot determine with reasonable confidence. Return only the 
           }
         ]
       }]
+    })
+
+    emitAiUsage({
+      product_tag: PRODUCT_TAGS.invoice,
+      vendor: 'anthropic',
+      model: response.model || RECEIPT_VISION_MODEL,
+      purpose: 'extract_receipt',
+      ...usageFromAnthropic(response),
     })
 
     const rawText = response.content[0].type === 'text' ? response.content[0].text : ''

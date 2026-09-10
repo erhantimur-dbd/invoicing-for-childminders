@@ -3,6 +3,8 @@
  * Grok is primary. Silent Anthropic failover is on in production (Privacy
  * Soft CTA). Preview still requires ENQUIRIES_ANTHROPIC_FAILOVER=true.
  * Never invents places, fees, or Ofsted ratings.
+ *
+ * Successful drafts emit `ai_usage` from `completeChat` (rate card 2026-09-10.3).
  */
 import { completeChat } from '@/lib/ai/complete-chat'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from './types'
