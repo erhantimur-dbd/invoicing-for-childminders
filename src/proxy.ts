@@ -71,15 +71,27 @@ function isSubscriptionExempt(pathname: string): boolean {
 }
 
 export async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+  const { pathname } = request.nextUrl
 
-  // Preview (and any host without Supabase env) must still render the public
-  // marketing homepage. createServerClient throws without URL/key → 500.
+  // Public marketing pages (including `/`) must not touch Supabase.
+  // Preview has crashed with 500 both when env is missing *and* when it is
+  // present but createServerClient / getUser throws.
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next({ request })
+  }
+
+  let supabaseResponse = NextResponse.next({ request })
   const supabaseEnv = getSupabasePublicEnv()
   if (!supabaseEnv) {
+    if (isProtectedRoute(pathname)) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
     return supabaseResponse
   }
 
+  try {
   const supabase = createServerClient(
     supabaseEnv.url,
     supabaseEnv.anonKey,
@@ -102,8 +114,6 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  const { pathname } = request.nextUrl
 
   // ── 1. Unauthenticated access ─────────────────────────────────────────────
   if (!user) {
@@ -173,6 +183,9 @@ export async function proxy(request: NextRequest) {
   }
 
   return supabaseResponse
+  } catch {
+    return NextResponse.next({ request })
+  }
 }
 
 export const config = {
