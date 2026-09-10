@@ -7,8 +7,10 @@
  *
  * Preview-first: `env` is `prod` only when VERCEL_ENV=production. Local and
  * Preview deploys are `preview`. Do not promote main from this spike.
+ *
+ * Logs with the same single-line JSON shape as `src/lib/log.ts` (no import —
+ * node:test cannot resolve the `@/` alias).
  */
-import { log } from '@/lib/log'
 
 export const RATE_CARD_VERSION = '2026-09-10.1' as const
 
@@ -164,10 +166,13 @@ export function buildAiUsageEvent(input: AiUsageEmitInput): AiUsageEvent {
 export function emitAiUsage(input: AiUsageEmitInput): AiUsageEvent | null {
   try {
     const event = buildAiUsageEvent(input)
-    log.info(AI_USAGE_EVENT, {
+    console.log(JSON.stringify({
+      ts: new Date().toISOString(),
+      level: 'info',
+      event: AI_USAGE_EVENT,
       ...event,
       ...(input.purpose ? { purpose: input.purpose } : {}),
-    })
+    }))
     return event
   } catch {
     return null
