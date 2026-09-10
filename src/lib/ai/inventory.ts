@@ -3,13 +3,22 @@
  * Enquiries drafting in production is xAI/Grok only until Privacy names
  * Anthropic failover. Preview: ENQUIRIES_ANTHROPIC_FAILOVER=true.
  * Invoice AI stays on Anthropic (already Privacy-listed).
+ * Usage meter (ai_usage) is Preview-first and must not block Soft Launch.
  */
 export const AI_CALL_SITES = [
   {
+    path: 'src/lib/ai/usage.ts',
+    role: 'Shared AI usage meter — schema 2026-09-10.1 for Ethan',
+    env: 'VERCEL_ENV (preview|prod)',
+    wired: true,
+    metered: true,
+  },
+  {
     path: 'src/lib/ai/complete-chat.ts',
-    role: 'Shared chat helper: Grok primary; Enquiries Anthropic failover gated',
+    role: 'Shared chat helper: Grok primary; Enquiries Anthropic failover gated; emits ai_usage',
     env: 'XAI_API_KEY; ENQUIRIES_ANTHROPIC_FAILOVER (Preview only); ANTHROPIC_API_KEY',
     wired: true,
+    metered: true,
   },
   {
     path: 'src/lib/ai/enquiries-failover.ts',
@@ -22,6 +31,7 @@ export const AI_CALL_SITES = [
     role: 'Soft Launch Enquiries draft: builds the parent-reply prompt',
     env: 'via completeChat — prod xAI only; Preview failover flag',
     wired: true,
+    metered: true,
   },
   {
     path: 'src/app/api/enquiries/draft/route.ts',
@@ -34,6 +44,8 @@ export const AI_CALL_SITES = [
     role: 'Invoice agent: Anthropic tool loop (holidays / term-time / decide_invoices)',
     env: 'ANTHROPIC_API_KEY',
     wired: false,
+    metered: true,
+    model: 'claude-sonnet-4-6',
     reason: 'Anthropic-specific multi-turn tools; already has deterministic fallback',
   },
   {
@@ -41,18 +53,24 @@ export const AI_CALL_SITES = [
     role: 'Manual bulk invoice preview — runs invoice agent or deterministic fallback',
     env: 'ANTHROPIC_API_KEY (gate only)',
     wired: false,
+    metered: true,
+    model: 'claude-sonnet-4-6',
   },
   {
     path: 'src/app/api/cron/generate-invoices/route.ts',
     role: 'Cron invoice generation — same agent + deterministic fallback',
     env: 'ANTHROPIC_API_KEY (gate only)',
     wired: false,
+    metered: true,
+    model: 'claude-sonnet-4-6',
   },
   {
     path: 'src/app/api/expenses/extract-receipt/route.ts',
     role: 'Receipt vision extract (Claude Haiku image → JSON)',
     env: 'ANTHROPIC_API_KEY',
     wired: false,
+    metered: true,
+    model: 'claude-haiku-4-5-20251001',
     reason: 'Vision/image API, not a text chat completion',
   },
 ] as const

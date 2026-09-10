@@ -4,8 +4,12 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { METERED_MODELS, PRODUCT_TAGS, emitAiUsage, usageFromAnthropic } from '@/lib/ai/usage'
 import { buildLineItemsForDay, formatDateLabel } from '@/lib/funded-hours'
 import type { FundingScheme, LineItemCategory } from '@/lib/types'
+
+/** Exact Anthropic model id for invoice-agent / invoice-decisions / generate-invoices. */
+export const INVOICE_AGENT_MODEL = METERED_MODELS.invoiceAgent
 
 export type ScheduleDay = { day: string; type: 'full' | 'half' }
 
@@ -185,11 +189,19 @@ Please check for any additional context needed, then call decide_invoices with y
   // Agentic loop
   for (let turn = 0; turn < 6; turn++) {
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: INVOICE_AGENT_MODEL,
       max_tokens: 4096,
       system: systemPrompt,
       tools,
       messages,
+    })
+
+    emitAiUsage({
+      product_tag: PRODUCT_TAGS.invoice,
+      vendor: 'anthropic',
+      model: response.model || INVOICE_AGENT_MODEL,
+      purpose: 'invoice_agent',
+      ...usageFromAnthropic(response),
     })
 
     // Collect assistant message
