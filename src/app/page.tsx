@@ -1,5 +1,3 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import Link from 'next/link'
@@ -92,10 +90,6 @@ const jsonLd = {
 }
 
 export default async function RootPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) redirect('/dashboard')
-
   const maryPhoto = findTestimonialPhoto()
 
   return (
