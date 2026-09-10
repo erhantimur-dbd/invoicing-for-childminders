@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { replySubject } from '@/lib/enquiries/inbox'
 import { AGENT_PAUSED_MESSAGE, isAgentPaused } from '@/lib/enquiries/pause'
 import { sendRawMessage } from './client'
 import { encodeRfc2822, toGmailRaw } from './parse'
@@ -26,8 +27,8 @@ export async function sendApprovedEnquiry(opts: {
   if (!account) {
     throw new Error(
       opts.via === 'auto'
-        ? 'Connect Gmail first so Dottie can send after she drafts.'
-        : 'Connect Gmail first so Dottie can send from your inbox after you approve.',
+        ? 'Connect Gmail first so Dottie can send as you on the real thread.'
+        : 'Connect Gmail first so Dottie can send as you on the real thread after you approve.',
     )
   }
 
@@ -64,7 +65,7 @@ export async function sendApprovedEnquiry(opts: {
     .limit(1)
     .maybeSingle()
 
-  const subject = opts.subject.trim() || lastInbound?.subject || `Your enquiry${prospect.child_name ? ` — ${prospect.child_name}` : ''}`
+  const subject = replySubject(opts.subject.trim() || lastInbound?.subject, prospect.child_name)
   const accessToken = await getValidAccessToken(opts.supabase, account)
   const raw = toGmailRaw(
     encodeRfc2822({

@@ -205,14 +205,14 @@ export default function GmailConnect({
             <p className="font-semibold text-gray-900">Gmail</p>
             {status?.connected ? (
               <p className="text-sm text-gray-500">
-                Reading enquiry labels from {status.account?.email}.
+                Connected as {status.account?.email} — Dottie reads parent threads and sends as you on the real Gmail thread.
                 {sendMode === 'auto'
                   ? ' Auto-send is on for filtered parent emails.'
                   : ' Draft & approve is on — nothing sends until you tap Approve.'}
               </p>
             ) : (
               <p className="text-sm text-gray-500">
-                Connect Gmail so parent emails land here. We only look for enquiry labels and clear parent messages — not the whole inbox.
+                Connect Gmail so this inbox can read parent threads and send as you. We only look for enquiry labels and clear parent messages — not the whole mailbox.
               </p>
             )}
           </div>

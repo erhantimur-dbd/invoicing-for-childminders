@@ -44,6 +44,7 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
       agentPaused={Boolean(settings?.agent_paused)}
       sendMode={parseSendMode(settings?.send_mode)}
       gmailConnected={Boolean(gmail?.email)}
+      gmailEmail={gmail?.email ?? null}
     />
   )
 }

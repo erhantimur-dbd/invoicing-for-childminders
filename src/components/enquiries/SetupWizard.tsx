@@ -493,7 +493,7 @@ export default function SetupWizard() {
         <section className="space-y-4">
           <h1 className="text-2xl font-extrabold text-gray-900">How should Dottie send?</h1>
           <p className="text-gray-500 text-sm">
-            You can change this later on the Parents page. Auto-send is the default. Draft &amp; approve stays available. Pause always stops drafts and sends.
+            You can change this later in the Parents inbox. Auto-send is the default. Draft &amp; approve is opt-in. Pause always stops drafts and sends.
           </p>
           <SendModeToggle value={sendMode} onChange={setSendMode} />
         </section>

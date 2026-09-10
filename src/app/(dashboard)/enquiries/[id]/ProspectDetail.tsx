@@ -19,10 +19,7 @@ import {
   type EnquiryStage,
 } from '@/lib/enquiries/types'
 import type { SendMode } from '@/lib/enquiries/send-mode'
-
-function isOpenDraft(m: EnquiryMessage) {
-  return m.direction === 'draft' && m.status !== 'approved' && m.status !== 'auto_sent'
-}
+import { isOpenDraft, replySubject } from '@/lib/enquiries/inbox'
 
 export default function ProspectDetail({
   prospect: initial,
@@ -30,12 +27,14 @@ export default function ProspectDetail({
   agentPaused,
   sendMode,
   gmailConnected,
+  gmailEmail,
 }: {
   prospect: EnquiryProspect
   messages: EnquiryMessage[]
   agentPaused: boolean
   sendMode: SendMode
   gmailConnected: boolean
+  gmailEmail: string | null
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -49,13 +48,14 @@ export default function ProspectDetail({
     const draft = [...initialMessages].reverse().find(isOpenDraft)
     return draft?.body || ''
   })
-  const [draftSubject, setDraftSubject] = useState(
-    `Your enquiry${initial.child_name ? ` — ${initial.child_name}` : ''}`,
-  )
+  const [draftSubject, setDraftSubject] = useState(() => {
+    const inbound = [...initialMessages].reverse().find((m) => m.direction === 'in')
+    return replySubject(inbound?.subject, initial.child_name)
+  })
 
   const latestInbound = [...messages].reverse().find((m) => m.direction === 'in')
   const latestDraft = [...messages].reverse().find(isOpenDraft)
-  const latestOut = [...messages].reverse().find((m) => m.direction === 'out')
+  const thread = messages.filter((m) => m.direction !== 'draft' || isOpenDraft(m))
 
   async function savePatch(patch: Partial<EnquiryProspect>) {
     setSaving(true)
@@ -93,13 +93,26 @@ export default function ProspectDetail({
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Draft failed')
-      setMessages((prev) => [...prev, data.draft])
-      setDraftBody(data.draft.body)
       if (prospect.stage === 'new') setProspect({ ...prospect, stage: 'chatting' })
       if (data.sent) {
+        setMessages((prev) => [
+          ...prev,
+          { ...data.draft, status: 'auto_sent' },
+          {
+            ...data.draft,
+            id: data.sent.gmailMessageId || `out-${Date.now()}`,
+            direction: 'out',
+            status: 'auto_sent',
+            from_address: gmailEmail,
+            to_address: prospect.parent_email,
+          },
+        ])
+        setDraftBody('')
         toast.success('Drafted and sent from Gmail (auto-send is on).')
         router.refresh()
       } else {
+        setMessages((prev) => [...prev, data.draft])
+        setDraftBody(data.draft.body)
         toast.success('Draft ready — read it, then approve to send from Gmail.')
       }
     } catch (err) {
@@ -107,13 +120,6 @@ export default function ProspectDetail({
     } finally {
       setDrafting(false)
     }
-  }
-
-  function mailtoDraft() {
-    if (!draftBody || !prospect.parent_email) return
-    const subject = encodeURIComponent(draftSubject)
-    const body = encodeURIComponent(draftBody)
-    window.location.href = `mailto:${prospect.parent_email}?subject=${subject}&body=${body}`
   }
 
   async function copyDraft() {
@@ -151,7 +157,11 @@ export default function ProspectDetail({
           to_address: prospect.parent_email,
         },
       ])
-      toast.success('Sent from your Gmail. Dottie will not send again unless you approve.')
+      toast.success(
+        sendMode === 'auto'
+          ? 'Sent from your Gmail.'
+          : 'Sent from your Gmail. Dottie will not send again unless you approve.',
+      )
       router.refresh()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not send that reply.')
@@ -163,7 +173,7 @@ export default function ProspectDetail({
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <Link href="/enquiries" className="text-sm text-emerald-700 font-medium">← Parents</Link>
+        <Link href="/enquiries" className="text-sm text-emerald-700 font-medium">← Inbox</Link>
         <div className="flex flex-wrap items-start justify-between gap-3 mt-3">
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900">{prospect.parent_name || 'Parent'}</h1>
@@ -208,11 +218,11 @@ export default function ProspectDetail({
 
       {agentPaused ? (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
-          Dottie is paused. Turn her back on from the Parents page to draft or send.
+          Dottie is paused. Turn her back on from the Parents inbox to draft or send.
         </div>
       ) : sendMode === 'auto' ? (
         <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-sm text-emerald-900">
-          Auto-send is on. New filtered Gmail enquiries are drafted and sent from your inbox. You can still approve any leftover draft here.
+          Auto-send is on. Replies go out as {gmailEmail || 'you'} on the real Gmail thread. You can still approve leftover drafts here.
         </div>
       ) : null}
 
@@ -233,7 +243,7 @@ export default function ProspectDetail({
 
       {prospect.stage === 'ready' ? (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
-          Email them your contract and starter pack from Gmail. Then mark They&apos;ve started when the child is on roll — Dottie Invoicing can take it from there.
+          Send the contract and starter pack from this thread (as you, via Gmail). Then mark They&apos;ve started when the child is on roll — Dottie Invoicing can take it from there.
         </div>
       ) : null}
 
@@ -258,32 +268,42 @@ export default function ProspectDetail({
             <Button type="button" variant="outline" className="rounded-xl" onClick={copyDraft}>
               Copy
             </Button>
-            {prospect.parent_email ? (
-              <Button type="button" variant="outline" className="rounded-xl" onClick={mailtoDraft}>
-                Open in email
-              </Button>
-            ) : null}
           </div>
           <p className="text-xs text-gray-400">
             {gmailConnected
-              ? 'Nothing goes to the parent until you tap Approve. Dottie does not send on her own.'
-              : 'Connect Gmail on the Parents page to send after you approve. Copy is only a backup.'}
+              ? `Sends as ${gmailEmail} on the Gmail thread — not from a Dottie address.`
+              : 'Connect Gmail on the inbox so Dottie can send as you on the real thread.'}
           </p>
         </div>
       ) : null}
 
-      {latestOut ? (
-        <div className="rounded-2xl border border-gray-100 bg-white p-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Last sent</p>
-          {latestOut.subject ? <p className="text-sm font-medium text-gray-700 mb-1">{latestOut.subject}</p> : null}
-          <p className="text-sm text-gray-800 whitespace-pre-wrap">{latestOut.body}</p>
-        </div>
-      ) : null}
-
-      {latestInbound ? (
-        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Their message</p>
-          <p className="text-sm text-gray-800 whitespace-pre-wrap">{latestInbound.body}</p>
+      {thread.length ? (
+        <div className="space-y-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Thread</p>
+          {thread.map((m) => (
+            <div
+              key={m.id}
+              className={`rounded-2xl p-4 ${
+                m.direction === 'in'
+                  ? 'border border-gray-100 bg-gray-50'
+                  : m.direction === 'draft'
+                    ? 'border border-emerald-100 bg-white'
+                    : 'border border-emerald-50 bg-emerald-50/60'
+              }`}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+                {m.direction === 'in'
+                  ? 'Parent'
+                  : m.direction === 'draft'
+                    ? 'Draft'
+                    : m.status === 'auto_sent'
+                      ? 'Sent as you · Gmail'
+                      : 'Sent as you · Gmail'}
+              </p>
+              {m.subject ? <p className="text-sm font-medium text-gray-700 mb-1">{m.subject}</p> : null}
+              <p className="text-sm text-gray-800 whitespace-pre-wrap">{m.body}</p>
+            </div>
+          ))}
         </div>
       ) : null}
 

@@ -63,6 +63,7 @@ export async function POST(request: Request) {
   } catch (err) {
     log.error('enquiry_send_failed', err, { user_id: auth.user.id, prospect_id: prospectId })
     const message = err instanceof Error ? err.message : 'Could not send that reply.'
-    return NextResponse.json({ error: message }, { status: 500 })
+    const status = message === AGENT_PAUSED_MESSAGE ? 403 : 500
+    return NextResponse.json({ error: message }, { status })
   }
 }

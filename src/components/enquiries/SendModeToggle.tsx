@@ -55,7 +55,7 @@ export default function SendModeToggle({
         </p>
       ) : (
         <p className="text-xs text-gray-500">
-          Confirm-before-send is on. Switch back to Auto-send any time on this page.
+          Draft &amp; approve is on. Switch back to Auto-send any time on this page.
         </p>
       )}
     </div>
