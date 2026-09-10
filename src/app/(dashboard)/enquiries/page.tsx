@@ -33,7 +33,7 @@ export default async function EnquiriesPage({
 
   if (!settings?.setup_completed_at) redirect('/enquiries/setup')
 
-  const [{ data: prospects }, { data: messageRows }] = await Promise.all([
+  const [{ data: prospects }, { data: messageRows }, { data: gmailAccount }] = await Promise.all([
     supabase
       .from('enquiry_prospects')
       .select('*')
@@ -44,6 +44,11 @@ export default async function EnquiriesPage({
       .select('prospect_id, direction, status, body, subject, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('enquiry_gmail_accounts')
+      .select('email')
+      .eq('user_id', user.id)
+      .maybeSingle(),
   ])
 
   const rows = (prospects ?? []) as EnquiryProspect[]
@@ -94,12 +99,18 @@ export default async function EnquiriesPage({
 
       {open.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-emerald-200 bg-white p-10 text-center">
-          <p className="font-semibold text-gray-900 mb-2">Inbox is empty</p>
+          <p className="font-semibold text-gray-900 mb-2">
+            {rows.length ? 'No open enquiries' : 'Inbox is empty'}
+          </p>
           <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
-            Connect Gmail and label parent emails Enquiries or New parent. Work the thread here — you do not need to live in Gmail.
+            {settings.agent_paused
+              ? 'Dottie is paused, so she is not checking Gmail. Turn her back on when you want new parent emails to land here.'
+              : gmailAccount?.email
+                ? 'Label parent emails Enquiries or New parent in Gmail. Dottie only saves classified enquiry threads — receipts and personal mail are discarded.'
+                : 'Connect Gmail and label parent emails Enquiries or New parent. Work the thread here — you do not need to live in Gmail.'}
           </p>
           <Link href="/enquiries/new" className="text-emerald-700 font-semibold">
-            Add the first parent →
+            Add a parent →
           </Link>
         </div>
       ) : (

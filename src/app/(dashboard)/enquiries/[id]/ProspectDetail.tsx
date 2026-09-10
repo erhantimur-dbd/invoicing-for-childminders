@@ -19,7 +19,7 @@ import {
   type EnquiryStage,
 } from '@/lib/enquiries/types'
 import type { SendMode } from '@/lib/enquiries/send-mode'
-import { isOpenDraft, replySubject } from '@/lib/enquiries/inbox'
+import { alreadyRepliedToLatestInbound, isOpenDraft, replySubject } from '@/lib/enquiries/inbox'
 
 export default function ProspectDetail({
   prospect: initial,
@@ -55,6 +55,7 @@ export default function ProspectDetail({
 
   const latestInbound = [...messages].reverse().find((m) => m.direction === 'in')
   const latestDraft = [...messages].reverse().find(isOpenDraft)
+  const alreadyReplied = alreadyRepliedToLatestInbound(messages)
   const thread = messages.filter((m) => m.direction !== 'draft' || isOpenDraft(m))
 
   async function savePatch(patch: Partial<EnquiryProspect>) {
@@ -96,8 +97,7 @@ export default function ProspectDetail({
       if (prospect.stage === 'new') setProspect({ ...prospect, stage: 'chatting' })
       if (data.sent) {
         setMessages((prev) => [
-          ...prev,
-          { ...data.draft, status: 'auto_sent' },
+          ...prev.filter((m) => m.id !== data.draft?.id),
           {
             ...data.draft,
             id: data.sent.gmailMessageId || `out-${Date.now()}`,
@@ -224,13 +224,21 @@ export default function ProspectDetail({
         <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-sm text-emerald-900">
           Auto-send is on. Replies go out as {gmailEmail || 'you'} on the real Gmail thread. You can still approve leftover drafts here.
         </div>
-      ) : null}
+      ) : (
+        <div className="rounded-2xl bg-sky-50 border border-sky-100 p-4 text-sm text-sky-900">
+          Draft &amp; approve is on. Dottie writes the reply here; nothing sends until you tap Approve. Sends as {gmailEmail || 'you'} on the real Gmail thread.
+        </div>
+      )}
 
       {prospect.stage === 'lost' || prospect.stage === 'started' ? null : (
         <div className="flex flex-wrap gap-2">
-          <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={draftReply} disabled={drafting || agentPaused}>
+          <Button
+            className="rounded-xl bg-emerald-600 hover:bg-emerald-700"
+            onClick={draftReply}
+            disabled={drafting || agentPaused || (sendMode === 'auto' && alreadyReplied && !latestDraft)}
+          >
             {drafting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-            Draft a reply
+            {sendMode === 'auto' && alreadyReplied && !latestDraft ? 'Sent from Gmail' : 'Draft a reply'}
           </Button>
           <Button variant="outline" className="rounded-xl" onClick={() => setStage('ready')} disabled={saving}>
             They want to start

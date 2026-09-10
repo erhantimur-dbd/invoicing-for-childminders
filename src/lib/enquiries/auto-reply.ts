@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createEnquiryDraft } from '@/lib/enquiries/create-draft'
 import { sendApprovedEnquiry } from '@/lib/enquiries/gmail/send'
 import { isAgentPaused } from '@/lib/enquiries/pause'
+import { hasOutboundSince } from '@/lib/enquiries/reply-guard'
 import { isAutoSendEnabled } from '@/lib/enquiries/send-mode'
 import { log } from '@/lib/log'
 
@@ -38,6 +39,15 @@ export async function autoDraftAndSend(
 
   for (const inboundId of inboundIds.slice(0, MAX_AUTO_SEND_PER_SYNC)) {
     try {
+      const { data: stillAllowed } = await supabase
+        .from('enquiry_settings')
+        .select('agent_paused, send_mode')
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (isAgentPaused(stillAllowed) || !isAutoSendEnabled(stillAllowed)) {
+        return { sent, skipped, reason: isAgentPaused(stillAllowed) ? 'paused' : 'approve' }
+      }
+
       const { data: inbound } = await supabase
         .from('enquiry_messages')
         .select('id, prospect_id, body, subject, created_at')
@@ -63,17 +73,7 @@ export async function autoDraftAndSend(
         continue
       }
 
-      const { data: alreadyOut } = await supabase
-        .from('enquiry_messages')
-        .select('id')
-        .eq('prospect_id', prospect.id)
-        .eq('user_id', userId)
-        .eq('direction', 'out')
-        .gte('created_at', inbound.created_at)
-        .limit(1)
-        .maybeSingle()
-
-      if (alreadyOut) {
+      if (await hasOutboundSince(supabase, userId, prospect.id, inbound.created_at)) {
         skipped += 1
         continue
       }

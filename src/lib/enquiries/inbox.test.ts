@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { inboxStatus, isOpenDraft, replySubject, snippet } from './inbox.ts'
+import { alreadyRepliedToLatestInbound, inboxStatus, isOpenDraft, replySubject, snippet } from './inbox.ts'
 import type { EnquiryMessage } from './types.ts'
 
 function msg(partial: Partial<EnquiryMessage>): EnquiryMessage {
@@ -65,6 +65,29 @@ describe('replySubject', () => {
   it('keeps the Gmail thread subject', () => {
     assert.equal(replySubject('Place for Amira'), 'Re: Place for Amira')
     assert.equal(replySubject('Re: Place for Amira'), 'Re: Place for Amira')
+  })
+})
+
+describe('alreadyRepliedToLatestInbound', () => {
+  it('is true after a Gmail send for the latest parent message', () => {
+    assert.equal(
+      alreadyRepliedToLatestInbound([
+        msg({ direction: 'in', created_at: '2026-09-10T00:00:00.000Z' }),
+        msg({ id: '2', direction: 'out', status: 'auto_sent', created_at: '2026-09-10T00:01:00.000Z' }),
+      ]),
+      true,
+    )
+  })
+
+  it('is false when the parent wrote again after the last send', () => {
+    assert.equal(
+      alreadyRepliedToLatestInbound([
+        msg({ direction: 'in', created_at: '2026-09-10T00:00:00.000Z' }),
+        msg({ id: '2', direction: 'out', created_at: '2026-09-10T00:01:00.000Z' }),
+        msg({ id: '3', direction: 'in', created_at: '2026-09-10T00:02:00.000Z' }),
+      ]),
+      false,
+    )
   })
 })
 

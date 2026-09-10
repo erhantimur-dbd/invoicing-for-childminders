@@ -115,7 +115,7 @@ export default async function DashboardPage() {
               </p>
               <p className="text-xs text-white/80 mt-0.5">
                 {hasEnquiries
-                  ? 'See who has asked for a place, draft a reply, book a visit in your hours.'
+                  ? 'See who has asked for a place. Auto-send replies from your Gmail, or switch to Draft & approve.'
                   : 'Answer new parents while you are with the children. £19/month — invoicing waits until they start.'}
               </p>
             </div>

@@ -4,6 +4,8 @@ import { AGENT_PAUSED_MESSAGE, isAgentPaused } from '@/lib/enquiries/pause'
 import { createEnquiryDraft } from '@/lib/enquiries/create-draft'
 import { sendApprovedEnquiry } from '@/lib/enquiries/gmail/send'
 import { isAutoSendEnabled } from '@/lib/enquiries/send-mode'
+import { ALREADY_REPLIED_MESSAGE, hasOutboundSince, latestInboundCreatedAt } from '@/lib/enquiries/reply-guard'
+import { isOpenDraft } from '@/lib/enquiries/inbox'
 import { log } from '@/lib/log'
 import { rateLimit } from '@/lib/rate-limit'
 
@@ -46,6 +48,25 @@ export async function POST(request: Request) {
   }
 
   try {
+    const { data: existingDrafts } = await supabase
+      .from('enquiry_messages')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('prospect_id', prospectId)
+      .eq('direction', 'draft')
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    const leftover = (existingDrafts ?? []).find(isOpenDraft)
+    if (leftover) {
+      return NextResponse.json({ draft: leftover })
+    }
+
+    const inboundAt = await latestInboundCreatedAt(supabase, user.id, prospectId)
+    if (isAutoSendEnabled(settings) && inboundAt && (await hasOutboundSince(supabase, user.id, prospectId, inboundAt))) {
+      return NextResponse.json({ error: ALREADY_REPLIED_MESSAGE }, { status: 409 })
+    }
+
     const draft = await createEnquiryDraft(supabase, user.id, prospectId, parentMessage)
     if (isAutoSendEnabled(settings)) {
       const sent = await sendApprovedEnquiry({

@@ -36,3 +36,12 @@ export function replySubject(existing: string | null | undefined, childName?: st
   if (raw) return /^re:/i.test(raw) ? raw : `Re: ${raw}`
   return `Your enquiry${childName ? ` — ${childName}` : ''}`
 }
+
+/** True when Gmail already sent an outbound after the latest inbound — do not auto-send again. */
+export function alreadyRepliedToLatestInbound(messages: Pick<EnquiryMessage, 'direction' | 'created_at'>[]): boolean {
+  const inbound = [...messages]
+    .filter((m) => m.direction === 'in')
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0))[0]
+  if (!inbound) return false
+  return messages.some((m) => m.direction === 'out' && m.created_at >= inbound.created_at)
+}
