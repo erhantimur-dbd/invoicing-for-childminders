@@ -1,18 +1,20 @@
 /**
- * Spike inventory of AI provider call sites (Grok primary / Anthropic failover).
- * Keep this list honest when adding a new model call.
+ * Spike inventory of AI provider call sites.
+ * Enquiries drafting is documented as xAI/Grok. Anthropic is silent
+ * failover only (server logs). Do not describe Anthropic as a primary
+ * Enquiries path in UI or Soft Launch marketing.
  */
 export const AI_CALL_SITES = [
   {
     path: 'src/lib/ai/complete-chat.ts',
-    role: 'Shared chat helper: xAI/Grok first, Anthropic on downtime/errors',
-    env: 'XAI_API_KEY (primary), ANTHROPIC_API_KEY (failover)',
+    role: 'Shared chat helper: xAI/Grok documented primary; Anthropic silent failover',
+    env: 'XAI_API_KEY (primary), ANTHROPIC_API_KEY (silent failover)',
     wired: true,
   },
   {
     path: 'src/lib/enquiries/grok.ts',
     role: 'Soft Launch Enquiries draft: builds the parent-reply prompt',
-    env: 'via completeChat — XAI_API_KEY then ANTHROPIC_API_KEY',
+    env: 'via completeChat — XAI_API_KEY (documented); ANTHROPIC_API_KEY silent failover only',
     wired: true,
   },
   {
