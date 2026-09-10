@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Start Your Free Trial',
+  title: 'Sign up',
   description:
-    'Create your Dottie account and start a 7-day free trial — no credit card required. Automated invoicing built for UK childminders.',
+    'Create your Dottie account and start with Enquiries — new parents, 15/30-hour funding, visits. Add invoicing when a child starts.',
   alternates: { canonical: 'https://www.godottie.cloud/signup' },
 }
 

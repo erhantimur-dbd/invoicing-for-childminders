@@ -1,5 +1,9 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import SiteHeader from '@/components/marketing/SiteHeader'
+import SiteFooter from '@/components/marketing/SiteFooter'
+import { marketing } from '@/lib/marketing.mjs'
+import { howMuchDoesDottieCost, noSelfServeTrial } from '@/lib/plans-copy.mjs'
 
 export const metadata: Metadata = {
   title: 'FAQ',
@@ -43,7 +47,7 @@ const CATEGORIES = [
     questions: [
       {
         q: 'How do I get started?',
-        a: "Sign up for a free 7-day trial — no credit card required. You'll be guided through a quick setup: add your details, bank account, and the children you look after. Your first invoices will be ready automatically from there.",
+        a: "Sign up and choose a plan, or book a quick demo and we'll walk you through it first. Once you're in, you'll be guided through a quick setup: add your details, bank account, and the children you look after. Your first invoices will be ready automatically from there.",
       },
       {
         q: 'How long does setup take?',
@@ -90,7 +94,7 @@ const CATEGORIES = [
       },
       {
         q: 'Can parents pay online through Dottie?',
-        a: "Online card payments via Stripe are on our roadmap. Currently, invoices show your bank details so parents can pay by bank transfer — the most common method for UK childminders.",
+        a: "Yes — attach a payment link (from Stripe, Monzo, PayPal or similar) to any invoice and parents see a \"Pay now\" button on the invoice page and in reminder emails. Invoices also show your bank details for bank transfer — still the most common method for UK childminders.",
       },
       {
         q: 'Can I charge hourly, as well as full-day and half-day rates?',
@@ -105,15 +109,15 @@ const CATEGORIES = [
     questions: [
       {
         q: 'How much does Dottie cost?',
-        a: "Dottie has two plans: Starter (up to 5 children) at £9.99/month or £99/year, and Professional (up to 20 children) at £19.99/month or £199/year. For larger settings, contact us about our Unlimited plan. All plans include auto-invoicing, PDF invoices, expense tracking, and tax year reports.",
+        a: howMuchDoesDottieCost(),
       },
       {
         q: 'Is there a free trial?',
-        a: "Yes — every new account gets a 7-day free trial with full access to all features. No credit card required.",
+        a: noSelfServeTrial,
       },
       {
-        q: 'What happens when my trial ends?',
-        a: "You'll be prompted to choose a plan. If you don't subscribe, access to the app pauses — but your data is safely stored for 30 days in case you return.",
+        q: 'Can I see it before I pay?',
+        a: "Yes — book a free demo and we'll give you a full walkthrough, answer your questions, and show you exactly how Dottie would work for your setting. No obligation.",
       },
       {
         q: 'Can I cancel at any time?',
@@ -171,7 +175,7 @@ const CATEGORIES = [
       },
       {
         q: "How is children's data protected?",
-        a: "Children's data is entered by you and used solely to provide the invoicing service. Dates of birth are used only to verify parent identity when accessing an invoice. We don't share children's data with third parties beyond the sub-processors needed to run the service (Supabase for hosting and database, Stripe for billing, Resend for email, and Anthropic for the AI features — receipt scanning and the invoice agent).",
+        a: "Children's data is entered by you and used solely to provide the service. Dates of birth are used only to verify parent identity when accessing an invoice. We don't share children's data with third parties beyond the sub-processors needed to run the service (Supabase for hosting and database, Stripe for billing, Resend for email, xAI Grok for AI features, and Anthropic Claude as a backup if Grok is unavailable).",
       },
       {
         q: 'How do parents securely access invoices?',
@@ -179,7 +183,7 @@ const CATEGORIES = [
       },
       {
         q: 'Where is my data stored?',
-        a: "Your data is stored in UK/EU data centres via Supabase. It is never transferred outside the UK/EU without appropriate safeguards (Standard Contractual Clauses apply for Anthropic's AI features).",
+        a: "Your data is stored in UK/EU data centres via Supabase. It is never transferred outside the UK/EU without appropriate safeguards (Standard Contractual Clauses apply for xAI and Anthropic AI features).",
       },
     ],
   },
@@ -199,23 +203,24 @@ const faqJsonLd = {
 
 export default function FaqPage() {
   return (
-    <div className="min-h-screen bg-[#fdf8f1]">
+    <div
+      className={`${marketing.pageClass} min-h-screen flex flex-col`}
+      style={{ backgroundColor: marketing.canvas, color: marketing.ink, fontFamily: marketing.fontFamily }}
+    >
+      <SiteHeader />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6">
+      <div className="flex-1 max-w-3xl mx-auto px-4 py-16 sm:px-6 w-full">
 
         {/* Header */}
         <div className="text-center mb-12">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-            ← Back to Dottie
-          </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Frequently asked questions</h1>
           <p className="mt-3 text-gray-500 text-lg">Everything you need to know about Dottie.</p>
           <p className="mt-2 text-gray-400 text-sm">
             Can&apos;t find what you&apos;re looking for?{' '}
-            <Link href="/support" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">
+            <Link href="/support" className="text-[#123a4a] underline underline-offset-2 hover:text-emerald-700">
               Contact us
             </Link>
           </p>
@@ -270,26 +275,27 @@ export default function FaqPage() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-8 text-center text-white">
+        <div className="mt-16 p-8 text-center text-white" style={{ backgroundColor: marketing.hero }}>
           <h2 className="text-xl font-bold mb-2">Still have questions?</h2>
-          <p className="text-white/80 text-sm mb-5">I'm here to help — just drop me a message.</p>
+          <p className="text-white/70 text-sm mb-5">We&apos;re here to help — send a message or book a walkthrough.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/support"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors shadow-md"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#0b1220] font-semibold text-sm hover:bg-[#eef0f3] transition-colors"
             >
               Contact us
             </Link>
             <Link
-              href="/signup"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-white/40 text-white font-semibold text-sm hover:bg-white/10 transition-colors"
+              href="/demo"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/25 text-white font-semibold text-sm hover:border-white/70 transition-colors"
             >
-              Start free trial
+              Book a demo
             </Link>
           </div>
         </div>
 
       </div>
+      <SiteFooter />
     </div>
   )
 }

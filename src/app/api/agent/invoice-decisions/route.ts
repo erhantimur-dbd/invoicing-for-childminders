@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     // Fetch children with schedules
     let query = supabase
       .from('children')
-      .select('id, first_name, last_name, parent_name, daily_rate, half_day_rate, hourly_rate, hours_per_day, schedule_days, schedule_note, funding_type, funded_hours_per_day, funded_days')
+      .select('id, first_name, last_name, parent_name, daily_rate, half_day_rate, hourly_rate, hours_per_day, schedule_days, schedule_note, funding_type, funding_scheme, funded_hours_per_day, funded_days')
       .eq('childminder_id', user.id)
       .eq('is_active', true)
       .not('schedule_days', 'eq', '[]')
@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
       schedule_days: Array.isArray(c.schedule_days) ? c.schedule_days : [],
       schedule_note: c.schedule_note || null,
       funding_type: c.funding_type || 'none',
+      funding_scheme: c.funding_scheme || null,
       funded_hours_per_day: c.funded_hours_per_day ? Number(c.funded_hours_per_day) : null,
       funded_days: Array.isArray(c.funded_days) ? c.funded_days : null,
     }))

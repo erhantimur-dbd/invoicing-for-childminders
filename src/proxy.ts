@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getSupabasePublicEnv } from '@/lib/supabase/env'
 
 // Routes that require no authentication
 const PUBLIC_ROUTES = [
@@ -11,6 +12,7 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
   '/reset-password',
   '/support',
+  '/demo',
   '/pricing',
   '/privacy',
   '/terms',
@@ -52,7 +54,10 @@ const PROTECTED_PREFIXES = [
   '/onboarding',
   '/admin',
   '/subscribe',
+  '/enquiries',
 ]
+
+const INVOICING_PREFIXES = ['/children', '/invoices', '/expenses', '/reports', '/onboarding']
 
 function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
@@ -66,15 +71,41 @@ function isSubscriptionExempt(pathname: string): boolean {
   if (pathname.startsWith('/onboarding')) return true
   if (pathname.startsWith('/admin')) return true
   if (pathname.startsWith('/api')) return true
+  // Paywall + setup live on these routes; the pages check entitlements.
+  if (pathname.startsWith('/enquiries')) return true
   return false
 }
 
-export async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+function needsInvoicing(pathname: string): boolean {
+  return INVOICING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+}
 
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Public marketing pages (including `/` and `/privacy`) must not touch Supabase.
+  // Preview has crashed with 500 both when env is missing *and* when it is
+  // present but createServerClient / getUser throws.
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next({ request })
+  }
+
+  let supabaseResponse = NextResponse.next({ request })
+  const supabaseEnv = getSupabasePublicEnv()
+  if (!supabaseEnv) {
+    if (isProtectedRoute(pathname)) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.search = ''
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
+
+  try {
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseEnv.url,
+    supabaseEnv.anonKey,
     {
       cookies: {
         getAll() {
@@ -95,8 +126,6 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
-
   // ── 1. Unauthenticated access ─────────────────────────────────────────────
   if (!user) {
     if (isPublicRoute(pathname)) {
@@ -112,6 +141,7 @@ export async function proxy(request: NextRequest) {
     if (isProtectedRoute(pathname)) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'
+      url.search = ''
       return NextResponse.redirect(url)
     }
     return supabaseResponse
@@ -147,24 +177,36 @@ export async function proxy(request: NextRequest) {
   if (isProtectedRoute(pathname) && !isSubscriptionExempt(pathname)) {
     const { data: subscription } = await supabase
       .from('subscriptions')
-      .select('status, trial_end')
+      .select('status, trial_end, enquiries_status')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    const isActive = subscription?.status === 'active'
-    const isValidTrial =
-      subscription?.status === 'trialing' &&
-      subscription.trial_end != null &&
-      new Date(subscription.trial_end) > new Date()
+    const invoicingOk =
+      subscription?.status === 'active' ||
+      (subscription?.status === 'trialing' &&
+        subscription.trial_end != null &&
+        new Date(subscription.trial_end) > new Date())
+    const enquiriesOk = subscription?.enquiries_status === 'active'
 
-    if (!isActive && !isValidTrial) {
+    if (needsInvoicing(pathname)) {
+      if (!invoicingOk) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/subscribe'
+        url.search = '?product=invoicing'
+        return NextResponse.redirect(url)
+      }
+    } else if (!invoicingOk && !enquiriesOk) {
       const url = request.nextUrl.clone()
       url.pathname = '/subscribe'
+      url.search = '?product=enquiries'
       return NextResponse.redirect(url)
     }
   }
 
   return supabaseResponse
+  } catch {
+    return NextResponse.next({ request })
+  }
 }
 
 export const config = {

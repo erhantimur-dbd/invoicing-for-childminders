@@ -13,7 +13,9 @@ import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { Loader2, User, Phone, Landmark, Baby, Calendar } from 'lucide-react'
-import type { Child, FundingType } from '@/lib/types'
+import type { Child, FundingType, FundingScheme } from '@/lib/types'
+import { FUNDING_SCHEME_LABELS } from '@/lib/types'
+import { parentEmailSchema, moneyAmountSchema } from '@/lib/validation'
 
 type SavedBank = {
   label: string
@@ -56,8 +58,16 @@ const emptyForm: ChildFormData = {
   schedule_days: null,
   schedule_note: null,
   funding_type: 'none' as FundingType,
+  funding_scheme: null,
   funded_hours_per_day: null,
   funded_days: null,
+}
+
+// Schemes available per the number of weekly funded hours.
+// (15h is shared by several entitlements; 30h has two.)
+const SCHEMES_BY_HOURS: Record<'15' | '30', FundingScheme[]> = {
+  '15': ['3to4_universal', '2yo_working', '2yo_disadvantaged', 'wp_under2'],
+  '30': ['3to4_working', 'wp_under5'],
 }
 
 type Props = {
@@ -146,6 +156,7 @@ export default function ChildForm({ child, mode }: Props) {
       schedule_days: child.schedule_days,
       schedule_note: child.schedule_note,
       funding_type: child.funding_type || 'none',
+      funding_scheme: child.funding_scheme ?? null,
       funded_hours_per_day: child.funded_hours_per_day,
       funded_days: child.funded_days,
     } : emptyForm
@@ -153,6 +164,19 @@ export default function ChildForm({ child, mode }: Props) {
 
   function set(field: keyof ChildFormData, value: string | number | boolean | null | ScheduleDay[] | string[]) {
     setForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  function setFundingType(value: FundingType) {
+    setForm(prev => {
+      // When funding_type changes, drop any scheme that isn't valid for the new hours.
+      const validSchemes = value === '15' || value === '30' ? SCHEMES_BY_HOURS[value] : []
+      const keepScheme = prev.funding_scheme && validSchemes.includes(prev.funding_scheme as FundingScheme)
+      return {
+        ...prev,
+        funding_type: value,
+        funding_scheme: keepScheme ? prev.funding_scheme : null,
+      }
+    })
   }
 
   function toggleScheduleDay(day: string) {
@@ -207,6 +231,31 @@ export default function ChildForm({ child, mode }: Props) {
       setRateError('Please set the funded hours per day.')
       return
     }
+    // Parent email must be valid — it's where invoices and reminders go.
+    if (form.parent_email && !parentEmailSchema.safeParse(form.parent_email).success) {
+      toast.error('Enter a valid parent email address')
+      return
+    }
+    // Rates can't be negative and must be sane numbers.
+    for (const [label, value] of [
+      ['Daily rate', form.daily_rate],
+      ['Half-day rate', form.half_day_rate],
+      ['Hourly rate', form.hourly_rate],
+    ] as const) {
+      if (value && !moneyAmountSchema.safeParse(value).success) {
+        toast.error(`${label} must be a positive amount`)
+        return
+      }
+    }
+    // DOB is the parent's verification factor on the public invoice page —
+    // a future or clearly-wrong date locks them out.
+    if (form.date_of_birth) {
+      const dob = new Date(form.date_of_birth)
+      if (isNaN(dob.getTime()) || dob > new Date() || dob.getFullYear() < new Date().getFullYear() - 18) {
+        toast.error("Check the child's date of birth — it looks wrong")
+        return
+      }
+    }
     setRateError('')
 
     setSaving(true)
@@ -222,6 +271,7 @@ export default function ChildForm({ child, mode }: Props) {
       schedule_days: hasSchedule ? (form.schedule_days || []) : [],
       schedule_note: hasSchedule ? form.schedule_note : null,
       funding_type: form.funding_type,
+      funding_scheme: form.funding_type !== 'none' ? form.funding_scheme : null,
       funded_hours_per_day: form.funding_type !== 'none' ? (form.funded_hours_per_day ? Number(form.funded_hours_per_day) : null) : null,
       funded_days: form.funding_type !== 'none' ? (form.funded_days || null) : null,
     }
@@ -233,7 +283,12 @@ export default function ChildForm({ child, mode }: Props) {
       })
       if (error) {
         console.error('Insert child error:', error)
-        toast.error(`Failed to add child: ${error.message}`)
+        // Server-side trigger raises 'plan_limit_reached: <plan> plan allows up to <n> active children …'
+        if (error.message?.includes('plan_limit_reached')) {
+          toast.error("You've reached your plan's child limit. Upgrade your plan or archive an existing child to add a new one.")
+        } else {
+          toast.error(`Failed to add child: ${error.message}`)
+        }
         setSaving(false)
         return
       }
@@ -513,7 +568,7 @@ export default function ChildForm({ child, mode }: Props) {
                 <button
                   key={value}
                   type="button"
-                  onClick={() => set('funding_type', value)}
+                  onClick={() => setFundingType(value)}
                   className={`flex-1 h-10 rounded-lg text-sm font-medium transition-colors ${
                     form.funding_type === value
                       ? 'bg-emerald-600 text-white'
@@ -525,6 +580,30 @@ export default function ChildForm({ child, mode }: Props) {
               ))}
             </div>
           </div>
+
+          {(form.funding_type === '15' || form.funding_type === '30') && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Which entitlement?</Label>
+              <p className="text-xs text-gray-500">
+                Tells the invoice exactly which scheme this child is on — useful for the local-authority funding portal and HMRC records.
+              </p>
+              <Select
+                value={form.funding_scheme ?? ''}
+                onValueChange={v => set('funding_scheme', v || null)}
+              >
+                <SelectTrigger className="h-11 text-sm">
+                  <SelectValue placeholder="Choose entitlement (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SCHEMES_BY_HOURS[form.funding_type].map(scheme => (
+                    <SelectItem key={scheme} value={scheme}>
+                      {FUNDING_SCHEME_LABELS[scheme]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {form.funding_type !== 'none' && (
             <>

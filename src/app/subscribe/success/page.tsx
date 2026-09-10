@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Loader2, CheckCircle2 } from 'lucide-react'
 
 type Subscription = {
@@ -10,6 +11,8 @@ type Subscription = {
   trial_end: string | null
   current_period_end: string | null
   stripe_subscription_id: string | null
+  enquiries_status?: string | null
+  enquiries_stripe_subscription_id?: string | null
 }
 
 const POLL_INTERVAL_MS = 1500
@@ -39,6 +42,8 @@ function planLabel(plan: string | null): string {
 }
 
 export default function SubscribeSuccessPage() {
+  const searchParams = useSearchParams()
+  const product = searchParams.get('product')
   const [sub, setSub] = useState<Subscription | null>(null)
   const [timedOut, setTimedOut] = useState(false)
 
@@ -52,9 +57,12 @@ export default function SubscribeSuccessPage() {
         const r = await fetch('/api/me/subscription', { cache: 'no-store' })
         if (r.ok) {
           const j: { subscription: Subscription | null } = await r.json()
-          if (j.subscription?.stripe_subscription_id) {
+          const landed = product === 'enquiries'
+            ? Boolean(j.subscription?.enquiries_stripe_subscription_id)
+            : Boolean(j.subscription?.stripe_subscription_id)
+          if (landed) {
             if (!cancelled) setSub(j.subscription)
-            return // landed — stop polling
+            return
           }
         }
       } catch { /* swallow + retry */ }
@@ -67,14 +75,14 @@ export default function SubscribeSuccessPage() {
     }
     tick()
     return () => { cancelled = true }
-  }, [])
+  }, [product])
 
   // ── Still polling ────────────────────────────────────────────────────────
   if (!sub && !timedOut) {
     return (
       <Shell>
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-5 mx-auto">
-          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-[#eef0f3] mb-5 mx-auto">
+          <Loader2 className="w-8 h-8 text-[#123a4a] animate-spin" />
         </div>
         <h1 className="text-xl font-extrabold text-gray-900 mb-2">Confirming your subscription…</h1>
         <p className="text-gray-500 text-sm leading-relaxed">
@@ -93,11 +101,11 @@ export default function SubscribeSuccessPage() {
         </div>
         <h1 className="text-xl font-extrabold text-gray-900 mb-2">Almost there</h1>
         <p className="text-gray-500 text-sm leading-relaxed mb-6">
-          Stripe took a little longer than usual. Your payment went through — your subscription will appear shortly. Carry on to your dashboard, your trial is fully active in the meantime.
+          Stripe took a little longer than usual. Your payment went through — your subscription will appear shortly. Carry on to your dashboard in the meantime.
         </p>
         <Link
           href="/dashboard"
-          className="inline-flex items-center justify-center w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
+          className="inline-flex items-center justify-center w-full py-3 bg-[#123a4a] hover:bg-[#0c2c38] text-white font-semibold text-base"
         >
           Go to dashboard →
         </Link>
@@ -105,18 +113,27 @@ export default function SubscribeSuccessPage() {
     )
   }
 
-  // ── Trial-with-card on Stripe ─────────────────────────────────────────────
-  const isTrialing = sub?.status === 'trialing'
+  const isEnquiries = product === 'enquiries'
+  const isTrialing = !isEnquiries && sub?.status === 'trialing'
   const trialEndLabel = formatDate(sub?.trial_end ?? null)
   const renewLabel = formatDate(sub?.current_period_end ?? null)
+  const nextHref = isEnquiries ? '/enquiries/setup' : '/dashboard'
+  const nextLabel = isEnquiries ? 'Set up Dottie →' : 'Go to dashboard →'
 
   return (
     <Shell>
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-5 mx-auto">
-        <CheckCircle2 className="w-9 h-9 text-emerald-600" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-[#eef0f3] mb-5 mx-auto">
+        <CheckCircle2 className="w-9 h-9 text-[#123a4a]" />
       </div>
 
-      {isTrialing ? (
+      {isEnquiries ? (
+        <>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dottie is on</h1>
+          <p className="text-gray-500 text-sm leading-relaxed mb-6">
+            Next: tell Dottie about your setting, spaces, funded hours, and visiting times. Takes a few minutes.
+          </p>
+        </>
+      ) : isTrialing ? (
         <>
           <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Card on file ✓</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-1">
@@ -143,10 +160,10 @@ export default function SubscribeSuccessPage() {
       )}
 
       <Link
-        href="/dashboard"
-        className="inline-flex items-center justify-center w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base shadow-md shadow-emerald-200/60 transition-all active:scale-95"
+        href={nextHref}
+        className="inline-flex items-center justify-center w-full py-3 bg-[#123a4a] hover:bg-[#0c2c38] text-white font-semibold text-base"
       >
-        Go to dashboard →
+        {nextLabel}
       </Link>
     </Shell>
   )
@@ -154,12 +171,12 @@ export default function SubscribeSuccessPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white flex flex-col items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-10 text-center">
+    <div className="flex flex-col items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md bg-white border border-gray-100 p-10 text-center">
         {children}
       </div>
       <p className="mt-8 text-gray-400 text-sm text-center">
-        Part of the <span className="text-amber-600 font-medium">Dottie OS</span> ecosystem
+        The business end, handled.
       </p>
     </div>
   )

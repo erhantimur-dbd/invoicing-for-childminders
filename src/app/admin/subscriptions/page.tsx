@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { Card, CardContent } from '@/components/ui/card'
+import GrantTrialForm from '@/components/GrantTrialForm'
 
 function formatDate(dateStr: string | null | undefined) {
   if (!dateStr) return '—'
@@ -82,6 +83,9 @@ export default async function AdminSubscriptionsPage() {
         <h1 className="text-xl font-semibold text-gray-900">Subscriptions</h1>
         <p className="text-sm text-gray-500 mt-0.5">All subscription records</p>
       </div>
+
+      {/* Grant a trial to a qualified client */}
+      <GrantTrialForm />
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

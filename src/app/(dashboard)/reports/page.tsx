@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BarChart3, TrendingUp, TrendingDown, Download, Receipt } from 'lucide-react'
+import { BarChart3, TrendingUp, TrendingDown, Receipt } from 'lucide-react'
+import ExportMenu from '@/components/ExportMenu'
 import type { Expense } from '@/lib/types'
 import { EXPENSE_CATEGORY_EMOJI } from '@/lib/types'
 
@@ -200,11 +200,8 @@ export default function ReportsPage() {
 
   const maxMonthly = Math.max(...monthlyIncome, ...monthlyExpenses, 1)
 
-  async function exportCSV() {
-    const startStr = taxYear.start.toISOString().split('T')[0]
-    const endStr = taxYear.end.toISOString().split('T')[0]
-    window.location.href = `/api/reports/export-csv?start=${startStr}&end=${endStr}&year=${selectedYear}`
-  }
+  const startStr = taxYear.start.toISOString().split('T')[0]
+  const endStr = taxYear.end.toISOString().split('T')[0]
 
   return (
     <div className="space-y-4">
@@ -213,10 +210,12 @@ export default function ReportsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Tax summary</h1>
           <p className="text-gray-500 text-sm">UK tax year (6 Apr – 5 Apr)</p>
         </div>
-        <Button variant="outline" className="gap-2 text-sm" onClick={exportCSV}>
-          <Download className="h-4 w-4" />
-          CSV
-        </Button>
+        <ExportMenu
+          start={startStr}
+          end={endStr}
+          year={selectedYear}
+          disabled={loading || (invoices.length === 0 && expenses.length === 0)}
+        />
       </div>
 
       {/* Tax year selector */}

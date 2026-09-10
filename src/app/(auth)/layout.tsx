@@ -1,36 +1,26 @@
+import SiteHeader from '@/components/marketing/SiteHeader'
+import SiteFooter from '@/components/marketing/SiteFooter'
+import { marketing } from '@/lib/marketing.mjs'
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-amber-50 to-[#fdf8f1] px-4 py-12 relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #059669 1px, transparent 0)`,
-          backgroundSize: '32px 32px',
-        }}
-      />
-      {/* Decorative blobs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #10b981, transparent 70%)' }} />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full opacity-10 pointer-events-none" style={{ background: 'radial-gradient(circle, #fbbf24, transparent 70%)' }} />
-
-      <div className="w-full max-w-sm relative">
-        <div className="text-center mb-2">
-          <a href="/" className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-emerald-600 transition-colors">
-            ← Back to website
-          </a>
-        </div>
-        <div className="text-center mb-8">
-          <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg shadow-emerald-200/60"
-            style={{ background: 'linear-gradient(135deg, #10b981 0%, #fbbf24 100%)' }}
-          >
-            <span className="text-white font-extrabold text-2xl leading-none tracking-tight">D.</span>
+    <div
+      className={`${marketing.pageClass} min-h-screen flex flex-col`}
+      style={{ backgroundColor: marketing.canvas, color: marketing.ink, fontFamily: marketing.fontFamily }}
+    >
+      <SiteHeader />
+      <div className="flex-1 flex items-center justify-center px-6 py-16">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <p className="text-[17px] font-semibold tracking-tight">{marketing.brand}</p>
+            <p className="text-[13px] mt-1" style={{ color: marketing.muted }}>
+              {marketing.tagline}
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Dottie</h1>
-          <p className="text-gray-500 text-sm mt-1">Invoicing simplified.</p>
+          {children}
         </div>
-        {children}
       </div>
+      <SiteFooter />
     </div>
   )
 }

@@ -19,7 +19,11 @@ export default function UnarchiveButton({ childId, childName }: { childId: strin
       .update({ archived_at: null, updated_at: new Date().toISOString() })
       .eq('id', childId)
     if (error) {
-      toast.error('Failed to unarchive child')
+      if (error.message?.includes('plan_limit_reached')) {
+        toast.error("Restoring this child would exceed your plan's limit. Upgrade your plan or archive another child first.")
+      } else {
+        toast.error('Failed to unarchive child')
+      }
     } else {
       toast.success(`${childName} restored to active`)
       router.refresh()

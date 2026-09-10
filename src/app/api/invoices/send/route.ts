@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { format } from 'date-fns'
+import { decryptField } from '@/lib/crypto'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
@@ -41,6 +42,13 @@ export async function POST(request: NextRequest) {
 
   const child = (invoice as any).children
   const items = (invoice as any).invoice_line_items || []
+
+  // Bank details on the children row may be encrypted (post-backfill).
+  // Decrypt here, server-side, before injecting into the email.
+  if (child) {
+    child.bank_sort_code = decryptField(child.bank_sort_code) ?? ''
+    child.bank_account_number = decryptField(child.bank_account_number) ?? ''
+  }
 
   if (!child?.parent_email) {
     return NextResponse.json({ error: 'No parent email on file' }, { status: 400 })

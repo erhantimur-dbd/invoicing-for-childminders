@@ -47,8 +47,14 @@ const HUBS = [
   },
   {
     title: 'Running your childminding business',
-    desc: 'Setting rates, late payers, expenses you can claim, EYFS 2025. Coming soon.',
-    items: [],
+    desc: 'Practical money and admin guides — what you can claim, how to set rates, and dealing with late payers.',
+    items: [
+      {
+        href: '/guides/expenses',
+        title: 'Expenses childminders can claim',
+        desc: 'What counts, how to apportion household bills, and the mileage and simplified-expenses rules — with worked examples.',
+      },
+    ],
   },
 ]
 
@@ -67,7 +73,7 @@ export default function GuidesIndex() {
             href="/signup"
             className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
           >
-            Start free trial →
+            Get started →
           </Link>
         </div>
       </header>

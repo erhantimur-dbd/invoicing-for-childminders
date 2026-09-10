@@ -47,7 +47,7 @@ export default function FundedHoursIndex() {
             href="/signup"
             className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
           >
-            Start free trial →
+            Get started →
           </Link>
         </div>
       </header>
