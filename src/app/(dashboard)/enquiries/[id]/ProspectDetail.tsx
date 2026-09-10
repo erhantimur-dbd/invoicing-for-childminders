@@ -18,16 +18,23 @@ import {
   type EnquiryProspect,
   type EnquiryStage,
 } from '@/lib/enquiries/types'
+import type { SendMode } from '@/lib/enquiries/send-mode'
+
+function isOpenDraft(m: EnquiryMessage) {
+  return m.direction === 'draft' && m.status !== 'approved' && m.status !== 'auto_sent'
+}
 
 export default function ProspectDetail({
   prospect: initial,
   messages: initialMessages,
   agentPaused,
+  sendMode,
   gmailConnected,
 }: {
   prospect: EnquiryProspect
   messages: EnquiryMessage[]
   agentPaused: boolean
+  sendMode: SendMode
   gmailConnected: boolean
 }) {
   const router = useRouter()
@@ -39,7 +46,7 @@ export default function ProspectDetail({
   const [saving, setSaving] = useState(false)
   const [lostReason, setLostReason] = useState(prospect.lost_reason || '')
   const [draftBody, setDraftBody] = useState(() => {
-    const draft = [...initialMessages].reverse().find((m) => m.direction === 'draft' && m.status !== 'approved')
+    const draft = [...initialMessages].reverse().find(isOpenDraft)
     return draft?.body || ''
   })
   const [draftSubject, setDraftSubject] = useState(
@@ -47,7 +54,7 @@ export default function ProspectDetail({
   )
 
   const latestInbound = [...messages].reverse().find((m) => m.direction === 'in')
-  const latestDraft = [...messages].reverse().find((m) => m.direction === 'draft' && m.status !== 'approved')
+  const latestDraft = [...messages].reverse().find(isOpenDraft)
   const latestOut = [...messages].reverse().find((m) => m.direction === 'out')
 
   async function savePatch(patch: Partial<EnquiryProspect>) {
@@ -89,7 +96,12 @@ export default function ProspectDetail({
       setMessages((prev) => [...prev, data.draft])
       setDraftBody(data.draft.body)
       if (prospect.stage === 'new') setProspect({ ...prospect, stage: 'chatting' })
-      toast.success('Draft ready — read it, then approve to send from Gmail.')
+      if (data.sent) {
+        toast.success('Drafted and sent from Gmail (auto-send is on).')
+        router.refresh()
+      } else {
+        toast.success('Draft ready — read it, then approve to send from Gmail.')
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not draft a reply.')
     } finally {
@@ -197,6 +209,10 @@ export default function ProspectDetail({
       {agentPaused ? (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
           Dottie is paused. Turn her back on from the Parents page to draft or send.
+        </div>
+      ) : sendMode === 'auto' ? (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-sm text-emerald-900">
+          Auto-send is on. New filtered Gmail enquiries are drafted and sent from your inbox. You can still approve any leftover draft here.
         </div>
       ) : null}
 

@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       draftId,
       body,
       subject,
+      via: 'approve',
     })
     return NextResponse.json({ ok: true, ...sent })
   } catch (err) {

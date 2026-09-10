@@ -64,6 +64,7 @@ export type EnquirySettings = {
   quote_fees_in_email: boolean
   visiting_windows: VisitingWindow[]
   agent_paused: boolean
+  send_mode: 'approve' | 'auto'
   send_pack_on_approve: boolean
   inbound_slug: string | null
   gmail_label: string | null

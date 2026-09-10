@@ -9,11 +9,14 @@ import { toast } from 'sonner'
 import { Loader2, Mail, Pause, Play } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { DEFAULT_ENQUIRY_LABELS } from '@/lib/enquiries/gmail/filters'
+import { DEFAULT_SEND_MODE, parseSendMode, type SendMode } from '@/lib/enquiries/send-mode'
+import SendModeToggle from '@/components/enquiries/SendModeToggle'
 
 type Status = {
   configured: boolean
   connected: boolean
   paused: boolean
+  sendMode: SendMode
   gmailLabel: string
   watchedLabels: string[]
   account: { email: string; last_sync_at: string | null; last_error: string | null } | null
@@ -22,9 +25,11 @@ type Status = {
 
 export default function GmailConnect({
   initialPaused,
+  initialSendMode = DEFAULT_SEND_MODE,
   gmailResult,
 }: {
   initialPaused: boolean
+  initialSendMode?: SendMode
   gmailResult?: string
 }) {
   const router = useRouter()
@@ -33,6 +38,7 @@ export default function GmailConnect({
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [paused, setPaused] = useState(initialPaused)
+  const [sendMode, setSendMode] = useState<SendMode>(initialSendMode)
   const [label, setLabel] = useState('')
   const [savingLabel, setSavingLabel] = useState(false)
 
@@ -42,6 +48,7 @@ export default function GmailConnect({
     if (!res.ok) throw new Error(data.error || 'Could not check Gmail.')
     setStatus(data)
     setPaused(Boolean(data.paused))
+    setSendMode(parseSendMode(data.sendMode))
     setLabel(data.gmailLabel || '')
     return data as Status
   }
@@ -86,7 +93,11 @@ export default function GmailConnect({
       if (!res.ok) throw new Error(data.error || 'Could not read Gmail.')
       const created = Number(data.createdProspects || 0)
       const messages = Number(data.newMessages || 0)
-      if (created || messages) {
+      const autoSent = Number(data.autoSent || 0)
+      if (autoSent) {
+        toast.success(`Sent ${autoSent} ${autoSent === 1 ? 'reply' : 'replies'} from Gmail (auto-send).`)
+        router.refresh()
+      } else if (created || messages) {
         toast.success(
           created
             ? `${created} new parent${created === 1 ? '' : 's'} from Gmail.`
@@ -118,6 +129,28 @@ export default function GmailConnect({
       return
     }
     toast.success(next ? 'Dottie is paused. She will not draft or send.' : 'Dottie is back on.')
+    router.refresh()
+  }
+
+  async function saveSendMode(next: SendMode) {
+    const previous = sendMode
+    setSendMode(next)
+    const res = await fetch('/api/enquiries/gmail/status', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sendMode: next }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setSendMode(previous)
+      toast.error(data.error || 'Could not save send mode.')
+      return
+    }
+    toast.success(
+      next === 'auto'
+        ? 'Auto-send is on. Dottie will send filtered parent replies after she drafts them.'
+        : 'Draft & approve is on. Dottie will not send until you tap Approve.',
+    )
     router.refresh()
   }
 
@@ -172,7 +205,10 @@ export default function GmailConnect({
             <p className="font-semibold text-gray-900">Gmail</p>
             {status?.connected ? (
               <p className="text-sm text-gray-500">
-                Reading enquiry labels from {status.account?.email}. Dottie never sends until you approve.
+                Reading enquiry labels from {status.account?.email}.
+                {sendMode === 'auto'
+                  ? ' Auto-send is on for filtered parent emails.'
+                  : ' Draft & approve is on — nothing sends until you tap Approve.'}
               </p>
             ) : (
               <p className="text-sm text-gray-500">
@@ -187,6 +223,8 @@ export default function GmailConnect({
           <Switch checked={!paused} onCheckedChange={(on) => togglePause(!on)} />
         </label>
       </div>
+
+      <SendModeToggle value={sendMode} onChange={saveSendMode} disabled={paused} />
 
       {!status?.configured ? (
         <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
@@ -228,7 +266,7 @@ export default function GmailConnect({
             </Button>
           </div>
           <p className="text-xs text-gray-400">
-            Dottie polls Gmail when you open this page, when you tap Check, and every few minutes — no Pub/Sub required. Always watching: {DEFAULT_ENQUIRY_LABELS.join(', ')}. Receipts and newsletters are ignored.
+            Dottie checks Gmail when you open this page, when you tap Check, and every few minutes. Always watching: {DEFAULT_ENQUIRY_LABELS.join(', ')}. Receipts and newsletters are ignored.
             {status.account?.last_sync_at
               ? ` Last check ${new Date(status.account.last_sync_at).toLocaleString('en-GB')}.`
               : ''}

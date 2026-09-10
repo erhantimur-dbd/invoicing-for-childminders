@@ -22,7 +22,7 @@ export default async function EnquiriesPage({
 
   const { data: settings } = await supabase
     .from('enquiry_settings')
-    .select('setup_completed_at, agent_paused, display_name')
+    .select('setup_completed_at, agent_paused, display_name, send_mode')
     .eq('user_id', user.id)
     .maybeSingle()
 
@@ -45,7 +45,9 @@ export default async function EnquiriesPage({
           <p className="text-gray-500 text-sm mt-1">
             {settings.agent_paused
               ? 'Dottie is paused — she will not draft or send replies until you turn her back on.'
-              : 'Gmail brings parent emails here. Dottie drafts a reply; you approve before anything is sent.'}
+              : settings.send_mode === 'auto'
+                ? 'Auto-send is on. Dottie drafts and sends filtered parent emails from your Gmail. Pause still stops everything.'
+                : 'Gmail brings parent emails here. Dottie drafts a reply; you approve before anything is sent.'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -66,7 +68,11 @@ export default async function EnquiriesPage({
         </div>
       </div>
 
-      <GmailConnect initialPaused={settings.agent_paused} gmailResult={gmail} />
+      <GmailConnect
+        initialPaused={settings.agent_paused}
+        initialSendMode={settings.send_mode === 'auto' ? 'auto' : 'approve'}
+        gmailResult={gmail}
+      />
 
       {open.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-emerald-200 bg-white p-10 text-center">

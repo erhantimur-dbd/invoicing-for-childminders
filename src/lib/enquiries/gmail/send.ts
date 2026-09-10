@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { AGENT_PAUSED_MESSAGE, isAgentPaused } from '@/lib/enquiries/pause'
 import { sendRawMessage } from './client'
 import { encodeRfc2822, toGmailRaw } from './parse'
 import { getValidAccessToken, loadGmailAccount } from './tokens'
@@ -10,10 +11,24 @@ export async function sendApprovedEnquiry(opts: {
   draftId: string
   body: string
   subject: string
+  via?: 'approve' | 'auto'
 }): Promise<{ gmailMessageId: string; gmailThreadId: string }> {
+  const { data: settings } = await opts.supabase
+    .from('enquiry_settings')
+    .select('agent_paused')
+    .eq('user_id', opts.userId)
+    .maybeSingle()
+  if (isAgentPaused(settings)) {
+    throw new Error(AGENT_PAUSED_MESSAGE)
+  }
+
   const account = await loadGmailAccount(opts.supabase, opts.userId)
   if (!account) {
-    throw new Error('Connect Gmail first so Dottie can send from your inbox after you approve.')
+    throw new Error(
+      opts.via === 'auto'
+        ? 'Connect Gmail first so Dottie can send after she drafts.'
+        : 'Connect Gmail first so Dottie can send from your inbox after you approve.',
+    )
   }
 
   const [{ data: prospect }, { data: draft }] = await Promise.all([
@@ -77,7 +92,7 @@ export async function sendApprovedEnquiry(opts: {
     body,
     from_address: account.email,
     to_address: prospect.parent_email,
-    status: 'sent',
+    status: opts.via === 'auto' ? 'auto_sent' : 'sent',
     model: draft.model,
     gmail_message_id: sent.id,
     gmail_thread_id: sent.threadId,
@@ -86,7 +101,7 @@ export async function sendApprovedEnquiry(opts: {
 
   await opts.supabase
     .from('enquiry_messages')
-    .update({ status: 'approved', body, subject })
+    .update({ status: opts.via === 'auto' ? 'auto_sent' : 'approved', body, subject })
     .eq('id', draft.id)
 
   await opts.supabase

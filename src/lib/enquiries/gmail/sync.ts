@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { autoDraftAndSend } from '@/lib/enquiries/auto-reply'
 import { log } from '@/lib/log'
 import { classifyEnquiryMail, gmailSearchQuery } from './filters'
 import { parseFrom, parseGmailMessage } from './parse'
@@ -11,6 +12,7 @@ export type SyncResult = {
   skipped: number
   threads: number
   watchedLabels: string[]
+  autoSent: number
 }
 
 function labelNameMap(labels: { id: string; name: string }[]): Map<string, string> {
@@ -51,6 +53,7 @@ export async function syncEnquiryGmail(
   let createdProspects = 0
   let newMessages = 0
   let skipped = 0
+  const newInboundIds: string[] = []
 
   const { data: existingMsgs } = await supabase
     .from('enquiry_messages')
@@ -110,19 +113,23 @@ export async function syncEnquiryGmail(
       })
       if (prospectId.created) createdProspects += 1
 
-      const { error } = await supabase.from('enquiry_messages').insert({
-        prospect_id: prospectId.id,
-        user_id: userId,
-        direction: 'in',
-        subject: parsed.subject || null,
-        body: parsed.body || parsed.subject || '(empty message)',
-        from_address: email,
-        to_address: parseFrom(parsed.to).email,
-        status: 'logged',
-        gmail_message_id: message.id,
-        gmail_thread_id: threadId,
-        rfc_message_id: parsed.rfcMessageId || null,
-      })
+      const { data: inserted, error } = await supabase
+        .from('enquiry_messages')
+        .insert({
+          prospect_id: prospectId.id,
+          user_id: userId,
+          direction: 'in',
+          subject: parsed.subject || null,
+          body: parsed.body || parsed.subject || '(empty message)',
+          from_address: email,
+          to_address: parseFrom(parsed.to).email,
+          status: 'logged',
+          gmail_message_id: message.id,
+          gmail_thread_id: threadId,
+          rfc_message_id: parsed.rfcMessageId || null,
+        })
+        .select('id')
+        .single()
 
       if (error) {
         if (error.code === '23505') {
@@ -138,6 +145,7 @@ export async function syncEnquiryGmail(
 
       seenIds.add(message.id)
       newMessages += 1
+      if (inserted?.id) newInboundIds.push(inserted.id)
     }
   }
 
@@ -150,12 +158,15 @@ export async function syncEnquiryGmail(
     })
     .eq('user_id', userId)
 
+  const auto = await autoDraftAndSend(supabase, userId, newInboundIds)
+
   return {
     createdProspects,
     newMessages,
     skipped,
     threads: threadIds.length,
     watchedLabels: customLabel ? [customLabel] : [],
+    autoSent: auto.sent,
   }
 }
 

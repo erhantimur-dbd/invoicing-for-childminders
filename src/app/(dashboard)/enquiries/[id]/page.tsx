@@ -26,7 +26,7 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
   const [{ data: settings }, { data: gmail }] = await Promise.all([
     supabase
       .from('enquiry_settings')
-      .select('agent_paused')
+      .select('agent_paused, send_mode')
       .eq('user_id', user.id)
       .maybeSingle(),
     supabase
@@ -41,6 +41,7 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
       prospect={prospect as EnquiryProspect}
       messages={(messages ?? []) as EnquiryMessage[]}
       agentPaused={Boolean(settings?.agent_paused)}
+      sendMode={settings?.send_mode === 'auto' ? 'auto' : 'approve'}
       gmailConnected={Boolean(gmail?.email)}
     />
   )

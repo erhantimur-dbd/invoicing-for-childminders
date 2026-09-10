@@ -12,8 +12,10 @@ import { Check, ChevronLeft, ChevronRight, Loader2, Plus, Trash2 } from 'lucide-
 import { cn } from '@/lib/utils'
 import { FUNDING_OPTIONS, WEEKDAYS, type VisitingWindow } from '@/lib/enquiries/types'
 import { makeInboundSlug } from '@/lib/enquiries/slug'
+import { DEFAULT_SEND_MODE, parseSendMode, type SendMode } from '@/lib/enquiries/send-mode'
+import SendModeToggle from '@/components/enquiries/SendModeToggle'
 
-const STEPS = ['About you', 'Spaces', 'Funding', 'Visits', 'Your answers']
+const STEPS = ['About you', 'Spaces', 'Funding', 'Visits', 'Your answers', 'Sending']
 
 type VacancyDraft = {
   weekday: number
@@ -70,6 +72,7 @@ export default function SetupWizard() {
     { question: 'What do the children eat?', answer: '' },
   ])
   const [packNotes, setPackNotes] = useState('')
+  const [sendMode, setSendMode] = useState<SendMode>(DEFAULT_SEND_MODE)
 
   useEffect(() => {
     async function load() {
@@ -95,6 +98,7 @@ export default function SetupWizard() {
         setSchemes(settings.funding_schemes || [])
         setStretched(settings.stretched_hours)
         setTermTimeOnly(settings.term_time_only)
+        setSendMode(parseSendMode(settings.send_mode))
       }
 
       const { data: vacRows } = await supabase.from('enquiry_vacancies').select('*').eq('user_id', user.id)
@@ -163,6 +167,7 @@ export default function SetupWizard() {
       term_time_only: termTimeOnly,
       visiting_windows: windows,
       inbound_slug: makeInboundSlug(displayName, user.id),
+      send_mode: sendMode,
       setup_completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -481,6 +486,16 @@ export default function SetupWizard() {
             />
             <p className="text-xs text-gray-400">You can attach the real PDFs later. For now, tell Dottie what the pack includes.</p>
           </div>
+        </section>
+      )}
+
+      {step === 5 && (
+        <section className="space-y-4">
+          <h1 className="text-2xl font-extrabold text-gray-900">How should Dottie send?</h1>
+          <p className="text-gray-500 text-sm">
+            You can change this later on the Parents page. Draft &amp; approve is the default. Pause always stops drafts and sends.
+          </p>
+          <SendModeToggle value={sendMode} onChange={setSendMode} />
         </section>
       )}
 
