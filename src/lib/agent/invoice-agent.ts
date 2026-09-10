@@ -4,7 +4,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
-import { METERED_MODELS, PRODUCT_TAGS, emitAiUsage, usageFromAnthropic } from '@/lib/ai/usage'
+import { METERED_MODELS, PRODUCT_TAGS, emitAiUsage, preferVendorModel, usageFromAnthropic } from '@/lib/ai/usage'
 import { buildLineItemsForDay, formatDateLabel } from '@/lib/funded-hours'
 import type { FundingScheme, LineItemCategory } from '@/lib/types'
 
@@ -199,7 +199,7 @@ Please check for any additional context needed, then call decide_invoices with y
     emitAiUsage({
       product_tag: PRODUCT_TAGS.invoice,
       vendor: 'anthropic',
-      model: response.model || INVOICE_AGENT_MODEL,
+      model: preferVendorModel(response.model, INVOICE_AGENT_MODEL),
       purpose: 'invoice_agent',
       ...usageFromAnthropic(response),
     })

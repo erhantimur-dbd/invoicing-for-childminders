@@ -7,6 +7,7 @@ import {
   RATE_CARD_VERSION,
   buildAiUsageEvent,
   emitAiUsage,
+  preferVendorModel,
   productTagForPurpose,
   resolveAiEnv,
   usageFromAnthropic,
@@ -14,8 +15,8 @@ import {
 } from './usage.ts'
 
 describe('rate_card_version', () => {
-  it('stamps 2026-09-10.2 on every built event', () => {
-    assert.equal(RATE_CARD_VERSION, '2026-09-10.2')
+  it('stamps 2026-09-10.3 on every built event', () => {
+    assert.equal(RATE_CARD_VERSION, '2026-09-10.3')
     const event = buildAiUsageEvent({
       product_tag: PRODUCT_TAGS.invoice,
       vendor: 'anthropic',
@@ -26,7 +27,7 @@ describe('rate_card_version', () => {
       tool_calls: 0,
       request_id: 'msg_stamp',
     })
-    assert.equal(event.rate_card_version, '2026-09-10.2')
+    assert.equal(event.rate_card_version, '2026-09-10.3')
   })
 })
 
@@ -104,7 +105,7 @@ describe('usageFromOpenAI', () => {
 })
 
 describe('buildAiUsageEvent / emitAiUsage', () => {
-  it('emits the shared schema Jim locked for Ethan (card 2026-09-10.2)', () => {
+  it('emits the shared schema Jim locked for Ethan (card 2026-09-10.3)', () => {
     const event = buildAiUsageEvent({
       product_tag: PRODUCT_TAGS.enquiries,
       env: 'preview',
@@ -126,7 +127,7 @@ describe('buildAiUsageEvent / emitAiUsage', () => {
       tokens_cached: 0,
       tool_calls: 0,
       request_id: 'req_1',
-      rate_card_version: '2026-09-10.2',
+      rate_card_version: '2026-09-10.3',
     })
     assert.equal(event.rate_card_version, RATE_CARD_VERSION)
   })
@@ -155,7 +156,7 @@ describe('buildAiUsageEvent / emitAiUsage', () => {
       assert.equal(parsed.event, AI_USAGE_EVENT)
       assert.equal(parsed.product_tag, 'godottie-invoice')
       assert.equal(parsed.model, 'claude-sonnet-4-6')
-      assert.equal(parsed.rate_card_version, '2026-09-10.2')
+      assert.equal(parsed.rate_card_version, '2026-09-10.3')
       assert.equal(parsed.purpose, 'invoice_agent')
     } finally {
       console.log = orig
@@ -176,7 +177,14 @@ describe('buildAiUsageEvent / emitAiUsage', () => {
     })
     assert.equal(event.product_tag, 'godottie-invoice')
     assert.equal(event.model, 'claude-haiku-4-5-20251001')
-    assert.equal(event.rate_card_version, '2026-09-10.2')
+    assert.equal(event.rate_card_version, '2026-09-10.3')
+  })
+
+  it('prefers the vendor-reported model id over the locked SKU fallback', () => {
+    assert.equal(preferVendorModel('claude-sonnet-4-6', METERED_MODELS.invoiceAgent), 'claude-sonnet-4-6')
+    assert.equal(preferVendorModel('grok-4.6', METERED_MODELS.enquiriesLive), 'grok-4.6')
+    assert.equal(preferVendorModel('', METERED_MODELS.enquiriesLive), 'grok-4.6')
+    assert.equal(preferVendorModel(undefined, METERED_MODELS.receiptVision), 'claude-haiku-4-5-20251001')
   })
 
   it('keeps live SKU strings exact for Finance', () => {

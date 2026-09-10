@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { METERED_MODELS, PRODUCT_TAGS, emitAiUsage, usageFromAnthropic } from '@/lib/ai/usage'
+import { METERED_MODELS, PRODUCT_TAGS, emitAiUsage, preferVendorModel, usageFromAnthropic } from '@/lib/ai/usage'
 
 /** Exact Anthropic model id for receipt vision (extract-receipt). Tagged godottie-invoice. */
 export const RECEIPT_VISION_MODEL = METERED_MODELS.receiptVision
@@ -72,7 +72,7 @@ Omit any field you cannot determine with reasonable confidence. Return only the 
     emitAiUsage({
       product_tag: PRODUCT_TAGS.invoice,
       vendor: 'anthropic',
-      model: response.model || RECEIPT_VISION_MODEL,
+      model: preferVendorModel(response.model, RECEIPT_VISION_MODEL),
       purpose: 'extract_receipt',
       ...usageFromAnthropic(response),
     })

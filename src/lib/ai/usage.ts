@@ -1,9 +1,9 @@
 /**
- * Shared AI usage meter (Jim P0 / Ethan rate card `2026-09-10.2`).
+ * Shared AI usage meter (Jim P0 / Ethan rate card `2026-09-10.3`).
  *
- * Emits a single-line JSON `ai_usage` event via the existing logger so Vercel
- * Preview logs are greppable. Never throws — Soft Launch seats must not be
- * blocked by metering.
+ * Emits a single-line JSON `ai_usage` event (same shape as `log.info`) so
+ * Vercel Preview logs are greppable. Never throws — Soft Launch seats must
+ * not be blocked by metering.
  *
  * Preview-first: `env` is `prod` only when VERCEL_ENV=production. Local and
  * Preview deploys are `preview`. Do not promote main from this spike.
@@ -12,9 +12,8 @@
  * is not wired here (that lives on branches with ENQUIRIES_ANTHROPIC_FAILOVER
  * + Privacy Soft CTA).
  */
-import { log } from '@/lib/log'
 
-export const RATE_CARD_VERSION = '2026-09-10.2' as const
+export const RATE_CARD_VERSION = '2026-09-10.3' as const
 
 export const PRODUCT_TAGS = {
   enquiries: 'godottie-enquiries',
@@ -35,6 +34,19 @@ export const METERED_MODELS = {
 } as const
 
 export const AI_USAGE_EVENT = 'ai_usage'
+
+function writeUsageLine(fields: Record<string, unknown>) {
+  // Same single-line JSON shape as `log.info` so Vercel parses it. Avoids the
+  // Next `@/` alias so node:test can load this helper without a bundler.
+  console.log(
+    JSON.stringify({
+      ts: new Date().toISOString(),
+      level: 'info',
+      event: AI_USAGE_EVENT,
+      ...fields,
+    }),
+  )
+}
 
 export type AiUsageEvent = {
   product_tag: AiProductTag
@@ -100,6 +112,11 @@ function requestIdFrom(id: unknown): string {
   return typeof id === 'string' && id.length > 0 ? id : crypto.randomUUID()
 }
 
+/** Prefer the vendor-reported model id; fall back to our locked SKU string. */
+export function preferVendorModel(reported: unknown, fallback: string): string {
+  return typeof reported === 'string' && reported.length > 0 ? reported : fallback
+}
+
 /**
  * Anthropic: `input_tokens` is the uncached remainder. Cache writes bill like
  * input, so they fold into `tokens_in`. Cache reads go to `tokens_cached`.
@@ -155,6 +172,7 @@ export function buildAiUsageEvent(input: AiUsageEmitInput): AiUsageEvent {
     product_tag: input.product_tag,
     env: input.env ?? resolveAiEnv(),
     vendor: input.vendor,
+    // Prefer the vendor-reported model id when the call site passes it through.
     model: input.model,
     tokens_in: asCount(input.tokens_in),
     tokens_out: asCount(input.tokens_out),
@@ -169,7 +187,7 @@ export function buildAiUsageEvent(input: AiUsageEmitInput): AiUsageEvent {
 export function emitAiUsage(input: AiUsageEmitInput): AiUsageEvent | null {
   try {
     const event = buildAiUsageEvent(input)
-    log.info(AI_USAGE_EVENT, {
+    writeUsageLine({
       ...event,
       ...(input.purpose ? { purpose: input.purpose } : {}),
     })
