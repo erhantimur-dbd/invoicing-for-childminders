@@ -7,6 +7,9 @@
  *
  * Never surface Anthropic as an Enquiries drafting path in UI or marketing.
  * See `AI_CALL_SITES` in ./inventory.ts.
+ *
+ * Each successful provider turn emits `ai_usage` (rate card 2026-09-10.3).
+ * xAI `usage.cost_in_usd_ticks` is preferred when present. Metering never throws.
  */
 import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
@@ -16,9 +19,19 @@ import {
   enquiriesFailoverBlockReason,
 } from './enquiries-failover'
 import { EmptyModelOutputError, isFailoverError, statusFromUnknown } from './failover'
+import {
+  type AiProductTag,
+  type AiUsageEvent,
+  METERED_MODELS,
+  emitAiUsage,
+  preferVendorModel,
+  productTagForPurpose,
+  usageFromAnthropic,
+  usageFromOpenAI,
+} from './usage'
 
-export const XAI_CHAT_MODEL = 'grok-4.6'
-export const ANTHROPIC_CHAT_MODEL = 'claude-sonnet-4-6'
+export const XAI_CHAT_MODEL = METERED_MODELS.enquiriesLive
+export const ANTHROPIC_CHAT_MODEL = METERED_MODELS.enquiriesFailover
 
 const XAI_TIMEOUT_MS = 20_000
 
@@ -46,6 +59,7 @@ export type CompleteChatResult = {
   provider: 'xai' | 'anthropic'
   model: string
   failedOver: boolean
+  usage: AiUsageEvent | null
 }
 
 function xaiClient(): OpenAI | null {
@@ -82,7 +96,13 @@ function splitForAnthropic(messages: ChatMessage[]): {
   return { system, rest }
 }
 
-async function completeWithXai(client: OpenAI, input: CompleteChatInput): Promise<string> {
+type ProviderTurn = {
+  text: string
+  model: string
+  usage: ReturnType<typeof usageFromOpenAI>
+}
+
+async function completeWithXai(client: OpenAI, input: CompleteChatInput): Promise<ProviderTurn> {
   const resp = await client.chat.completions.create({
     model: XAI_CHAT_MODEL,
     temperature: input.temperature ?? 0.4,
@@ -91,10 +111,14 @@ async function completeWithXai(client: OpenAI, input: CompleteChatInput): Promis
   })
   const text = resp.choices[0]?.message?.content?.trim()
   if (!text) throw new EmptyModelOutputError('xAI')
-  return text
+  return {
+    text,
+    model: preferVendorModel(resp.model, XAI_CHAT_MODEL),
+    usage: usageFromOpenAI(resp),
+  }
 }
 
-async function completeWithAnthropic(client: Anthropic, input: CompleteChatInput): Promise<string> {
+async function completeWithAnthropic(client: Anthropic, input: CompleteChatInput): Promise<ProviderTurn> {
   const { system, rest } = splitForAnthropic(input.messages)
   const resp = await client.messages.create({
     model: ANTHROPIC_CHAT_MODEL,
@@ -109,7 +133,26 @@ async function completeWithAnthropic(client: Anthropic, input: CompleteChatInput
     .join('')
     .trim()
   if (!text) throw new EmptyModelOutputError('Anthropic')
-  return text
+  return {
+    text,
+    model: preferVendorModel(resp.model, ANTHROPIC_CHAT_MODEL),
+    usage: usageFromAnthropic(resp),
+  }
+}
+
+function meterTurn(
+  purpose: string,
+  productTag: AiProductTag,
+  vendor: 'xai' | 'anthropic',
+  turn: ProviderTurn,
+): AiUsageEvent | null {
+  return emitAiUsage({
+    product_tag: productTag,
+    vendor,
+    model: turn.model,
+    purpose,
+    ...turn.usage,
+  })
 }
 
 function resolveAnthropicFailover(input: CompleteChatInput): boolean {
@@ -120,6 +163,7 @@ function resolveAnthropicFailover(input: CompleteChatInput): boolean {
 
 export async function completeChat(input: CompleteChatInput): Promise<CompleteChatResult> {
   const purpose = input.purpose ?? 'chat'
+  const productTag = productTagForPurpose(input.purpose)
   const allowAnthropic = resolveAnthropicFailover(input)
   const xai = xaiClient()
   // Do not construct an Anthropic client (or send content) when Enquiries failover is gated off.
@@ -139,8 +183,14 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
 
   if (xai) {
     try {
-      const text = await completeWithXai(xai, input)
-      return { text, provider: 'xai', model: XAI_CHAT_MODEL, failedOver: false }
+      const turn = await completeWithXai(xai, input)
+      return {
+        text: turn.text,
+        provider: 'xai',
+        model: turn.model,
+        failedOver: false,
+        usage: meterTurn(purpose, productTag, 'xai', turn),
+      }
     } catch (err) {
       const failoverShaped = isFailoverError(err)
       if (failoverShaped) {
@@ -177,10 +227,16 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
     throw new Error('Dottie could not reach Grok. Try again in a moment.')
   }
 
-  const text = await completeWithAnthropic(anthropic, input)
+  const turn = await completeWithAnthropic(anthropic, input)
   log.warn('ai_anthropic_failover_used', {
     purpose,
-    model: ANTHROPIC_CHAT_MODEL,
+    model: turn.model,
   })
-  return { text, provider: 'anthropic', model: ANTHROPIC_CHAT_MODEL, failedOver: true }
+  return {
+    text: turn.text,
+    provider: 'anthropic',
+    model: turn.model,
+    failedOver: true,
+    usage: meterTurn(purpose, productTag, 'anthropic', turn),
+  }
 }
