@@ -1,19 +1,21 @@
 /**
- * Shared text-chat helper: xAI/Grok is the documented primary.
- * Anthropic is a silent failover only — log when it fires; never surface
- * Anthropic as an Enquiries drafting path in UI or marketing copy.
+ * Shared text-chat helper: xAI/Grok is primary everywhere.
  *
- * Wired today: Soft Launch Enquiries drafts (`draftEnquiryReply`).
- * Not wired (higher risk): invoice-agent tool loop, receipt vision.
+ * Enquiries drafting (`purpose: enquiry_draft`): Anthropic failover is
+ * Preview-only and requires ENQUIRIES_ANTHROPIC_FAILOVER=true. Production
+ * never sends enquiry content to Anthropic until Privacy names that path
+ * (John Legal Soft CTA). Invoice AI stays on Anthropic (already listed).
+ *
+ * Never surface Anthropic as an Enquiries drafting path in UI or marketing.
  * See `AI_CALL_SITES` in ./inventory.ts.
- *
- * Privacy: live notice says Enquiries drafting uses xAI. John Legal may
- * need a Privacy/subprocessor update before Soft Launch relies on this
- * failover. Soft Launch #3 merge and Checkout are out of scope.
  */
 import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
 import { log } from '@/lib/log'
+import {
+  enquiriesAnthropicFailoverEnabled,
+  enquiriesFailoverBlockReason,
+} from './enquiries-failover'
 import { EmptyModelOutputError, isFailoverError, statusFromUnknown } from './failover'
 
 export const XAI_CHAT_MODEL = 'grok-4.6'
@@ -32,6 +34,12 @@ export type CompleteChatInput = {
   maxTokens?: number
   /** Log label, e.g. enquiry_draft */
   purpose?: string
+  /**
+   * Override Anthropic failover. enquiry_draft defaults to the Privacy gate
+   * (off in production; Preview needs ENQUIRIES_ANTHROPIC_FAILOVER=true).
+   * Other purposes default to allowed (invoice AI is already Privacy-listed).
+   */
+  allowAnthropicFailover?: boolean
 }
 
 export type CompleteChatResult = {
@@ -105,11 +113,28 @@ async function completeWithAnthropic(client: Anthropic, input: CompleteChatInput
   return text
 }
 
+function resolveAnthropicFailover(input: CompleteChatInput): boolean {
+  if (typeof input.allowAnthropicFailover === 'boolean') return input.allowAnthropicFailover
+  if (input.purpose === 'enquiry_draft') return enquiriesAnthropicFailoverEnabled()
+  return true
+}
+
 export async function completeChat(input: CompleteChatInput): Promise<CompleteChatResult> {
+  const purpose = input.purpose ?? 'chat'
+  const allowAnthropic = resolveAnthropicFailover(input)
   const xai = xaiClient()
-  const anthropic = anthropicClient()
+  // Do not construct an Anthropic client (or send content) when Enquiries failover is gated off.
+  const anthropic = allowAnthropic ? anthropicClient() : null
 
   if (!xai && !anthropic) {
+    if (!allowAnthropic && input.purpose === 'enquiry_draft') {
+      log.warn('ai_enquiries_anthropic_failover_blocked', {
+        purpose,
+        reason: enquiriesFailoverBlockReason(),
+        vercel_env: process.env.VERCEL_ENV ?? 'unset',
+        trigger: 'xai_missing',
+      })
+    }
     throw new Error('Dottie is not connected to Grok yet. Add XAI_API_KEY.')
   }
 
@@ -118,17 +143,34 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
       const text = await completeWithXai(xai, input)
       return { text, provider: 'xai', model: XAI_CHAT_MODEL, failedOver: false }
     } catch (err) {
-      if (!anthropic || !isFailoverError(err)) throw err
-      log.warn('ai_xai_failover', {
-        purpose: input.purpose ?? 'chat',
-        status: statusFromUnknown(err),
-        message: err instanceof Error ? err.message : String(err),
-      })
+      const failoverShaped = isFailoverError(err)
+      if (failoverShaped) {
+        log.warn('ai_xai_failover', {
+          purpose,
+          status: statusFromUnknown(err),
+          message: err instanceof Error ? err.message : String(err),
+          allow_anthropic: allowAnthropic,
+          blocked_reason: allowAnthropic ? null : enquiriesFailoverBlockReason(),
+        })
+      }
+      if (!allowAnthropic || !anthropic || !failoverShaped) {
+        if (!allowAnthropic && input.purpose === 'enquiry_draft' && failoverShaped) {
+          log.warn('ai_enquiries_anthropic_failover_blocked', {
+            purpose,
+            reason: enquiriesFailoverBlockReason(),
+            vercel_env: process.env.VERCEL_ENV ?? 'unset',
+            trigger: 'xai_error',
+            status: statusFromUnknown(err),
+          })
+        }
+        throw err instanceof Error ? err : new Error('Dottie could not reach Grok. Try again in a moment.')
+      }
     }
   } else {
     log.warn('ai_xai_skipped', {
-      purpose: input.purpose ?? 'chat',
+      purpose,
       reason: 'XAI_API_KEY missing',
+      allow_anthropic: allowAnthropic,
     })
   }
 
@@ -138,7 +180,7 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
 
   const text = await completeWithAnthropic(anthropic, input)
   log.warn('ai_anthropic_failover_used', {
-    purpose: input.purpose ?? 'chat',
+    purpose,
     model: ANTHROPIC_CHAT_MODEL,
   })
   return { text, provider: 'anthropic', model: ANTHROPIC_CHAT_MODEL, failedOver: true }
