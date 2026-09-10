@@ -171,8 +171,7 @@ export default function PrivacyPage() {
                   <p className="font-semibold text-gray-800 mb-2">What we access</p>
                   <Ul items={[
                     'We connect to Gmail using Google\'s OAuth (you choose the Google account and grant access).',
-                    <>Google scopes used are <strong>gmail.readonly</strong> (read enquiry mail) and <strong>gmail.send</strong> (send replies from your inbox).</>,
-                    'We do not request full mailbox manage or delete scopes for Soft Launch Enquiries.',
+                    <>We only request Google&apos;s <strong>gmail.readonly</strong> and <strong>gmail.send</strong> scopes — to find childcare enquiry messages and send replies from your inbox. We do not request broader mailbox access.</>,
                   ]} />
                 </div>
 
@@ -206,8 +205,8 @@ export default function PrivacyPage() {
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="font-semibold text-gray-800 mb-2">AI processing (xAI)</p>
                   <Ul items={[
-                    <>Drafting and/or sending enquiry replies may use AI services from <strong>xAI</strong> (Grok).</>,
-                    <>That may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI processes data). We only send what&apos;s needed to generate or send the reply for that enquiry thread.</>,
+                    <><strong>Drafting</strong> enquiry replies may use AI services from <strong>xAI</strong> (Grok). Sending the reply is via your Gmail (gmail.send), not via xAI.</>,
+                    <>Drafting may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI processes data). We only send what&apos;s needed to draft the reply for that enquiry thread.</>,
                     <>See the <a href="#third-party-processors" className="text-emerald-600 underline">subprocessors / international transfers</a> section for more detail.</>,
                   ]} />
                 </div>
@@ -285,7 +284,7 @@ export default function PrivacyPage() {
                   },
                   {
                     name: 'xAI (Grok)',
-                    role: 'Drafting and/or sending enquiry replies for Soft Launch Gmail Enquiries. We only send what\'s needed to generate or send the reply for that enquiry thread.',
+                    role: 'Drafting enquiry replies for Soft Launch Gmail Enquiries. Sending the reply is via your Gmail (gmail.send), not via xAI. We only send what\'s needed to draft the reply for that enquiry thread.',
                     location: 'USA (or other locations where xAI processes data)',
                     link: 'https://x.ai/legal/privacy-policy',
                   },
