@@ -86,7 +86,6 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     )
   }
-
   const safeSubject = subject?.trim() || '(no subject)'
 
   try {
