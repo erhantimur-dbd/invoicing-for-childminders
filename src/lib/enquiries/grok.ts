@@ -1,7 +1,7 @@
 /**
  * Draft a parent-enquiry reply from the childminder's own answers.
- * Production is xAI/Grok only. Anthropic silent failover is Preview-only
- * behind ENQUIRIES_ANTHROPIC_FAILOVER=true until Privacy names it.
+ * Grok is primary. Silent Anthropic failover is on in production (Privacy
+ * Soft CTA). Preview still requires ENQUIRIES_ANTHROPIC_FAILOVER=true.
  * Never invents places, fees, or Ofsted ratings.
  */
 import { completeChat } from '@/lib/ai/complete-chat'
