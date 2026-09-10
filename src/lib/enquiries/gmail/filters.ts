@@ -1,7 +1,8 @@
 /**
  * Deterministic parent-vs-noise filters for Soft Launch.
  * Labels first (enquiry inbox / "new parent"); receipts and newsletters out.
- * No model calls here — Grok only drafts after a message is already in-product.
+ * Classify in memory. Non-matches are discarded — never saved.
+ * Grok only drafts after a message is already persisted as an enquiry.
  */
 
 export const DEFAULT_ENQUIRY_LABELS = [

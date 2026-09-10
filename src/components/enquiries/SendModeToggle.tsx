@@ -51,7 +51,7 @@ export default function SendModeToggle({
       </div>
       {value === 'auto' ? (
         <p className="text-xs text-amber-800">
-          Auto-send only replies to filtered parent emails — not receipts or newsletters. Pause still stops drafting and sending.
+          Auto-send only replies to classified parent emails — not receipts or newsletters. Pause still stops reading Gmail, drafting, and sending.
         </p>
       ) : (
         <p className="text-xs text-gray-500">

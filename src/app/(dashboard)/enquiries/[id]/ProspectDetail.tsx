@@ -218,7 +218,7 @@ export default function ProspectDetail({
 
       {agentPaused ? (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
-          Dottie is paused. Turn her back on from the Parents inbox to draft or send.
+          Dottie is paused. Turn her back on from the Parents inbox to read Gmail, draft, or send.
         </div>
       ) : sendMode === 'auto' ? (
         <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-sm text-emerald-900">

@@ -59,12 +59,12 @@ export default function GmailConnect({
       try {
         const data = await load()
         if (cancelled) return
-        if (gmailResult === 'connected') {
+        if (gmailResult === 'error') {
+          toast.error('Gmail did not connect. Try again, or check the Google consent screen.')
+        } else if (!data.paused && gmailResult === 'connected') {
           toast.success('Gmail connected. Checking for parent emails…')
           await runSync()
-        } else if (gmailResult === 'error') {
-          toast.error('Gmail did not connect. Try again, or check the Google consent screen.')
-        } else if (data.connected) {
+        } else if (!data.paused && data.connected) {
           const last = data.account?.last_sync_at ? new Date(data.account.last_sync_at).getTime() : 0
           if (Date.now() - last > 5 * 60 * 1000) {
             await runSync()
@@ -128,7 +128,7 @@ export default function GmailConnect({
       toast.error('Could not update pause.')
       return
     }
-    toast.success(next ? 'Dottie is paused. She will not draft or send.' : 'Dottie is back on.')
+    toast.success(next ? 'Dottie is paused. She will not read Gmail, draft, or send.' : 'Dottie is back on.')
     router.refresh()
   }
 
@@ -205,21 +205,21 @@ export default function GmailConnect({
             <p className="font-semibold text-gray-900">Gmail</p>
             {status?.connected ? (
               <p className="text-sm text-gray-500">
-                Connected as {status.account?.email} — Dottie reads parent threads and sends as you on the real Gmail thread.
+                Connected as {status.account?.email} — Dottie looks for new childcare enquiries and sends as you on the real Gmail thread.
                 {sendMode === 'auto'
-                  ? ' Auto-send is on for filtered parent emails.'
+                  ? ' Auto-send is on for classified parent emails only.'
                   : ' Draft & approve is on — nothing sends until you tap Approve.'}
               </p>
             ) : (
               <p className="text-sm text-gray-500">
-                Connect Gmail so this inbox can read parent threads and send as you. We only look for enquiry labels and clear parent messages — not the whole mailbox.
+                Connect Gmail so this inbox can detect new childcare enquiries and send as you. Everything else is ignored and never saved.
               </p>
             )}
           </div>
         </div>
         <label className="flex items-center gap-2 text-sm text-gray-700 shrink-0">
           {paused ? <Pause className="h-3.5 w-3.5 text-amber-600" /> : <Play className="h-3.5 w-3.5 text-emerald-600" />}
-          {paused ? 'Paused' : 'Drafting on'}
+          {paused ? 'Paused' : 'Reading Gmail'}
           <Switch checked={!paused} onCheckedChange={(on) => togglePause(!on)} />
         </label>
       </div>
@@ -237,7 +237,7 @@ export default function GmailConnect({
               type="button"
               className="rounded-xl bg-emerald-600 hover:bg-emerald-700"
               onClick={runSync}
-              disabled={syncing}
+              disabled={syncing || paused}
             >
               {syncing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
               Check Gmail
@@ -266,7 +266,7 @@ export default function GmailConnect({
             </Button>
           </div>
           <p className="text-xs text-gray-400">
-            Dottie checks Gmail when you open this page, when you tap Check, and every few minutes. Always watching: {DEFAULT_ENQUIRY_LABELS.join(', ')}. Receipts and newsletters are ignored.
+            We only save classified enquiry threads. Receipts, newsletters and personal mail are classified in memory and discarded — never stored. Pause stops checking Gmail. Always watching: {DEFAULT_ENQUIRY_LABELS.join(', ')}.
             {status.account?.last_sync_at
               ? ` Last check ${new Date(status.account.last_sync_at).toLocaleString('en-GB')}.`
               : ''}

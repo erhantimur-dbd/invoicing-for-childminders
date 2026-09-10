@@ -62,7 +62,7 @@ export default async function EnquiriesPage({
           <h1 className="text-2xl font-bold text-gray-900">Enquiry inbox</h1>
           <p className="text-gray-500 text-sm mt-1">
             {settings.agent_paused
-              ? 'Dottie is paused — she will not draft or send replies until you turn her back on.'
+              ? 'Dottie is paused — she will not read Gmail, draft, or send until you turn her back on.'
               : parseSendMode(settings.send_mode) === 'auto'
                 ? 'This is the inbox. Dottie reads parent threads and sends as you from Gmail — Auto-send is on.'
                 : 'This is the inbox. Dottie drafts here; you approve, then she sends as you from Gmail.'}

@@ -11,12 +11,6 @@ export type GmailMessage = {
   internalDate?: string
 }
 
-export type GmailThread = {
-  id: string
-  historyId?: string
-  messages?: GmailMessage[]
-}
-
 export type GmailProfile = {
   emailAddress?: string
   historyId?: string
@@ -56,25 +50,48 @@ export async function listLabels(accessToken: string): Promise<GmailLabel[]> {
   return data.labels ?? []
 }
 
-export async function listThreadIds(
+export async function listMessageRefs(
   accessToken: string,
   query: string,
   maxResults = 40,
-): Promise<string[]> {
+): Promise<{ id: string; threadId: string }[]> {
   const params = new URLSearchParams({
     q: query,
     maxResults: String(maxResults),
   })
-  const data = await gmailJson<{ threads?: { id: string }[] }>(
+  const data = await gmailJson<{ messages?: { id?: string; threadId?: string }[] }>(
     accessToken,
-    `users/me/threads?${params}`,
+    `users/me/messages?${params}`,
   )
-  return (data.threads ?? []).map((t) => t.id)
+  return (data.messages ?? []).flatMap((m) =>
+    m.id && m.threadId ? [{ id: m.id, threadId: m.threadId }] : [],
+  )
 }
 
-export async function getThread(accessToken: string, threadId: string): Promise<GmailThread> {
-  const params = new URLSearchParams({ format: 'full' })
-  return gmailJson<GmailThread>(accessToken, `users/me/threads/${encodeURIComponent(threadId)}?${params}`)
+export async function getMessage(
+  accessToken: string,
+  messageId: string,
+  format: 'metadata' | 'full' = 'full',
+): Promise<GmailMessage> {
+  const params = new URLSearchParams({ format })
+  if (format === 'metadata') {
+    for (const header of [
+      'From',
+      'To',
+      'Subject',
+      'Date',
+      'Message-ID',
+      'List-Unsubscribe',
+      'Precedence',
+      'Auto-Submitted',
+    ]) {
+      params.append('metadataHeaders', header)
+    }
+  }
+  return gmailJson<GmailMessage>(
+    accessToken,
+    `users/me/messages/${encodeURIComponent(messageId)}?${params}`,
+  )
 }
 
 export async function sendRawMessage(

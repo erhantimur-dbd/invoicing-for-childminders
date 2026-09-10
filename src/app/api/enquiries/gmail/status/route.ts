@@ -20,7 +20,7 @@ export async function GET() {
   ])
 
   let labels: { id: string; name: string }[] = []
-  if (account) {
+  if (account && !settings?.agent_paused) {
     try {
       const token = await getValidAccessToken(auth.supabase, account)
       labels = (await listLabels(token))
