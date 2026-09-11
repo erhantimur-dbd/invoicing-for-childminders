@@ -19,7 +19,9 @@ const scriptSrc = [
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
-  "form-action 'self' https://checkout.stripe.com https://billing.stripe.com",
+  // Stripe Checkout/Billing plus Supabase Auth Google/Apple (Chrome/Safari
+  // apply form-action to the OAuth redirect chain; 'self' alone hangs Continue).
+  "form-action 'self' https://checkout.stripe.com https://billing.stripe.com https://*.supabase.co https://accounts.google.com https://appleid.apple.com",
   "frame-ancestors 'none'",
   "object-src 'none'",
   "img-src 'self' data: blob: https://*.supabase.co https://*.stripe.com",
