@@ -55,6 +55,17 @@ describe('createServerClient without public env', () => {
   })
 })
 
+describe('browser createClient stays Preview-safe', () => {
+  it('does not construct a client with empty public env', () => {
+    const client = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), 'client.ts'),
+      'utf8',
+    )
+    assert.match(client, /getSupabasePublicEnv/)
+    assert.match(client, /Supabase is not configured/)
+  })
+})
+
 describe('public homepage stays Preview-safe on navy chrome', () => {
   it('does not construct a Supabase client on /', () => {
     const home = readFileSync(
