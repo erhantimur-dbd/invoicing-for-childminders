@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="flex-1 flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <p className="text-[17px] font-semibold tracking-tight">{marketing.brand}</p>
+            <p className="text-[17px] font-semibold tracking-tight">{marketing.productName}</p>
             <p className="text-[13px] mt-1" style={{ color: marketing.muted }}>
               {marketing.tagline}
             </p>

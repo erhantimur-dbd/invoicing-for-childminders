@@ -76,6 +76,7 @@ export const marketing = {
     demo: { label: 'Book a demo', href: '/demo' },
   },
   brand: 'Dottie',
+  productName: 'Dottie AI Childminder Assistant',
   kicker: 'For registered UK childminders',
   tagline: "Dot the i and cross the t's",
   headline: 'The next parent email should fill a place — not fill your evening.',

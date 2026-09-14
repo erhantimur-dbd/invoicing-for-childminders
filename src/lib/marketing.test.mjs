@@ -45,6 +45,9 @@ test('hero names the vacancy outcome, not an operating layer', () => {
   assert.match(blob, /download/)
   assert.match(marketing.tagline, /dot the i/i)
   assert.doesNotMatch(marketing.tagline, /^Dottie /)
+  assert.equal(marketing.productName, 'Dottie AI Childminder Assistant')
+  const auth = readFileSync(join(root, 'app/(auth)/layout.tsx'), 'utf8')
+  assert.match(auth, /productName/)
 })
 
 test('invoicing is quiet and funded hours are a payment method', () => {

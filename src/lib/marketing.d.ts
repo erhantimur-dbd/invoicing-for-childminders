@@ -33,6 +33,7 @@ export const marketing: {
     demo: { label: string; href: string }
   }
   brand: string
+  productName: string
   kicker: string
   tagline: string
   headline: string
