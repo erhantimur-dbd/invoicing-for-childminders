@@ -233,10 +233,6 @@ export default function OnboardingPage() {
     const validChildren = children.filter(c => c.first_name.trim() && c.parent_email.trim())
 
     for (const child of validChildren) {
-      const bankFields = child.use_default_bank
-        ? { bank_name: bank.default_bank_name, bank_account_name: bank.default_bank_account_name, bank_sort_code: bank.default_bank_sort_code, bank_account_number: bank.default_bank_account_number }
-        : { bank_name: child.bank_name, bank_account_name: child.bank_account_name, bank_sort_code: child.bank_sort_code, bank_account_number: child.bank_account_number }
-
       const { error } = await supabase.from('children').insert({
         childminder_id: userId,
         first_name: child.first_name.trim(),
@@ -250,7 +246,8 @@ export default function OnboardingPage() {
         notes: child.notes.trim(),
         schedule_days: child.has_schedule ? child.schedule_days : [],
         schedule_note: child.schedule_note.trim(),
-        ...bankFields,
+        bank_name: child.use_default_bank ? bank.default_bank_name : child.bank_name,
+        bank_account_name: child.use_default_bank ? bank.default_bank_account_name : child.bank_account_name,
       })
       if (error) { toast.error(`Failed to save ${child.first_name}`); setSaving(false); return false }
     }

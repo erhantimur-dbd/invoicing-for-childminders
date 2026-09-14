@@ -9,6 +9,7 @@
 import { completeChat } from '@/lib/ai/complete-chat'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from './types'
 import { ENQUIRY_STAGE_LABELS, FUNDING_OPTIONS, WEEKDAYS } from './types'
+import { parentBlockForModel } from './draft-prompt.mjs'
 
 function fundingLabel(id: string | null): string {
   if (!id) return 'not captured yet'
@@ -94,15 +95,13 @@ ${windows}
 Your answers
 ${knowledgeLines(input.knowledge)}
 
-This parent
-Stage: ${ENQUIRY_STAGE_LABELS[input.prospect.stage]}
-Parent: ${input.prospect.parent_name || 'unknown'} <${input.prospect.parent_email || 'no email'}>
-Child: ${input.prospect.child_name || 'unknown'} (${input.prospect.child_age_text || input.prospect.child_dob || 'age unknown'})
-Start date: ${input.prospect.start_date || 'unknown'}
-Days: ${input.prospect.days_needed || 'unknown'}
-Hours: ${input.prospect.hours_needed || 'unknown'}
-Funding: ${fundingLabel(input.prospect.funding)}
-Extra needs they mentioned: ${input.prospect.sen_notes || 'none'}
+${parentBlockForModel(
+  {
+    ...input.prospect,
+    stageLabel: ENQUIRY_STAGE_LABELS[input.prospect.stage],
+  },
+  fundingLabel(input.prospect.funding),
+)}
 
 ${input.parentMessage ? `Their latest message:\n${input.parentMessage}` : 'They have not sent a message in the app yet. Write a first reply that welcomes them and captures missing facts.'}`
 

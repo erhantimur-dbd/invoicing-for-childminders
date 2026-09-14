@@ -145,7 +145,7 @@ export default function PrivacyPage() {
               </div>
 
               <P>
-                We collect only what is necessary to provide the service. We do not collect sensitive special-category data beyond children&apos;s dates of birth, which are used solely for invoice access verification.
+                We collect only what is necessary to provide the service. Children&apos;s dates of birth are used to verify parent access to invoices. Extra-needs notes you type on an enquiry can be health data (Article 9) — see Children&apos;s data below.
               </P>
             </Section>
 
@@ -164,35 +164,25 @@ export default function PrivacyPage() {
               ]} />
             </Section>
 
-            <Section id="gmail-enquiries" title="4. Gmail and parent enquiries">
+            <Section id="gmail-enquiries" title="4. Parent enquiries">
               <P>
-                Go Dottie can connect to your Gmail to help with childcare enquiries from parents.
+                Dottie Enquiries helps you draft replies to parents who have asked for a childcare place. You paste the parent&apos;s message into Dottie. Dottie does not currently connect to Gmail or read your inbox.
               </P>
 
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">What we access</p>
-                  <Ul items={[
-                    'We connect to Gmail using Google\'s OAuth (you choose the Google account and grant access).',
-                    <>We only request Google&apos;s <strong>gmail.readonly</strong> and <strong>gmail.send</strong> scopes — to find childcare enquiry messages and send replies from your inbox. We do not request broader mailbox access.</>,
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="font-semibold text-gray-800 mb-2">What we store</p>
                   <Ul items={[
-                    <>We only save <strong>enquiry threads</strong> that match this product purpose.</>,
-                    <>Other mail is <strong>ignored and not stored</strong>.</>,
+                    <>We store the parent facts and messages you enter (name, email, child age, days needed, and any extra-needs notes you type).</>,
+                    <>We store AI drafts so you can read them before anything is sent.</>,
                   ]} />
                 </div>
 
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="font-semibold text-gray-800 mb-2">How sending works</p>
                   <Ul items={[
-                    <><strong>Auto-send is on by default</strong> — Go Dottie can send enquiry replies from your inbox without you approving each one.</>,
-                    <>You can switch to <strong>draft &amp; approve</strong> if you want to review replies before they send.</>,
-                    <><strong>Pause</strong> stops Go Dottie checking your inbox and sending replies until you turn it back on.</>,
-                    <>You can <strong>Disconnect</strong> Gmail at any time; we stop checking and sending.</>,
+                    <><strong>Nothing is sent to a parent until you send it</strong> — Dottie drafts a reply in your voice. You copy it, or you tick send on an outcome letter.</>,
+                    <>Auto-send is <strong>not</strong> on. There is no inbox connection to pause or disconnect yet.</>,
                   ]} />
                 </div>
 
@@ -208,7 +198,7 @@ export default function PrivacyPage() {
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="font-semibold text-gray-800 mb-2">AI processing (xAI, Anthropic failover)</p>
                   <Ul items={[
-                    <>Drafting enquiry replies uses AI services from <strong>xAI (Grok)</strong>. If xAI is unavailable, drafting may fall back to <strong>Anthropic (Claude)</strong>. Sending the reply is via your Gmail (gmail.send), not via xAI or Anthropic.</>,
+                    <>Drafting enquiry replies uses AI services from <strong>xAI (Grok)</strong>. If xAI is unavailable, drafting may fall back to <strong>Anthropic (Claude)</strong>. You send the reply yourself (copy, mailto, or an explicit send tick). Extra-needs / SEN notes are stored for you and are not sent to those AI processors.</>,
                     <>Drafting may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI or Anthropic process data). We only send what is needed to draft the reply for that enquiry thread.</>,
                     <>See the <a href="#third-party-processors" className="text-emerald-600 underline">subprocessors / international transfers</a> section for more detail.</>,
                   ]} />
@@ -341,7 +331,7 @@ export default function PrivacyPage() {
                       ['Invoice records', '6 years (UK tax law requirement)'],
                       ['Payment records (Stripe)', 'As required by financial regulations'],
                       ['Security/access logs', '90 days'],
-                      ['Enquiry threads (Gmail Soft Launch)', '365 days by default (configurable); then deleted or anonymised'],
+                      ['Enquiry records you enter', 'For the duration of your Enquiries subscription, then 30 days after cancellation'],
                     ].map(([type, period]) => (
                       <tr key={type} className="border-b border-gray-100">
                         <td className="px-4 py-2 border border-gray-200">{type}</td>

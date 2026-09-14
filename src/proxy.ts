@@ -36,6 +36,10 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith('/auth/')) return true
   // Public marketing content
   if (pathname === '/guides' || pathname.startsWith('/guides/')) return true
+  // Anonymous support form
+  if (pathname.startsWith('/api/contact')) return true
+  // Parent starter-pack downloads (no account)
+  if (pathname === '/pack' || pathname.startsWith('/pack/')) return true
   return false
 }
 
@@ -205,6 +209,15 @@ export async function proxy(request: NextRequest) {
 
   return supabaseResponse
   } catch {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+    }
+    if (isProtectedRoute(pathname)) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.search = ''
+      return NextResponse.redirect(url)
+    }
     return NextResponse.next({ request })
   }
 }

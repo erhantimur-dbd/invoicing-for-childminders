@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { rateLimit, clientIp } from '@/lib/rate-limit'
 import { log } from '@/lib/log'
+import { escapeHtml } from '@/lib/html-escape.mjs'
 
 // Lazy-init: `new Resend(undefined)` throws and fails `next build` page-data collection.
 function getResend() {
@@ -87,28 +88,32 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const safeSubject = subject?.trim() || '(no subject)'
+  const safeSubject = escapeHtml(subject?.trim() || '(no subject)')
+  const safeName = escapeHtml(name.trim())
+  const safeEmail = escapeHtml(email.trim())
+  const safeMessage = escapeHtml(message.trim())
+  const safeFirst = escapeHtml(name.trim().split(' ')[0] || 'there')
 
   try {
     await resend.emails.send({
       from: 'Dottie Contact Form <hello@godottie.cloud>',
       to: 'support@godottie.cloud',
       replyTo: email.trim(),
-      subject: `[Contact] ${safeSubject}`,
+      subject: `[Contact] ${subject?.trim() || '(no subject)'}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
           <h2 style="color: #059669; margin-bottom: 4px;">New contact form submission</h2>
           <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via godottie.cloud/support</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
           <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #6b7280; width: 80px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${name.trim()}</td></tr>
-            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;"><a href="mailto:${email.trim()}" style="color: #059669;">${email.trim()}</a></td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280; width: 80px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${safeName}</td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;"><a href="mailto:${safeEmail}" style="color: #059669;">${safeEmail}</a></td></tr>
             <tr><td style="padding: 6px 0; color: #6b7280;">Subject</td><td style="padding: 6px 0;">${safeSubject}</td></tr>
           </table>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
           <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Message</p>
-          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message.trim()}</div>
-          <p style="font-size: 11px; color: #9ca3af; margin-top: 16px;">IP: ${ip}</p>
+          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${safeMessage}</div>
+          <p style="font-size: 11px; color: #9ca3af; margin-top: 16px;">IP: ${escapeHtml(ip)}</p>
         </div>
       `,
     })
@@ -125,7 +130,7 @@ export async function POST(req: NextRequest) {
             <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.8);">Invoicing simplified.</p>
           </div>
           <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none;">
-            <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 700;">Hi ${name.trim().split(' ')[0]}! 👋</h2>
+            <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 700;">Hi ${safeFirst}! 👋</h2>
             <p style="color: #6b7280; margin: 0 0 16px;">Thanks for getting in touch.</p>
             <p style="color: #374151; line-height: 1.6; margin: 0 0 16px;">
               I've received your message and will get back to you within 24 hours on business days.

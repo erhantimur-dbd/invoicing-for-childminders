@@ -24,6 +24,8 @@ interface Options {
   identifier: string
   limit: number
   windowMs: number
+  /** Default true. Set false for paid AI routes so a missing RPC cannot bypass the cap. */
+  failOpen?: boolean
 }
 
 let warned = false
@@ -39,9 +41,12 @@ function getAdmin(): SupabaseClient | null {
 }
 
 export async function rateLimit(opts: Options): Promise<Result> {
-  const { bucket, identifier, limit, windowMs } = opts
+  const { bucket, identifier, limit, windowMs, failOpen = true } = opts
   const admin = getAdmin()
-  if (!admin) return { ok: true, remaining: limit }
+  if (!admin) {
+    if (!failOpen) return { ok: false, retryAfterSeconds: 60 }
+    return { ok: true, remaining: limit }
+  }
 
   const now = Date.now()
   const windowStartMs = Math.floor(now / windowMs) * windowMs
@@ -60,6 +65,7 @@ export async function rateLimit(opts: Options): Promise<Result> {
       warned = true
       log.warn('rate_limit_rpc_missing', { hint: 'apply 20260506 migration', error: error.message })
     }
+    if (!failOpen) return { ok: false, retryAfterSeconds: 60 }
     return { ok: true, remaining: limit }
   }
 

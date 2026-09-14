@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { enquiriesActive } from '@/lib/enquiries/access'
 import { draftEnquiryReply } from '@/lib/enquiries/grok'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from '@/lib/enquiries/types'
+import { ENQUIRIES_QUOTA, runEnquiryDraft } from '@/lib/enquiries/quota.mjs'
+import { failClosedUsageCount, incrementEnquiryDraftUsage, usageFromStoredDrafts, utcMonthStart } from '@/lib/enquiries/usage'
 import { log } from '@/lib/log'
 import { rateLimit } from '@/lib/rate-limit'
 
@@ -20,15 +22,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Turn on Enquiries first.' }, { status: 403 })
   }
 
-  const limited = await rateLimit({
-    bucket: 'enquiry-draft',
+  const hourBurst = await rateLimit({
+    bucket: 'enquiry-draft-hour',
     identifier: user.id,
-    limit: 30,
-    windowMs: 60 * 60 * 1000,
+    limit: ENQUIRIES_QUOTA.burstPerHour,
+    windowMs: ENQUIRIES_QUOTA.burstWindowMs,
+    failOpen: false,
   })
-  if (!limited.ok) {
-    return NextResponse.json({ error: 'That’s a lot of drafts. Try again shortly.' }, { status: 429 })
-  }
+  const dayBurst = await rateLimit({
+    bucket: 'enquiry-draft-day',
+    identifier: user.id,
+    limit: ENQUIRIES_QUOTA.burstPerDay,
+    windowMs: ENQUIRIES_QUOTA.dayWindowMs,
+    failOpen: false,
+  })
 
   let prospectId: string
   let parentMessage: string | undefined
@@ -39,6 +46,9 @@ export async function POST(request: Request) {
     }
     prospectId = body.prospectId
     parentMessage = typeof body.parentMessage === 'string' ? body.parentMessage : undefined
+    if (parentMessage && parentMessage.length > ENQUIRIES_QUOTA.parentMessageMaxChars) {
+      parentMessage = parentMessage.slice(0, ENQUIRIES_QUOTA.parentMessageMaxChars)
+    }
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
@@ -55,14 +65,40 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Finish the short setup first.' }, { status: 400 })
   }
 
+  let usedIncludingThis = await incrementEnquiryDraftUsage(user.id)
+  if (usedIncludingThis == null) {
+    const { count } = await supabase
+      .from('enquiry_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('direction', 'draft')
+      .gte('created_at', utcMonthStart())
+    usedIncludingThis = count == null ? failClosedUsageCount() : usageFromStoredDrafts(count)
+  }
+
   try {
-    const { body, model } = await draftEnquiryReply({
-      settings: settings as EnquirySettings,
-      vacancies: (vacancies ?? []) as EnquiryVacancy[],
-      knowledge: (knowledge ?? []) as EnquiryKnowledge[],
-      prospect: prospect as EnquiryProspect,
-      parentMessage,
+    const run = await runEnquiryDraft({
+      subscribed: true,
+      usedIncludingThis,
+      hourOk: hourBurst.ok,
+      dayOk: dayBurst.ok,
+      generate: () => draftEnquiryReply({
+        settings: settings as EnquirySettings,
+        vacancies: (vacancies ?? []) as EnquiryVacancy[],
+        knowledge: (knowledge ?? []) as EnquiryKnowledge[],
+        prospect: prospect as EnquiryProspect,
+        parentMessage,
+      }),
     })
+
+    if (!run.ok) {
+      return NextResponse.json(
+        { error: run.decision.error, reason: run.decision.reason },
+        { status: run.decision.status },
+      )
+    }
+
+    const { body, model } = run.result as { body: string; model: string }
 
     const { data: saved, error } = await supabase
       .from('enquiry_messages')
@@ -91,10 +127,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ draft: saved })
   } catch (err) {
     log.error('enquiry_draft_failed', err, { user_id: user.id, prospect_id: prospectId })
-    const raw = err instanceof Error ? err.message : ''
-    // Never mention Anthropic/Claude in the Enquiries UI — xAI is the documented path.
-    const message =
-      /anthropic|claude/i.test(raw) || !raw ? 'Could not draft a reply.' : raw
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Could not draft a reply.' }, { status: 500 })
   }
 }

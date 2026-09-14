@@ -52,6 +52,9 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [{ source: '/sitemap.xml', destination: '/api/sitemap' }]
   },
+  async redirects() {
+    return [{ source: '/pricing', destination: '/#pricing', permanent: false }]
+  },
   async headers() {
     return [
       {
