@@ -116,6 +116,7 @@ export type Child = {
   funding_scheme: FundingScheme | null
   funded_hours_per_day: number | null
   funded_days: string[] | null
+  enquiry_prospect_id?: string | null
   archived_at: string | null
   created_at: string
   updated_at: string

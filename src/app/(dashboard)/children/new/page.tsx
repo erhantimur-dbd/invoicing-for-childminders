@@ -4,12 +4,18 @@ import { ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import ChildForm from '@/components/ChildForm'
 import { getChildLimit, isAtLimit, TIER_LABELS } from '@/lib/childLimit'
+import { childFormPrefill } from '@/lib/enquiries/prospect-to-child.mjs'
 import type { SubscriptionTier } from '@/lib/types'
 
-export default async function NewChildPage() {
+export default async function NewChildPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; id?: string }>
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+  const q = await searchParams
 
   // Get active child count and subscription tier
   const [{ count }, { data: subscription }] = await Promise.all([
@@ -126,7 +132,27 @@ export default async function NewChildPage() {
           </p>
         </div>
       </div>
-      <ChildForm mode="new" />
+      <ChildForm mode="new" initialValues={await loadProspectPrefill(supabase, user.id, q)} />
     </div>
   )
+}
+
+async function loadProspectPrefill(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  q: { from?: string; id?: string },
+) {
+  if (q.from === 'prospect' && q.id) {
+    const [{ data: prospect }, { data: settings }] = await Promise.all([
+      supabase.from('enquiry_prospects').select('*').eq('id', q.id).eq('user_id', userId).maybeSingle(),
+      supabase.from('enquiry_settings').select('day_rate').eq('user_id', userId).maybeSingle(),
+    ])
+    if (!prospect) return undefined
+    const prefill = childFormPrefill(prospect)
+    if (settings?.day_rate && !prefill.daily_rate) {
+      return { ...prefill, daily_rate: Number(settings.day_rate) }
+    }
+    return prefill
+  }
+  return undefined
 }

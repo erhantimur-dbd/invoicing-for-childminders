@@ -2,7 +2,8 @@ export const ENQUIRY_STAGES = [
   'new',
   'chatting',
   'visit',
-  'ready',
+  'awaiting',
+  'accepted',
   'started',
   'lost',
 ] as const
@@ -13,7 +14,8 @@ export const ENQUIRY_STAGE_LABELS: Record<EnquiryStage, string> = {
   new: 'New',
   chatting: 'Chatting',
   visit: 'Visit booked',
-  ready: 'Ready to start',
+  awaiting: 'Awaiting',
+  accepted: 'Ready to start',
   started: 'Started',
   lost: 'Not going ahead',
 }

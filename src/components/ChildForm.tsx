@@ -70,12 +70,15 @@ const SCHEMES_BY_HOURS: Record<'15' | '30', FundingScheme[]> = {
   '30': ['3to4_working', 'wp_under5'],
 }
 
+type Prefill = Partial<ChildFormData> & { enquiry_prospect_id?: string | null }
+
 type Props = {
   child?: Child
   mode: 'new' | 'edit'
+  initialValues?: Prefill
 }
 
-export default function ChildForm({ child, mode }: Props) {
+export default function ChildForm({ child, mode, initialValues }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [saving, setSaving] = useState(false)
@@ -134,6 +137,7 @@ export default function ChildForm({ child, mode }: Props) {
 
   const [hasSchedule, setHasSchedule] = useState(
     !!(child?.schedule_days && child.schedule_days.length > 0)
+    || !!(initialValues?.schedule_days && initialValues.schedule_days.length > 0)
   )
   const [form, setForm] = useState<ChildFormData>(
     child ? {
@@ -159,7 +163,8 @@ export default function ChildForm({ child, mode }: Props) {
       funding_scheme: child.funding_scheme ?? null,
       funded_hours_per_day: child.funded_hours_per_day,
       funded_days: child.funded_days,
-    } : emptyForm
+      enquiry_prospect_id: child.enquiry_prospect_id ?? null,
+    } : { ...emptyForm, ...initialValues, enquiry_prospect_id: initialValues?.enquiry_prospect_id ?? null }
   )
 
   function set(field: keyof ChildFormData, value: string | number | boolean | null | ScheduleDay[] | string[]) {
@@ -262,8 +267,9 @@ export default function ChildForm({ child, mode }: Props) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
+    const { enquiry_prospect_id, ...formFields } = form
     const payload = {
-      ...form,
+      ...formFields,
       daily_rate: form.daily_rate ? Number(form.daily_rate) : null,
       half_day_rate: form.half_day_rate ? Number(form.half_day_rate) : null,
       hourly_rate: form.hourly_rate ? Number(form.hourly_rate) : null,
@@ -274,6 +280,7 @@ export default function ChildForm({ child, mode }: Props) {
       funding_scheme: form.funding_type !== 'none' ? form.funding_scheme : null,
       funded_hours_per_day: form.funding_type !== 'none' ? (form.funded_hours_per_day ? Number(form.funded_hours_per_day) : null) : null,
       funded_days: form.funding_type !== 'none' ? (form.funded_days || null) : null,
+      enquiry_prospect_id: enquiry_prospect_id || null,
     }
 
     if (mode === 'new') {
@@ -291,6 +298,13 @@ export default function ChildForm({ child, mode }: Props) {
         }
         setSaving(false)
         return
+      }
+      if (enquiry_prospect_id) {
+        await supabase
+          .from('enquiry_prospects')
+          .update({ stage: 'started', updated_at: new Date().toISOString() })
+          .eq('id', enquiry_prospect_id)
+          .eq('user_id', user.id)
       }
       toast.success(`${form.first_name} added!`)
       router.push('/children')

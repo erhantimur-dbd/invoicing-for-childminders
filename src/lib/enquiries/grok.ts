@@ -10,6 +10,7 @@ import { completeChat } from '@/lib/ai/complete-chat'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from './types'
 import { ENQUIRY_STAGE_LABELS, FUNDING_OPTIONS, WEEKDAYS } from './types'
 import { parentBlockForModel } from './draft-prompt.mjs'
+import { nextVisitSlots } from './visit-policy.mjs'
 
 function fundingLabel(id: string | null): string {
   if (!id) return 'not captured yet'
@@ -55,20 +56,25 @@ export async function draftEnquiryReply(input: {
     .map((w) => `${w.days.join(', ')} ${w.start}–${w.end} (${w.slot_minutes} min)`)
     .join('\n') || 'No visiting hours set — ask the parent for evenings that work and say you will confirm.'
 
+  const slots = nextVisitSlots(input.settings.visiting_windows ?? [])
+  const slotBlock = slots.length
+    ? slots.map((s) => `- ${s}`).join('\n')
+    : 'none listed. Do not invent a calendar date.'
+
   const name = input.settings.display_name || 'the childminder'
-  const system = `You are ${name}'s assistant, writing an email to a parent who enquired about a childminding place in England.
+  const system = `You write emails for ${name}, a registered childminder in England. Write in ${name}'s voice, as ${name}.
 
 Voice: warm, plain English, short paragraphs, like a real childminder on her phone in the evening. No corporate sales language. No emojis unless the childminder's notes use them.
 
 Hard rules:
-- Only use facts from the setting notes, answers, and spaces below. If you do not know, say you will check with ${name}.
-- Never invent Ofsted ratings, availability, fees, or other children's names.
+- Only use facts from the setting notes, answers, and spaces below. If you do not know, say you will check and come back.
+- Never invent Ofsted ratings, availability, fees, calendar dates, or other children's names.
 - Never give medical, legal, or safeguarding advice.
 - Funded hours (15/30) are not automatically free wraparound. Consumables may be extra. Do not promise "free childcare".
 - If there is no matching space, be kind and offer a waitlist. Do not pretend a place exists.
 - Ask at most three questions if facts are missing: start date, days/hours, funding (private / 15 hours / 30 hours).
-- If visiting hours exist and the parent looks like a fit, offer two concrete visit slots inside those hours.
-- Sign off as ${name}'s assistant. If asked whether you are a person, be honest: you help ${name} reply while they are with the children.
+- Offer visit times only from "Next visit slots". Copy those dates and times. If none are listed, ask which evening in the visiting hours works — do not pick a date yourself.
+- Sign off as ${name} only. Do not say you are an assistant or AI.
 - Do not include a subject line. Write the email body only.`
 
   const user = `Setting
@@ -91,6 +97,9 @@ ${vacancyLines(input.vacancies)}
 
 Visiting hours
 ${windows}
+
+Next visit slots (offer only these exact dates and times; do not invent others)
+${slotBlock}
 
 Your answers
 ${knowledgeLines(input.knowledge)}

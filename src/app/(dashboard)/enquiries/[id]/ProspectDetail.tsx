@@ -18,13 +18,16 @@ import {
   type EnquiryProspect,
   type EnquiryStage,
 } from '@/lib/enquiries/types'
+import { addToInvoicingHref } from '@/lib/enquiries/prospect-to-child.mjs'
 
 export default function ProspectDetail({
   prospect: initial,
   messages: initialMessages,
+  invoicingActive,
 }: {
   prospect: EnquiryProspect
   messages: EnquiryMessage[]
+  invoicingActive: boolean
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -148,7 +151,7 @@ export default function ProspectDetail({
             {drafting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
             Draft a reply
           </Button>
-          <Button variant="outline" className="rounded-xl" onClick={() => setStage('ready')} disabled={saving}>
+          <Button variant="outline" className="rounded-xl" onClick={() => setStage('accepted')} disabled={saving}>
             They want to start
           </Button>
           <Button variant="outline" className="rounded-xl" onClick={() => setStage('started')} disabled={saving}>
@@ -157,9 +160,19 @@ export default function ProspectDetail({
         </div>
       )}
 
-      {prospect.stage === 'ready' ? (
-        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
-          Email them your contract and starter pack from Gmail. Then mark They&apos;ve started when the child is on roll — Dottie Invoicing can take it from there.
+      {prospect.stage === 'accepted' || prospect.stage === 'started' ? (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900 space-y-3">
+          <p>
+            {prospect.stage === 'accepted'
+              ? 'Email them your contract and starter pack from Gmail. When they are on roll, add them to invoicing.'
+              : 'They are on roll. Add them to invoicing so Dottie can raise invoices.'}
+          </p>
+          <Link
+            href={addToInvoicingHref({ invoicingActive, prospectId: prospect.id })}
+            className="inline-flex items-center h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium"
+          >
+            Add to invoicing
+          </Link>
         </div>
       ) : null}
 
