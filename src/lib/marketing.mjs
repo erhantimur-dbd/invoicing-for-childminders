@@ -77,7 +77,7 @@ export const marketing = {
   },
   brand: 'Dottie',
   kicker: 'For registered UK childminders',
-  tagline: "Dottie dots the i and crosses the T's",
+  tagline: "Dot the i and cross the t's",
   headline: 'The next parent email should fill a place — not fill your evening.',
   businessEnd: '',
   subhead:

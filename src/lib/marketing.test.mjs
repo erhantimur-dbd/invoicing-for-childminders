@@ -43,7 +43,8 @@ test('hero names the vacancy outcome, not an operating layer', () => {
   const blob = `${marketing.kicker} ${marketing.subhead} ${marketing.flow.map((s) => s.body).join(' ')} ${marketing.trust.map((t) => t.body).join(' ')}`.toLowerCase()
   assert.match(blob, /your answers/)
   assert.match(blob, /download/)
-  assert.match(marketing.tagline, /dots the i/i)
+  assert.match(marketing.tagline, /dot the i/i)
+  assert.doesNotMatch(marketing.tagline, /^Dottie /)
 })
 
 test('invoicing is quiet and funded hours are a payment method', () => {

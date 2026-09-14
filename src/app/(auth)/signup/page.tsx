@@ -108,19 +108,6 @@ export default function SignupPage() {
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
       <div className="space-y-6">
-        <ul className="space-y-2">
-          {[
-            'Start with Enquiries — new parents, funded hours, visits',
-            'Add invoicing later, same login, when a child starts',
-            'Set up in minutes · Cancel anytime',
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-              {item}
-            </li>
-          ))}
-        </ul>
-
         <SSOButtons mode="signup" onError={setSsoError} />
         {ssoError && (
           <p className="text-sm text-red-600 text-center" role="alert">{ssoError}</p>
