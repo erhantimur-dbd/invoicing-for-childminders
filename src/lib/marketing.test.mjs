@@ -46,10 +46,11 @@ test('hero names the vacancy outcome, not an operating layer', () => {
   assert.match(marketing.tagline, /dot the i/i)
   assert.doesNotMatch(marketing.tagline, /^Dottie /)
   assert.equal(marketing.productName, 'Dottie AI Childminder Assistant')
+  assert.equal(marketing.navTagline, 'AI Childminder Assistant')
   const auth = readFileSync(join(root, 'app/(auth)/layout.tsx'), 'utf8')
   assert.match(auth, /productName/)
   const header = readFileSync(join(root, 'components/marketing/SiteHeader.tsx'), 'utf8')
-  assert.match(header, /productName/)
+  assert.match(header, /navTagline/)
   assert.match(header, /marketing\.brand/)
 })
 

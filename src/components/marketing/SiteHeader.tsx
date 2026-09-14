@@ -15,7 +15,7 @@ export default function SiteHeader() {
             className="block text-[11px] font-normal tracking-tight mt-0.5 whitespace-nowrap"
             style={{ color: marketing.heroMuted }}
           >
-            {marketing.productName}
+            {marketing.navTagline}
           </span>
         </Link>
 

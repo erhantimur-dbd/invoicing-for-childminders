@@ -77,6 +77,7 @@ export const marketing = {
   },
   brand: 'Dottie',
   productName: 'Dottie AI Childminder Assistant',
+  navTagline: 'AI Childminder Assistant',
   kicker: 'For registered UK childminders',
   tagline: "Dot the i and cross the t's",
   headline: 'The next parent email should fill a place — not fill your evening.',

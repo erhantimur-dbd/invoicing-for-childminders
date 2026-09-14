@@ -34,6 +34,7 @@ export const marketing: {
   }
   brand: string
   productName: string
+  navTagline: string
   kicker: string
   tagline: string
   headline: string
