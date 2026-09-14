@@ -2,39 +2,48 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
 
 type Props = {
   mode: 'login' | 'signup'
+  onError?: (message: string) => void
 }
 
-export default function SSOButtons({ mode }: Props) {
+function oauthNext(mode: 'login' | 'signup') {
+  if (mode === 'signup') {
+    return subscribeNext(parseBilling(new URLSearchParams(window.location.search).get('billing')))
+  }
+  return '/dashboard'
+}
+
+export default function SSOButtons({ mode, onError }: Props) {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [appleLoading, setAppleLoading] = useState(false)
 
-  async function handleGoogle() {
-    setGoogleLoading(true)
+  async function startOAuth(provider: 'google' | 'apple') {
+    if (provider === 'google') setGoogleLoading(true)
+    else setAppleLoading(true)
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + '/auth/callback' },
+      provider,
+      options: {
+        redirectTo: authCallbackRedirect(window.location.origin, oauthNext(mode)),
+      },
     })
     if (error) {
-      console.error('Google OAuth error:', error)
+      console.error(`${provider} OAuth error:`, error)
+      onError?.(error.message)
       setGoogleLoading(false)
+      setAppleLoading(false)
     }
   }
 
+  async function handleGoogle() {
+    await startOAuth('google')
+  }
+
   async function handleApple() {
-    setAppleLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: { redirectTo: window.location.origin + '/auth/callback' },
-    })
-    if (error) {
-      console.error('Apple OAuth error:', error)
-      setAppleLoading(false)
-    }
+    await startOAuth('apple')
   }
 
   const spinnerWhite = (

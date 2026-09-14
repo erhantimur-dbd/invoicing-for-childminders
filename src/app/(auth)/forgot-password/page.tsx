@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Loader2, Mail, ArrowLeft } from 'lucide-react'
+import { authCallbackRedirect } from '@/lib/billing-query.mjs'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -21,7 +22,7 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     const supabase = createClient()
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: authCallbackRedirect(window.location.origin, '/reset-password'),
     })
 
     if (error) {

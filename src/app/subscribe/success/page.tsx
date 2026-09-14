@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Loader2, CheckCircle2 } from 'lucide-react'
+import { checkoutLanded } from '@/lib/enquiries/access'
 
 type Subscription = {
   status: string | null
@@ -57,9 +58,7 @@ export default function SubscribeSuccessPage() {
         const r = await fetch('/api/me/subscription', { cache: 'no-store' })
         if (r.ok) {
           const j: { subscription: Subscription | null } = await r.json()
-          const landed = product === 'enquiries'
-            ? Boolean(j.subscription?.enquiries_stripe_subscription_id)
-            : Boolean(j.subscription?.stripe_subscription_id)
+          const landed = checkoutLanded(product, j.subscription)
           if (landed) {
             if (!cancelled) setSub(j.subscription)
             return

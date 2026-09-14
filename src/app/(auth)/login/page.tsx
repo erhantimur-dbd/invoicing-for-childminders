@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -10,20 +10,32 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Loader2, Mail, Lock } from 'lucide-react'
 import SSOButtons from '@/components/SSOButtons'
+import { SIGN_UP_CTA } from '@/lib/plans-copy.mjs'
+import { loginErrorFromQuery } from '@/lib/auth-errors.mjs'
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [ssoError, setSsoError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const msg = loginErrorFromQuery(new URLSearchParams(window.location.search).get('error'))
+    if (msg) setError(msg)
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+    setError(null)
+    setSsoError(null)
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      toast.error(error.message)
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+    if (signInError) {
+      toast.error(signInError.message)
+      setError(signInError.message)
       setLoading(false)
     } else {
       router.push('/dashboard')
@@ -31,10 +43,15 @@ export default function LoginPage() {
     }
   }
 
+  const banner = error || ssoError
+
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
       <div className="space-y-6">
-        <SSOButtons mode="login" />
+        {banner && (
+          <p className="text-sm text-red-600 text-center" role="alert">{banner}</p>
+        )}
+        <SSOButtons mode="login" onError={setSsoError} />
 
         <div className="relative flex items-center gap-3">
           <div className="flex-1 h-px bg-gray-200" />
@@ -93,7 +110,7 @@ export default function LoginPage() {
           <p className="text-sm text-gray-400 text-center pt-1">
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-emerald-600 font-semibold hover:text-emerald-700">
-              Sign up free
+              {SIGN_UP_CTA}
             </Link>
           </p>
         </form>

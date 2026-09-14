@@ -62,9 +62,11 @@ export async function POST(request: NextRequest) {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
-        // Attach Stripe customer + subscription IDs to the user's row.
-        // Status comes from customer.subscription.created/updated — do not
-        // hardcode 'active' here (invoicing trials still exist for admin grants).
+        // Attach Stripe customer + subscription IDs. Enquiries has no self-serve
+        // trial — a paid checkout must set enquiries_status so the success page
+        // (which polls status, not Stripe IDs) does not race subscription.updated.
+        // Invoicing status still comes from customer.subscription.created/updated
+        // so admin-granted trials are not overwritten as 'active'.
         const session = event.data.object as import('stripe').Stripe.Checkout.Session
         const userId = session.metadata?.user_id
         const plan = session.metadata?.plan
@@ -88,11 +90,14 @@ export async function POST(request: NextRequest) {
           .maybeSingle()
 
         if (product === 'enquiries') {
-          const patch = {
+          const patch: Record<string, string> = {
             stripe_customer_id: customerId,
             enquiries_stripe_subscription_id: stripeSubId,
             enquiries_plan: plan ?? 'monthly',
             updated_at: now,
+          }
+          if (session.payment_status === 'paid' || session.payment_status === 'no_payment_required') {
+            patch.enquiries_status = 'active'
           }
           if (existingRow) {
             await supabase.from('subscriptions').update(patch).eq('user_id', userId)

@@ -1,17 +1,7 @@
+import { passwordScore } from '@/lib/password-policy.mjs'
+
 type Props = {
   password: string
-}
-
-export function getScore(password: string): number {
-  if (!password) return 0
-  let score = 0
-  if (password.length >= 10) score += 1
-  if (password.length >= 12) score += 1
-  if (/[a-z]/.test(password)) score += 1
-  if (/[A-Z]/.test(password)) score += 1
-  if (/[0-9]/.test(password)) score += 1
-  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) score += 1
-  return score
 }
 
 type StrengthLevel = {
@@ -29,7 +19,7 @@ function getStrengthLevel(score: number): StrengthLevel | null {
 }
 
 export default function PasswordStrength({ password }: Props) {
-  const score = getScore(password)
+  const score = passwordScore(password)
   const level = getStrengthLevel(score)
 
   if (!level) return null

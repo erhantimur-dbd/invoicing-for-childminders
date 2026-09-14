@@ -24,6 +24,15 @@ export function enquiriesActive(sub: SubscriptionRow | null | undefined): boolea
   return sub.enquiries_status === 'active'
 }
 
+/** Post-checkout success page: wait for product status, not Stripe IDs. */
+export function checkoutLanded(
+  product: string | null | undefined,
+  sub: SubscriptionRow | null | undefined,
+): boolean {
+  if (product === 'enquiries') return enquiriesActive(sub)
+  return invoicingActive(sub)
+}
+
 export function anyProductActive(sub: SubscriptionRow | null | undefined): boolean {
   return invoicingActive(sub) || enquiriesActive(sub)
 }
