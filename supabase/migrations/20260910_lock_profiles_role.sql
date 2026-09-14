@@ -28,4 +28,30 @@ create trigger prevent_profile_role_change
   for each row
   execute function public.prevent_profile_role_change();
 
-revoke update (role) on public.profiles from authenticated, anon;
+-- Table-level GRANT ALL ignores REVOKE UPDATE (role). Revoke table UPDATE,
+-- then re-grant every column except role.
+revoke update on table public.profiles from authenticated, anon;
+grant update (
+  id,
+  full_name,
+  email,
+  phone,
+  address_line1,
+  address_line2,
+  city,
+  postcode,
+  created_at,
+  updated_at,
+  default_bank_name,
+  default_bank_account_name,
+  default_bank_sort_code,
+  default_bank_account_number,
+  onboarding_completed,
+  ofsted_number,
+  show_ofsted_on_invoice,
+  primary_bank_account_id,
+  invoice_frequency,
+  invoice_day,
+  invoice_last_generated_at,
+  invoice_hour
+) on table public.profiles to authenticated, anon;
