@@ -159,6 +159,8 @@ test('hero loop is three beats: draft, vacancy, visit offered', () => {
   assert.match(flow, /heroLoop/)
   assert.match(flow, /scene\.match/)
   assert.match(flow, /calendarDays/)
+  assert.match(flow, /col-start-1 row-start-1/)
+  assert.match(flow, /invisible pointer-events-none/)
   assert.doesNotMatch(flow, /scene\.facts/)
   assert.doesNotMatch(flow, /Knowledge base/)
   assert.doesNotMatch(flow, /setTyped/)

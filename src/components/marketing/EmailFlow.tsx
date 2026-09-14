@@ -117,22 +117,41 @@ export default function EmailFlow() {
         <p className="text-[15px] font-semibold tracking-tight min-h-[1.5em]">
           {beat.line}
         </p>
-        {beat.note ? (
-          <p className="mt-1 text-[13px]" style={{ color: marketing.muted }}>
-            {beat.note}
-          </p>
-        ) : (
-          <p className="mt-1 text-[13px] invisible" aria-hidden="true">.</p>
-        )}
+        <p
+          className={`mt-1 text-[13px] min-h-[1.25em] ${beat.note ? '' : 'invisible'}`}
+          style={{ color: marketing.muted }}
+          aria-hidden={beat.note ? undefined : true}
+        >
+          {beat.note || '.'}
+        </p>
 
-        <div key={id} className="mt-5 min-h-[280px] space-y-3">
-          {id === 'reply' ? <ReplyScene /> : null}
-          {id === 'match' ? <MatchScene /> : null}
-          {id === 'book' ? <BookScene /> : null}
+        {/* One grid cell: height is always the tallest beat, so the page does not jump. */}
+        <div className="mt-5 grid">
+          {loop.map((item) => {
+            const active = item.id === id
+            return (
+              <div
+                key={item.id}
+                data-scene={item.id}
+                className={`col-start-1 row-start-1 ${active ? '' : 'invisible pointer-events-none'}`}
+                aria-hidden={!active}
+              >
+                <div key={active ? `on-${step}` : `off-${item.id}`}>
+                  <SceneBody id={item.id} />
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
   )
+}
+
+function SceneBody({ id }: { id: string }) {
+  if (id === 'reply') return <ReplyScene />
+  if (id === 'match') return <MatchScene />
+  return <BookScene />
 }
 
 function ReplyScene() {

@@ -222,6 +222,9 @@
   to { opacity: 1; transform: scale(1); }
 }
 
+[data-email-flow] {
+  contain: layout;
+}
 [data-email-flow] .ef-in {
   animation: efIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
