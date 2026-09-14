@@ -9,8 +9,14 @@ export default function SiteHeader() {
       style={{ backgroundColor: marketing.hero, borderColor: marketing.heroHairline, color: '#f6f7f9' }}
     >
       <div className="max-w-[1120px] mx-auto px-6 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="text-[16px] font-semibold tracking-tight shrink-0">
-          {marketing.brand}
+        <Link href="/" className="shrink-0 leading-tight">
+          <span className="block text-[16px] font-semibold tracking-tight">{marketing.brand}</span>
+          <span
+            className="block text-[11px] font-normal tracking-tight mt-0.5 whitespace-nowrap"
+            style={{ color: marketing.heroMuted }}
+          >
+            {marketing.productName}
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-7 text-[13px]" style={{ color: marketing.heroMuted }}>

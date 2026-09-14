@@ -48,6 +48,9 @@ test('hero names the vacancy outcome, not an operating layer', () => {
   assert.equal(marketing.productName, 'Dottie AI Childminder Assistant')
   const auth = readFileSync(join(root, 'app/(auth)/layout.tsx'), 'utf8')
   assert.match(auth, /productName/)
+  const header = readFileSync(join(root, 'components/marketing/SiteHeader.tsx'), 'utf8')
+  assert.match(header, /productName/)
+  assert.match(header, /marketing\.brand/)
 })
 
 test('invoicing is quiet and funded hours are a payment method', () => {
