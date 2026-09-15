@@ -49,6 +49,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  outputFileTracingIncludes: {
+    '/api/**': ['./src/lib/enquiries/AGENTS.md'],
+    '/enquiries/**': ['./src/lib/enquiries/AGENTS.md'],
+  },
   async rewrites() {
     return [{ source: '/sitemap.xml', destination: '/api/sitemap' }]
   },

@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ProspectDetail from './ProspectDetail'
 import { invoicingActive } from '@/lib/enquiries/access'
-import type { EnquiryMessage, EnquiryProspect } from '@/lib/enquiries/types'
+import type { EnquiryKnowledgePending, EnquiryMessage, EnquiryProspect } from '@/lib/enquiries/types'
 
 export default async function ProspectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -18,7 +18,7 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
     .maybeSingle()
   if (!prospect) notFound()
 
-  const [{ data: messages }, { data: sub }] = await Promise.all([
+  const [{ data: messages }, { data: sub }, { data: pending }] = await Promise.all([
     supabase
       .from('enquiry_messages')
       .select('*')
@@ -29,6 +29,12 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
       .select('status, trial_end, enquiries_status')
       .eq('user_id', user.id)
       .maybeSingle(),
+    supabase
+      .from('enquiry_knowledge_pending')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('prospect_id', id)
+      .eq('status', 'pending'),
   ])
 
   return (
@@ -36,6 +42,7 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
       prospect={prospect as EnquiryProspect}
       messages={(messages ?? []) as EnquiryMessage[]}
       invoicingActive={invoicingActive(sub)}
+      pendingKnowledge={(pending ?? []) as EnquiryKnowledgePending[]}
     />
   )
 }

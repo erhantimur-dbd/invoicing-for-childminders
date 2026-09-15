@@ -9,6 +9,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from '@/lib/enquiries/types'
 import { log } from '@/lib/log'
 import { notifyHumanEscalation } from '@/lib/enquiries/notify-escalation'
+import { persistLearningProposals } from '@/lib/enquiries/persist-learning'
 import { shouldSendEscalationEmail } from '@/lib/enquiries/notify-escalation.mjs'
 
 type Admin = SupabaseClient
@@ -219,12 +220,22 @@ export async function draftAndMaybeSend(input: {
     .eq('id', input.prospect.id)
 
   if (needsHuman) {
+    const pending = await persistLearningProposals({
+      supabase: input.supabase,
+      userId: input.userId,
+      prospectId: input.prospect.id,
+      reasons: escalateReasons ?? [],
+      parentMessage: input.parentMessage,
+      knowledge: input.knowledge,
+      voiceNotes: input.settings.voice_notes,
+    })
     await maybeEmailChildminder({
       supabase: input.supabase,
       userId: input.userId,
       prospect: input.prospect,
       settings: input.settings,
       labels: escalateLabels || [],
+      pendingCount: pending.length,
     })
     return { draftId: saved.id, sent: false, needsHuman, escalateLabels }
   }
@@ -278,6 +289,7 @@ async function maybeEmailChildminder(input: {
   prospect: EnquiryProspect
   settings: EnquirySettings
   labels: string[]
+  pendingCount?: number
 }) {
   if (!shouldSendEscalationEmail(input.prospect.last_escalation_email_at)) return
   const { data: profile } = await input.supabase
@@ -287,12 +299,16 @@ async function maybeEmailChildminder(input: {
     .maybeSingle()
   const to = profile?.email
   if (!to) return
+  const reasons = [...input.labels]
+  if (input.pendingCount) {
+    reasons.push('There is a fact to add to Your answers.')
+  }
   const result = await notifyHumanEscalation({
     to,
     displayName: input.settings.display_name || profile?.full_name,
     parentName: input.prospect.parent_name,
     childName: input.prospect.child_name,
-    reasons: input.labels,
+    reasons,
     prospectId: input.prospect.id,
   })
   if (result.sent) {

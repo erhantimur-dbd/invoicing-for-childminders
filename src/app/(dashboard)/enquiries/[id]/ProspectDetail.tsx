@@ -17,6 +17,7 @@ import {
   type EnquiryMessage,
   type EnquiryProspect,
   type EnquiryStage,
+  type EnquiryKnowledgePending,
 } from '@/lib/enquiries/types'
 import { addToInvoicingHref } from '@/lib/enquiries/prospect-to-child.mjs'
 import { ESCALATE_LABELS } from '@/lib/enquiries/escalate.mjs'
@@ -25,10 +26,12 @@ export default function ProspectDetail({
   prospect: initial,
   messages: initialMessages,
   invoicingActive,
+  pendingKnowledge: initialPending = [],
 }: {
   prospect: EnquiryProspect
   messages: EnquiryMessage[]
   invoicingActive: boolean
+  pendingKnowledge?: EnquiryKnowledgePending[]
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -37,6 +40,7 @@ export default function ProspectDetail({
   const [drafting, setDrafting] = useState(false)
   const [saving, setSaving] = useState(false)
   const [lostReason, setLostReason] = useState(prospect.lost_reason || '')
+  const [pending, setPending] = useState(initialPending)
 
   const latestInbound = [...messages].reverse().find((m) => m.direction === 'in')
   const latestDraft = [...messages].reverse().find((m) => m.direction === 'draft')
@@ -196,6 +200,22 @@ export default function ProspectDetail({
         </div>
       ) : null}
 
+      {pending.length > 0 ? (
+        <div className="rounded-2xl border border-emerald-100 bg-white p-4 space-y-4">
+          <p className="font-semibold text-gray-900">Add to Your answers</p>
+          <p className="text-sm text-gray-500">
+            Dottie can remember this for next time. Approve only setting facts, never a child&apos;s health.
+          </p>
+          {pending.map((item) => (
+            <PendingFactCard
+              key={item.id}
+              item={item}
+              onDone={() => setPending(pending.filter((p) => p.id !== item.id))}
+            />
+          ))}
+        </div>
+      ) : null}
+
       {prospect.stage === 'lost' || prospect.stage === 'started' ? null : (
         <div className="flex flex-wrap gap-2">
           <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={draftReply} disabled={drafting}>
@@ -290,6 +310,50 @@ function Field({ label, value }: { label: string; value: string | null | undefin
     <div className="rounded-2xl border border-gray-100 bg-white px-4 py-3">
       <p className="text-xs text-gray-400 font-medium">{label}</p>
       <p className="text-sm text-gray-900 mt-0.5">{value || '—'}</p>
+    </div>
+  )
+}
+
+function PendingFactCard({
+  item,
+  onDone,
+}: {
+  item: EnquiryKnowledgePending
+  onDone: () => void
+}) {
+  const [question, setQuestion] = useState(item.question)
+  const [answer, setAnswer] = useState(item.suggested_answer || '')
+  const [busy, setBusy] = useState(false)
+
+  async function act(action: 'approve' | 'dismiss') {
+    setBusy(true)
+    const res = await fetch('/api/enquiries/knowledge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: item.id, action, question, answer }),
+    })
+    const data = await res.json()
+    setBusy(false)
+    if (!res.ok) {
+      toast.error(data.error || 'Could not save.')
+      return
+    }
+    toast.success(action === 'approve' ? 'Added to Your answers.' : 'Skipped.')
+    onDone()
+  }
+
+  return (
+    <div className="rounded-xl border border-gray-100 p-3 space-y-2">
+      <Input value={question} onChange={(e) => setQuestion(e.target.value)} />
+      <Textarea rows={2} value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Your answer" />
+      <div className="flex gap-2">
+        <Button type="button" className="rounded-xl bg-emerald-600 hover:bg-emerald-700" disabled={busy} onClick={() => act('approve')}>
+          Add to Your answers
+        </Button>
+        <Button type="button" variant="outline" className="rounded-xl" disabled={busy} onClick={() => act('dismiss')}>
+          Skip
+        </Button>
+      </div>
     </div>
   )
 }

@@ -91,6 +91,14 @@ export type EnquiryVacancy = {
   private: boolean
 }
 
+export type EnquiryKnowledgePending = {
+  id: string
+  topic: string
+  question: string
+  suggested_answer: string | null
+  status: string
+}
+
 export type EnquiryKnowledge = {
   id: string
   user_id: string

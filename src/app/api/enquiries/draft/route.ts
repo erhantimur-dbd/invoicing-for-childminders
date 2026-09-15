@@ -6,6 +6,7 @@ import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy
 import { ENQUIRIES_QUOTA, runEnquiryDraft } from '@/lib/enquiries/quota.mjs'
 import { failClosedUsageCount, incrementEnquiryDraftUsage, usageFromStoredDrafts, utcMonthStart } from '@/lib/enquiries/usage'
 import { log } from '@/lib/log'
+import { persistLearningProposals } from '@/lib/enquiries/persist-learning'
 import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
@@ -132,7 +133,19 @@ export async function POST(request: Request) {
       })
       .eq('id', prospectId)
 
-    return NextResponse.json({ draft: saved, needsHuman, escalateLabels })
+    if (needsHuman) {
+      await persistLearningProposals({
+        supabase,
+        userId: user.id,
+        prospectId,
+        reasons: escalateReasons ?? [],
+        parentMessage,
+        knowledge: (knowledge ?? []) as { question?: string | null; answer?: string | null }[],
+        voiceNotes: (settings as EnquirySettings).voice_notes,
+      })
+    }
+
+    return NextResponse.json({ draft: saved, needsHuman, escalateLabels, escalateReasons })
   } catch (err) {
     log.error('enquiry_draft_failed', err, { user_id: user.id, prospect_id: prospectId })
     return NextResponse.json({ error: 'Could not draft a reply.' }, { status: 500 })
