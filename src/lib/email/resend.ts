@@ -16,7 +16,7 @@ interface SendEmailOptions {
   from?: string
 }
 
-interface SendEmailResult {
+export interface SendEmailResult {
   success: boolean
   id?: string
   error?: string
