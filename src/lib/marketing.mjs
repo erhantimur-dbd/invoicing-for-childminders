@@ -83,7 +83,7 @@ export const marketing = {
   headline: 'The next parent email should fill a place — not fill your evening.',
   businessEnd: '',
   subhead:
-    'Dottie matches days and hours to a space you have listed, then drafts the reply in your voice. You send it. A visit is offered in your hours. Add invoicing if you want Dottie to handle this once the child is onboarded.',
+    'Dottie matches your inbound enquiries to your vacancies, replies in your voice, and books the parent for a visit.',
   floorLine: 'The business end, handled.',
   flow: [
     {
