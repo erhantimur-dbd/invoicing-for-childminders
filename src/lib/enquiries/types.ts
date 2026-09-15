@@ -127,6 +127,7 @@ export type EnquiryProspect = {
   calendar_provider?: string | null
   needs_human?: boolean
   escalate_reasons?: string[] | null
+  last_escalation_email_at?: string | null
   created_at: string
   updated_at: string
 }

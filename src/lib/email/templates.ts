@@ -421,3 +421,37 @@ export function paymentReceivedEmail({
     html: baseLayout(content),
   }
 }
+
+export function escalationEmail(input: {
+  displayName?: string | null
+  parentName?: string | null
+  childName?: string | null
+  reasons: string[]
+  prospectId: string
+}): { subject: string; html: string } {
+  const who = [input.parentName || 'A parent', input.childName ? `(${input.childName})` : '']
+    .filter(Boolean)
+    .join(' ')
+  const href = `${APP_URL}/enquiries/${encodeURIComponent(input.prospectId)}`
+  const items = (input.reasons.length ? input.reasons : ['Dottie was not sure enough to reply.'])
+    .map((r) => `<li style="margin:0 0 6px;font-size:14px;color:#374151;line-height:1.5;">${esc(r)}</li>`)
+    .join('')
+  const hi = input.displayName ? `Hi ${esc(firstName(input.displayName))},` : 'Hi,'
+  const content = `
+    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">Dottie needs you</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+      ${hi} ${esc(who)} emailed about a place. Dottie could not answer with full confidence, so she did not send a reply.
+    </p>
+    <ul style="margin:0 0 8px;padding-left:20px;">${items}</ul>
+    ${ctaButton('Review this enquiry', href)}
+    <p style="margin:0;font-size:13px;color:#6b7280;">Nothing was sent to the parent.</p>
+  `
+  return {
+    subject: `Needs you: ${who}`.slice(0, 120),
+    html: baseLayout(content),
+  }
+}
+
+function firstName(name: string) {
+  return name.trim().split(/\s+/)[0] || name
+}

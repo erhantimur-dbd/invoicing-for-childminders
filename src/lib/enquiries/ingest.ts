@@ -8,6 +8,8 @@ import { failClosedUsageCount, incrementEnquiryDraftUsage, usageFromStoredDrafts
 import { rateLimit } from '@/lib/rate-limit'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from '@/lib/enquiries/types'
 import { log } from '@/lib/log'
+import { notifyHumanEscalation } from '@/lib/enquiries/notify-escalation'
+import { shouldSendEscalationEmail } from '@/lib/enquiries/notify-escalation.mjs'
 
 type Admin = SupabaseClient
 
@@ -216,7 +218,18 @@ export async function draftAndMaybeSend(input: {
     })
     .eq('id', input.prospect.id)
 
-  if (needsHuman || !input.settings.auto_send_replies || !input.prospect.parent_email) {
+  if (needsHuman) {
+    await maybeEmailChildminder({
+      supabase: input.supabase,
+      userId: input.userId,
+      prospect: input.prospect,
+      settings: input.settings,
+      labels: escalateLabels || [],
+    })
+    return { draftId: saved.id, sent: false, needsHuman, escalateLabels }
+  }
+
+  if (!input.settings.auto_send_replies || !input.prospect.parent_email) {
     return { draftId: saved.id, sent: false, needsHuman, escalateLabels }
   }
 
@@ -257,6 +270,37 @@ export async function draftAndMaybeSend(input: {
   })
   await input.supabase.from('enquiry_messages').update({ status: 'sent' }).eq('id', saved.id)
   return { draftId: saved.id, sent: true }
+}
+
+async function maybeEmailChildminder(input: {
+  supabase: Admin
+  userId: string
+  prospect: EnquiryProspect
+  settings: EnquirySettings
+  labels: string[]
+}) {
+  if (!shouldSendEscalationEmail(input.prospect.last_escalation_email_at)) return
+  const { data: profile } = await input.supabase
+    .from('profiles')
+    .select('email, full_name')
+    .eq('id', input.userId)
+    .maybeSingle()
+  const to = profile?.email
+  if (!to) return
+  const result = await notifyHumanEscalation({
+    to,
+    displayName: input.settings.display_name || profile?.full_name,
+    parentName: input.prospect.parent_name,
+    childName: input.prospect.child_name,
+    reasons: input.labels,
+    prospectId: input.prospect.id,
+  })
+  if (result.sent) {
+    await input.supabase
+      .from('enquiry_prospects')
+      .update({ last_escalation_email_at: new Date().toISOString() })
+      .eq('id', input.prospect.id)
+  }
 }
 
 function escapeHtml(s: string) {
