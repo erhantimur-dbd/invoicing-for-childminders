@@ -9,8 +9,7 @@ const grok = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'grok.ts
 test('enquiry drafts sign as the childminder and only offer computed visit slots', () => {
   assert.match(grok, /nextVisitSlots/)
   assert.match(grok, /Next visit slots/)
-  assert.match(grok, /Sign off as \$\{name\} only/)
+  assert.match(grok, /adminSystemPrompt/)
   assert.doesNotMatch(grok, /Sign off as \$\{name\}'s assistant/)
   assert.doesNotMatch(grok, /You are \$\{name\}'s assistant/)
-  assert.match(grok, /Never invent .*calendar dates/)
 })

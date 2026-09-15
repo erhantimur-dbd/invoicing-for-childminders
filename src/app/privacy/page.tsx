@@ -166,7 +166,7 @@ export default function PrivacyPage() {
 
             <Section id="gmail-enquiries" title="4. Parent enquiries">
               <P>
-                Dottie Enquiries helps you draft replies to parents who have asked for a childcare place. You paste the parent&apos;s message into Dottie. Dottie does not currently connect to Gmail or read your inbox.
+                Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so new parent emails are ingested. Automatic send is off unless you turn it on. Dottie does not sync your whole personal mailbox as a product — she looks for new parent enquiry mail.
               </P>
 
               <div className="space-y-4">
@@ -181,8 +181,8 @@ export default function PrivacyPage() {
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="font-semibold text-gray-800 mb-2">How sending works</p>
                   <Ul items={[
-                    <><strong>Nothing is sent to a parent until you send it</strong> — Dottie drafts a reply in your voice. You copy it, or you tick send on an outcome letter.</>,
-                    <>Auto-send is <strong>not</strong> on. There is no inbox connection to pause or disconnect yet.</>,
+                    <>Dottie drafts a visit letter in your voice. <strong>Automatic send is off until you turn it on</strong> in Your answers. With it off, you copy the draft into Gmail yourself.</>,
+                    <>If you connect Gmail, you can disconnect it at any time. Connecting Calendar lets Dottie write the visit you confirm onto your Google Calendar.</>,
                   ]} />
                 </div>
 
@@ -266,9 +266,15 @@ export default function PrivacyPage() {
                   },
                   {
                     name: 'Resend',
-                    role: 'Transactional email delivery',
+                    role: 'Transactional email delivery, and inbound forwarding of parent emails to your unique Dottie address when you use that backup.',
                     location: 'EU',
                     link: 'https://resend.com/legal/privacy-policy',
+                  },
+                  {
+                    name: 'Google (Gmail and Calendar)',
+                    role: 'If you connect Gmail, we read new parent-enquiry messages and can send a reply from your Gmail when automatic send is on. If you connect Calendar, we create or update the visit you confirm. We do not use your mailbox for advertising.',
+                    location: 'USA (Standard Contractual Clauses apply)',
+                    link: 'https://policies.google.com/privacy',
                   },
                   {
                     name: 'Anthropic (Claude AI)',

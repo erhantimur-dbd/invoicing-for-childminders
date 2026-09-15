@@ -12,6 +12,8 @@ import { Check, ChevronLeft, ChevronRight, Loader2, Plus, Trash2 } from 'lucide-
 import { cn } from '@/lib/utils'
 import { FUNDING_OPTIONS, WEEKDAYS, type VisitingWindow } from '@/lib/enquiries/types'
 import { makeInboundSlug } from '@/lib/enquiries/slug'
+import { Switch } from '@/components/ui/switch'
+import GmailConnect from '@/components/enquiries/GmailConnect'
 
 const STEPS = ['About you', 'Spaces', 'Funding', 'Visits', 'Your answers']
 
@@ -70,6 +72,9 @@ export default function SetupWizard() {
     { question: 'What do the children eat?', answer: '' },
   ])
   const [packNotes, setPackNotes] = useState('')
+  const [autoSend, setAutoSend] = useState(false)
+  const [accountGuardrails, setAccountGuardrails] = useState('')
+  const [inboundSlug, setInboundSlug] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -95,6 +100,9 @@ export default function SetupWizard() {
         setSchemes(settings.funding_schemes || [])
         setStretched(settings.stretched_hours)
         setTermTimeOnly(settings.term_time_only)
+        setAutoSend(Boolean(settings.auto_send_replies))
+        setAccountGuardrails(settings.account_guardrails || '')
+        setInboundSlug(settings.inbound_slug || null)
       }
 
       const { data: vacRows } = await supabase.from('enquiry_vacancies').select('*').eq('user_id', user.id)
@@ -163,6 +171,8 @@ export default function SetupWizard() {
       term_time_only: termTimeOnly,
       visiting_windows: windows,
       inbound_slug: makeInboundSlug(displayName, user.id),
+      auto_send_replies: autoSend,
+      account_guardrails: accountGuardrails.trim() || null,
       setup_completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -481,6 +491,30 @@ export default function SetupWizard() {
             />
             <p className="text-xs text-gray-400">You can attach the real PDFs later. For now, tell Dottie what the pack includes.</p>
           </div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-4 space-y-3">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Send automatic replies</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Off: Dottie drafts, you send. On: she sends the visit letter from your Gmail. Dottie&apos;s reply pattern cannot be turned off.
+                </p>
+              </div>
+              <Switch checked={autoSend} onCheckedChange={setAutoSend} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Your extra rules</Label>
+              <Textarea
+                rows={3}
+                value={accountGuardrails}
+                onChange={(e) => setAccountGuardrails(e.target.value)}
+                placeholder="Optional. Example: Don't mention the dog. Always offer a Saturday if I have listed it."
+              />
+              <p className="text-xs text-gray-400">
+                These sit under Dottie&apos;s locked rules: polite enquiry letters whose job is to secure a visit.
+              </p>
+            </div>
+          </div>
+          <GmailConnect inboundSlug={inboundSlug} />
         </section>
       )}
 

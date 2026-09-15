@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ENQUIRY_STAGE_LABELS, ENQUIRY_STAGES, FUNDING_OPTIONS, type EnquiryProspect } from '@/lib/enquiries/types'
 import { Plus, Settings2 } from 'lucide-react'
+import GmailConnect from '@/components/enquiries/GmailConnect'
 
 function fundingLabel(id: string | null) {
   if (!id) return null
@@ -16,7 +17,7 @@ export default async function EnquiriesPage() {
 
   const { data: settings } = await supabase
     .from('enquiry_settings')
-    .select('setup_completed_at, agent_paused, display_name')
+    .select('setup_completed_at, agent_paused, display_name, inbound_slug')
     .eq('user_id', user.id)
     .maybeSingle()
 
@@ -39,7 +40,7 @@ export default async function EnquiriesPage() {
           <p className="text-gray-500 text-sm mt-1">
             {settings.agent_paused
               ? 'Dottie is paused — she will not draft replies until you turn her back on.'
-              : 'Add a parent who emailed you. Dottie can draft the reply from your answers.'}
+              : 'New parent emails from Gmail show up here. Dottie drafts a visit letter from Your answers.'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -60,11 +61,13 @@ export default async function EnquiriesPage() {
         </div>
       </div>
 
+      <GmailConnect inboundSlug={settings.inbound_slug} />
+
       {open.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-emerald-200 bg-white p-10 text-center">
           <p className="font-semibold text-gray-900 mb-2">No one waiting</p>
           <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
-            When a parent emails about a place, tap Add a parent, paste their message, and let Dottie draft the reply. Connecting Gmail so this happens by itself comes next.
+            Connect Gmail above, or tap Add a parent and paste a message. Dottie drafts a polite visit letter. Automatic send stays off until you turn it on in Your answers.
           </p>
           <Link href="/enquiries/new" className="text-emerald-700 font-semibold">
             Add the first parent →

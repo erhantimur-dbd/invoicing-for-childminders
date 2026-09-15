@@ -22,7 +22,7 @@ export function bothFromSentence() {
 }
 
 export function howMuchDoesDottieCost() {
-  return `${enquiriesPriceSentence()} ${invoicingFromSentence()} ${enquiriesQuotaCopy()} Nothing is sent to a parent until you approve.`
+  return `${enquiriesPriceSentence()} ${invoicingFromSentence()} ${enquiriesQuotaCopy()}`
 }
 
 export function dashboardEnquiriesPitch() {

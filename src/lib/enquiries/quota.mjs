@@ -38,7 +38,7 @@ export function overageAmountGbp(
 
 export function enquiriesQuotaCopy(q = ENQUIRIES_QUOTA) {
   const extra = q.overageGbpPerDraft.toFixed(2)
-  return `${q.includedDraftsPerMonth} AI email drafts a month included. Extra drafts are £${extra} each. You approve before anything is sent to a parent.`
+  return `${q.includedDraftsPerMonth} AI email drafts a month included. Extra drafts are £${extra} each. Automatic send is off until you turn it on.`
 }
 
 /**

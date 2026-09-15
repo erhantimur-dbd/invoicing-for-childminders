@@ -72,6 +72,8 @@ export type EnquirySettings = {
   setup_completed_at: string | null
   certifications?: string | null
   payment_instructions?: string | null
+  auto_send_replies?: boolean
+  account_guardrails?: string | null
 }
 
 export type EnquiryVacancy = {
@@ -116,6 +118,8 @@ export type EnquiryProspect = {
   lost_reason: string | null
   notes: string | null
   last_email_at: string | null
+  calendar_event_id?: string | null
+  calendar_provider?: string | null
   created_at: string
   updated_at: string
 }
@@ -127,6 +131,7 @@ export type EnquiryMessage = {
   direction: 'in' | 'out' | 'draft'
   subject: string | null
   body: string
+  provider_message_id?: string | null
   from_address: string | null
   to_address: string | null
   status: string

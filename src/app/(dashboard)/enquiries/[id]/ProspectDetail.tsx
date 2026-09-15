@@ -140,9 +140,30 @@ export default function ProspectDetail({
         <Input
           type="datetime-local"
           value={prospect.visit_at ? prospect.visit_at.slice(0, 16) : ''}
-          onChange={(e) => savePatch({ visit_at: e.target.value ? new Date(e.target.value).toISOString() : null, stage: e.target.value ? 'visit' : prospect.stage })}
+          onChange={async (e) => {
+            const visitAt = e.target.value ? new Date(e.target.value).toISOString() : null
+            setSaving(true)
+            const res = await fetch('/api/enquiries/visit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ prospectId: prospect.id, visitAt }),
+            })
+            setSaving(false)
+            if (!res.ok) {
+              toast.error('Could not save the visit.')
+              return
+            }
+            const data = await res.json()
+            setProspect({
+              ...prospect,
+              visit_at: data.visit_at,
+              stage: data.visit_at ? 'visit' : prospect.stage,
+              calendar_event_id: data.calendar_event_id,
+            })
+            toast.success(data.calendar_event_id ? 'Visit saved on Google Calendar.' : 'Visit saved.')
+          }}
         />
-        <p className="text-xs text-gray-400">Google Calendar booking comes next. For now, put the time you agreed.</p>
+        <p className="text-xs text-gray-400">Saving a time puts it on your Google Calendar and invites the parent if we have their email.</p>
       </div>
 
       {prospect.stage === 'lost' || prospect.stage === 'started' ? null : (

@@ -27,6 +27,8 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith('/api/stripe/webhook')) return true
   // Vercel cron — bearer-token-verified at the route
   if (pathname.startsWith('/api/cron/')) return true
+  if (pathname.startsWith('/api/integrations/google/callback')) return true
+  if (pathname === '/api/enquiries/inbound') return true
   // Sitemap proxy
   if (pathname.startsWith('/api/sitemap')) return true
   // Public invoice view (DOB-gated for parents)

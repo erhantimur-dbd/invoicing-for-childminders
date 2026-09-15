@@ -10,6 +10,7 @@ import { completeChat } from '@/lib/ai/complete-chat'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from './types'
 import { ENQUIRY_STAGE_LABELS, FUNDING_OPTIONS, WEEKDAYS } from './types'
 import { parentBlockForModel } from './draft-prompt.mjs'
+import { accountCustomisationBlock, adminSystemPrompt } from './guardrails.mjs'
 import { nextVisitSlots } from './visit-policy.mjs'
 
 function fundingLabel(id: string | null): string {
@@ -62,20 +63,7 @@ export async function draftEnquiryReply(input: {
     : 'none listed. Do not invent a calendar date.'
 
   const name = input.settings.display_name || 'the childminder'
-  const system = `You write emails for ${name}, a registered childminder in England. Write in ${name}'s voice, as ${name}.
-
-Voice: warm, plain English, short paragraphs, like a real childminder on her phone in the evening. No corporate sales language. No emojis unless the childminder's notes use them.
-
-Hard rules:
-- Only use facts from the setting notes, answers, and spaces below. If you do not know, say you will check and come back.
-- Never invent Ofsted ratings, availability, fees, calendar dates, or other children's names.
-- Never give medical, legal, or safeguarding advice.
-- Funded hours (15/30) are not automatically free wraparound. Consumables may be extra. Do not promise "free childcare".
-- If there is no matching space, be kind and offer a waitlist. Do not pretend a place exists.
-- Ask at most three questions if facts are missing: start date, days/hours, funding (private / 15 hours / 30 hours).
-- Offer visit times only from "Next visit slots". Copy those dates and times. If none are listed, ask which evening in the visiting hours works — do not pick a date yourself.
-- Sign off as ${name} only. Do not say you are an assistant or AI.
-- Do not include a subject line. Write the email body only.`
+  const system = adminSystemPrompt(name)
 
   const user = `Setting
 Name: ${name}
@@ -103,6 +91,8 @@ ${slotBlock}
 
 Your answers
 ${knowledgeLines(input.knowledge)}
+
+${accountCustomisationBlock(input.settings.account_guardrails)}
 
 ${parentBlockForModel(
   {
