@@ -98,7 +98,13 @@ export async function POST(request: Request) {
       )
     }
 
-    const { body, model } = run.result as { body: string; model: string }
+    const { body, model, needsHuman, escalateReasons, escalateLabels } = run.result as {
+      body: string
+      model: string
+      needsHuman: boolean
+      escalateReasons: string[]
+      escalateLabels: string[]
+    }
 
     const { data: saved, error } = await supabase
       .from('enquiry_messages')
@@ -108,7 +114,7 @@ export async function POST(request: Request) {
         direction: 'draft',
         body,
         to_address: prospect.parent_email,
-        status: 'draft',
+        status: needsHuman ? 'needs_human' : 'draft',
         model,
       })
       .select('*')
@@ -120,11 +126,13 @@ export async function POST(request: Request) {
       .from('enquiry_prospects')
       .update({
         stage: prospect.stage === 'new' ? 'chatting' : prospect.stage,
+        needs_human: needsHuman,
+        escalate_reasons: escalateReasons ?? [],
         updated_at: new Date().toISOString(),
       })
       .eq('id', prospectId)
 
-    return NextResponse.json({ draft: saved })
+    return NextResponse.json({ draft: saved, needsHuman, escalateLabels })
   } catch (err) {
     log.error('enquiry_draft_failed', err, { user_id: user.id, prospect_id: prospectId })
     return NextResponse.json({ error: 'Could not draft a reply.' }, { status: 500 })

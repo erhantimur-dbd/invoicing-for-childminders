@@ -58,16 +58,18 @@ export function missingFactQuestions(prospect) {
 }
 
 function placeSentence(input) {
-  const days = weekdayList(parseRequestedWeekdays(input.prospect?.days_needed))
-  const dayBit = days.length ? ` on ${days.join(', ')}` : ''
   const matches = matchingVacancies(input.prospect, input.vacancies)
+  const matchedDays = weekdayList([...new Set(matches.map((v) => v.weekday))].sort((a, b) => a - b))
+  const dayBit = matchedDays.length ? ` on ${matchedDays.join(', ')}` : ''
   if (matches.length) {
     return `I do have a space${dayBit}, so that could work.`
   }
+  const requested = weekdayList(parseRequestedWeekdays(input.prospect?.days_needed))
+  const requestedBit = requested.length ? ` on ${requested.join(', ')}` : ' for those days'
   if (input.settings?.offer_waitlist !== false) {
-    return `I do not have a matching space${dayBit || ' for those days'} at the moment. I can add you to the waitlist if that would help.`
+    return `I do not have a matching space${requestedBit} at the moment. I can add you to the waitlist if that would help.`
   }
-  return `I do not have a matching space${dayBit || ' for those days'} at the moment.`
+  return `I do not have a matching space${requestedBit} at the moment.`
 }
 
 function feesSentence(input) {

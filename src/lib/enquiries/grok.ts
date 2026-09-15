@@ -6,6 +6,7 @@ import { completeChat } from '@/lib/ai/complete-chat'
 import type { EnquiryKnowledge, EnquiryProspect, EnquirySettings, EnquiryVacancy } from './types'
 import { extractFactsFromText, factsStillMissing, mergeProspectFacts } from './extract-facts.mjs'
 import { assembleEnquiryLetter, letterFailsGuardrails } from './letter-template.mjs'
+import { decideHumanEscalation } from './escalate.mjs'
 import { log } from '@/lib/log'
 
 function parseJsonObject(text: string): Record<string, string> {
@@ -48,15 +49,18 @@ export async function draftEnquiryReply(input: {
   knowledge: EnquiryKnowledge[]
   prospect: EnquiryProspect
   parentMessage?: string
-}): Promise<{ body: string; model: string }> {
+}): Promise<{ body: string; model: string; needsHuman: boolean; escalateReasons: string[]; escalateLabels: string[] }> {
   const fromText = input.parentMessage ? extractFactsFromText(input.parentMessage) : {}
   let prospect = mergeProspectFacts(input.prospect, fromText)
+  let usedAiExtract = false
 
   const missing = factsStillMissing(prospect)
   if (input.parentMessage && missing.length) {
     try {
       const fromModel = await extractWithModel(input.parentMessage)
+      const before = JSON.stringify(prospect)
       prospect = mergeProspectFacts(prospect, fromModel)
+      usedAiExtract = JSON.stringify(prospect) !== before
     } catch (err) {
       log.warn('enquiry_extract_failed', { error: err instanceof Error ? err.message : 'fail' })
     }
@@ -80,5 +84,20 @@ export async function draftEnquiryReply(input: {
     })
   }
 
-  return { body, model: 'template' }
+  const escalation = decideHumanEscalation({
+    prospect,
+    settings: input.settings,
+    vacancies: input.vacancies,
+    knowledge: input.knowledge,
+    parentMessage: input.parentMessage,
+    usedAiExtract,
+  })
+
+  return {
+    body,
+    model: 'template',
+    needsHuman: !escalation.confident,
+    escalateReasons: escalation.reasons,
+    escalateLabels: escalation.labels,
+  }
 }

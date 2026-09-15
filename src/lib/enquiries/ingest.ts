@@ -184,7 +184,13 @@ export async function draftAndMaybeSend(input: {
   if (!run.ok) {
     return { draftId: null, sent: false, error: run.decision.error }
   }
-  const { body, model } = run.result as { body: string; model: string }
+  const { body, model, needsHuman, escalateReasons, escalateLabels } = run.result as {
+    body: string
+    model: string
+    needsHuman: boolean
+    escalateReasons: string[]
+    escalateLabels: string[]
+  }
   const { data: saved, error } = await input.supabase
     .from('enquiry_messages')
     .insert({
@@ -193,7 +199,7 @@ export async function draftAndMaybeSend(input: {
       direction: 'draft',
       body,
       to_address: input.prospect.parent_email,
-      status: 'draft',
+      status: needsHuman ? 'needs_human' : 'draft',
       model,
     })
     .select('id, body')
@@ -204,12 +210,14 @@ export async function draftAndMaybeSend(input: {
     .from('enquiry_prospects')
     .update({
       stage: input.prospect.stage === 'new' ? 'chatting' : input.prospect.stage,
+      needs_human: needsHuman,
+      escalate_reasons: escalateReasons ?? [],
       updated_at: new Date().toISOString(),
     })
     .eq('id', input.prospect.id)
 
-  if (!input.settings.auto_send_replies || !input.prospect.parent_email) {
-    return { draftId: saved.id, sent: false }
+  if (needsHuman || !input.settings.auto_send_replies || !input.prospect.parent_email) {
+    return { draftId: saved.id, sent: false, needsHuman, escalateLabels }
   }
 
   const { data: conn } = await input.supabase

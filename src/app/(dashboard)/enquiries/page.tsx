@@ -93,6 +93,11 @@ export default async function EnquiriesPage() {
                           <p className="font-semibold text-gray-900">
                             {p.parent_name || 'Parent'}
                             {p.child_name ? <span className="text-gray-500 font-medium"> · {p.child_name}</span> : null}
+                            {p.needs_human ? (
+                              <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
+                                Needs you
+                              </span>
+                            ) : null}
                           </p>
                           <p className="text-sm text-gray-500 mt-0.5">
                             {[p.days_needed, p.start_date ? `from ${p.start_date}` : null, fundingLabel(p.funding)]

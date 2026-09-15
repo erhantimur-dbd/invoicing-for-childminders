@@ -19,6 +19,7 @@ import {
   type EnquiryStage,
 } from '@/lib/enquiries/types'
 import { addToInvoicingHref } from '@/lib/enquiries/prospect-to-child.mjs'
+import { ESCALATE_LABELS } from '@/lib/enquiries/escalate.mjs'
 
 export default function ProspectDetail({
   prospect: initial,
@@ -77,8 +78,17 @@ export default function ProspectDetail({
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Draft failed')
       setMessages((prev) => [...prev, data.draft])
-      if (prospect.stage === 'new') setProspect({ ...prospect, stage: 'chatting' })
-      toast.success('Draft ready — read it, then send from your own email.')
+      setProspect({
+        ...prospect,
+        stage: prospect.stage === 'new' ? 'chatting' : prospect.stage,
+        needs_human: Boolean(data.needsHuman),
+        escalate_reasons: data.escalateReasons || [],
+      })
+      toast.success(
+        data.needsHuman
+          ? 'Dottie needs you — she was not sure enough to send this.'
+          : 'Draft ready — read it, then send from your own email.',
+      )
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not draft a reply.')
     } finally {
@@ -165,6 +175,26 @@ export default function ProspectDetail({
         />
         <p className="text-xs text-gray-400">Saving a time puts it on your Google Calendar and invites the parent if we have their email.</p>
       </div>
+
+      {prospect.needs_human ? (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-950 space-y-2">
+          <p className="font-semibold">Dottie needs you</p>
+          <p>She could not answer this with full confidence, so she did not send it.</p>
+          <ul className="list-disc pl-5 space-y-1">
+            {(prospect.escalate_reasons || []).map((r) => (
+              <li key={r}>{ESCALATE_LABELS[r] || r}</li>
+            ))}
+          </ul>
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-xl"
+            onClick={() => savePatch({ needs_human: false, escalate_reasons: [] })}
+          >
+            I&apos;ll take this
+          </Button>
+        </div>
+      ) : null}
 
       {prospect.stage === 'lost' || prospect.stage === 'started' ? null : (
         <div className="flex flex-wrap gap-2">
