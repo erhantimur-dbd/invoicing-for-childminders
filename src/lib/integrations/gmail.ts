@@ -53,7 +53,7 @@ export async function listRecentInbox(refreshToken: string, doFetch: typeof fetc
       labelIds?: string[]
       payload?: { headers?: { name: string; value: string }[]; mimeType?: string; body?: { data?: string }; parts?: unknown[] }
     }
-    const headers = headerMap(msg.payload?.headers)
+    const headers = headerMap(msg.payload?.headers) as Record<string, string>
     out.push({
       id: msg.id,
       threadId: msg.threadId,
