@@ -42,6 +42,8 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith('/api/contact')) return true
   // Parent starter-pack downloads (no account)
   if (pathname === '/pack' || pathname.startsWith('/pack/')) return true
+  if (pathname.startsWith('/signup-place/')) return true
+  if (pathname === '/api/enquiries/onboard' || pathname.startsWith('/api/enquiries/onboard')) return true
   return false
 }
 

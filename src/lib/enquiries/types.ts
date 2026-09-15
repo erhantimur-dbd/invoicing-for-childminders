@@ -79,6 +79,7 @@ export type EnquirySettings = {
   template_closing?: string | null
   include_ofsted?: boolean
   learned_nuances?: string[] | null
+  onboarding_style?: 'simple' | 'comprehensive' | null
 }
 
 export type EnquiryVacancy = {

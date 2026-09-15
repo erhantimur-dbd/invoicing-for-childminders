@@ -45,9 +45,41 @@ export async function POST(request: NextRequest) {
 
   // Bank details on the children row may be encrypted (post-backfill).
   // Decrypt here, server-side, before injecting into the email.
-  if (child) {
-    child.bank_sort_code = decryptField(child.bank_sort_code) ?? ''
-    child.bank_account_number = decryptField(child.bank_account_number) ?? ''
+  let payee = {
+    bank_name: '',
+    account_name: '',
+    sort_code: '',
+    account_number: '',
+  }
+  if (child?.bank_account_number) {
+    payee = {
+      bank_name: child.bank_name || '',
+      account_name: child.bank_account_name || '',
+      sort_code: decryptField(child.bank_sort_code) ?? '',
+      account_number: decryptField(child.bank_account_number) ?? '',
+    }
+  } else if (profile.primary_bank_account_id) {
+    const { data: bank } = await supabase
+      .from('bank_accounts')
+      .select('bank_name, account_name, sort_code, account_number')
+      .eq('id', profile.primary_bank_account_id)
+      .maybeSingle()
+    if (bank) {
+      payee = {
+        bank_name: bank.bank_name || '',
+        account_name: bank.account_name || '',
+        sort_code: decryptField(bank.sort_code) ?? '',
+        account_number: decryptField(bank.account_number) ?? '',
+      }
+    }
+  }
+  if (!payee.account_number && profile.default_bank_account_number) {
+    payee = {
+      bank_name: profile.default_bank_name || '',
+      account_name: profile.default_bank_account_name || '',
+      sort_code: decryptField(profile.default_bank_sort_code) ?? '',
+      account_number: decryptField(profile.default_bank_account_number) ?? '',
+    }
   }
 
   if (!child?.parent_email) {
@@ -71,16 +103,18 @@ export async function POST(request: NextRequest) {
     </tr>
   `).join('')
 
-  const bankHtml = child.bank_account_number ? `
+  const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
+  const viewUrl = `${origin.replace(/\/$/, '')}/invoice/${invoice.id}`
+  const bankHtml = payee.account_number ? `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:20px;">
-      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Bank transfer details</p>
-      ${child.bank_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Bank:</strong> ${esc(child.bank_name)}</p>` : ''}
-      ${child.bank_account_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Account name:</strong> ${esc(child.bank_account_name)}</p>` : ''}
-      ${child.bank_sort_code ? `<p style="margin:2px 0;font-size:14px;"><strong>Sort code:</strong> ${esc(child.bank_sort_code)}</p>` : ''}
-      ${child.bank_account_number ? `<p style="margin:2px 0;font-size:14px;"><strong>Account number:</strong> ${esc(child.bank_account_number)}</p>` : ''}
+      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Dottie</p>
+      ${payee.bank_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Bank:</strong> ${esc(payee.bank_name)}</p>` : ''}
+      ${payee.account_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Account name:</strong> ${esc(payee.account_name)}</p>` : ''}
+      ${payee.sort_code ? `<p style="margin:2px 0;font-size:14px;"><strong>Sort code:</strong> ${esc(payee.sort_code)}</p>` : ''}
+      ${payee.account_number ? `<p style="margin:2px 0;font-size:14px;"><strong>Account number:</strong> ${esc(payee.account_number)}</p>` : ''}
       <p style="margin:8px 0 0;font-size:14px;color:#6b7280;"><strong>Reference:</strong> ${esc(invoice.invoice_number)}</p>
     </div>
-  ` : ''
+  ` : `<p style="margin-top:16px;font-size:14px;color:#6b7280;">Pay by bank transfer using the details your childminder has given you. You do not pay through Dottie.</p>`
 
   const html = `
     <!DOCTYPE html>
@@ -111,13 +145,11 @@ export async function POST(request: NextRequest) {
       </div>
       ${invoice.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
       ${bankHtml}
-      ${invoice.stripe_payment_link ? `
-        <div style="margin-top:20px;text-align:center;">
-          <a href="${esc(invoice.stripe_payment_link)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
-            Pay online now
-          </a>
-        </div>
-      ` : ''}
+      <div style="margin-top:20px;text-align:center;">
+        <a href="${esc(viewUrl)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
+          View invoice
+        </a>
+      </div>
       ${invoice.notes ? `<p style="margin-top:20px;padding:12px;background:#fffbeb;border-radius:8px;font-size:14px;">${esc(invoice.notes)}</p>` : ''}
       <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;">
       <p style="font-size:12px;color:#9ca3af;text-align:center;">

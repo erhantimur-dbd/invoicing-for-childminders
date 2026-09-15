@@ -80,6 +80,7 @@ export default function SetupWizard() {
   const [templateClosing, setTemplateClosing] = useState('')
   const [includeOfsted, setIncludeOfsted] = useState(false)
   const [learnedNuances, setLearnedNuances] = useState<string[]>([])
+  const [onboardingStyle, setOnboardingStyle] = useState<'simple' | 'comprehensive'>('simple')
 
   useEffect(() => {
     async function load() {
@@ -113,6 +114,7 @@ export default function SetupWizard() {
         setTemplateClosing(settings.template_closing || '')
         setIncludeOfsted(Boolean(settings.include_ofsted))
         setLearnedNuances(Array.isArray(settings.learned_nuances) ? settings.learned_nuances : [])
+        setOnboardingStyle(settings.onboarding_style === 'comprehensive' ? 'comprehensive' : 'simple')
       }
 
       const { data: vacRows } = await supabase.from('enquiry_vacancies').select('*').eq('user_id', user.id)
@@ -188,6 +190,7 @@ export default function SetupWizard() {
       template_closing: templateClosing.trim() || null,
       include_ofsted: includeOfsted,
       learned_nuances: learnedNuances,
+      onboarding_style: onboardingStyle,
       setup_completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -511,6 +514,26 @@ export default function SetupWizard() {
             <p className="text-xs text-gray-500">
               Dottie always writes: greeting, the place, hours if needed, a visit ask, then your name. You can add a line and turn waitlist on or off.
             </p>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-800">When you win a place</p>
+              <p className="text-xs text-gray-500">Simple is parent and child details. Comprehensive also sends your policies and bank-transfer details.</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className={`h-10 px-3 rounded-xl text-sm font-medium border ${onboardingStyle === 'simple' ? 'bg-emerald-600 text-white border-emerald-600' : 'border-gray-200 text-gray-700'}`}
+                  onClick={() => setOnboardingStyle('simple')}
+                >
+                  Simple
+                </button>
+                <button
+                  type="button"
+                  className={`h-10 px-3 rounded-xl text-sm font-medium border ${onboardingStyle === 'comprehensive' ? 'bg-emerald-600 text-white border-emerald-600' : 'border-gray-200 text-gray-700'}`}
+                  onClick={() => setOnboardingStyle('comprehensive')}
+                >
+                  Comprehensive
+                </button>
+              </div>
+            </div>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-800">Offer a waitlist</p>

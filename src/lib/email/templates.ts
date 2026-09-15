@@ -455,3 +455,53 @@ export function escalationEmail(input: {
 function firstName(name: string) {
   return name.trim().split(/\s+/)[0] || name
 }
+
+export function placeOfferEmail(input: {
+  parentName?: string | null
+  childName?: string | null
+  childminderName?: string | null
+  formUrl: string
+  comprehensive?: boolean
+}): { subject: string; html: string } {
+  const parent = firstName(input.parentName || '') || 'there'
+  const cm = input.childminderName || 'your childminder'
+  const child = input.childName ? ` for ${input.childName}` : ''
+  const extra = input.comprehensive
+    ? 'You will also see policies and how invoices are paid (bank transfer).'
+    : 'It only asks for your details and your child’s details.'
+  const content = `
+    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">You have been offered a place${esc(child)}</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form so they can get you on roll.
+      ${esc(extra)}
+    </p>
+    ${ctaButton('Complete signup', input.formUrl)}
+    <p style="margin:0;font-size:13px;color:#6b7280;">This link expires in 7 days. You do not pay through Dottie — invoices will show bank transfer details.</p>
+  `
+  return {
+    subject: `Place offered${child ? child : ''} — complete signup`,
+    html: baseLayout(content),
+  }
+}
+
+export function childOnboardedEmail(input: {
+  displayName?: string | null
+  childName?: string | null
+  parentName?: string | null
+  childId: string
+}): { subject: string; html: string } {
+  const hi = input.displayName ? `Hi ${esc(firstName(input.displayName))},` : 'Hi,'
+  const child = input.childName || 'The child'
+  const href = `${APP_URL}/invoices/new?child=${encodeURIComponent(input.childId)}`
+  const content = `
+    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">${esc(child)} is onboarded</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+      ${hi} ${esc(input.parentName || 'The parent')} completed the signup form. You can raise the first invoice when you are ready.
+    </p>
+    ${ctaButton('Create first invoice', href)}
+  `
+  return {
+    subject: `${child} is onboarded`,
+    html: baseLayout(content),
+  }
+}

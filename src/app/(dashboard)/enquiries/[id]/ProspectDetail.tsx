@@ -222,27 +222,75 @@ export default function ProspectDetail({
             {drafting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
             Draft a reply
           </Button>
-          <Button variant="outline" className="rounded-xl" onClick={() => setStage('accepted')} disabled={saving}>
-            They want to start
+          <Button
+            className="rounded-xl bg-emerald-700 hover:bg-emerald-800"
+            disabled={saving}
+            onClick={async () => {
+              setSaving(true)
+              const res = await fetch('/api/enquiries/close', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prospectId: prospect.id, outcome: 'won' }),
+              })
+              const data = await res.json()
+              setSaving(false)
+              if (!res.ok) {
+                toast.error(data.error || 'Could not send signup.')
+                return
+              }
+              setProspect({ ...prospect, stage: 'accepted' })
+              toast.success('Signup form emailed to the parent.')
+            }}
+          >
+            Won / send signup
           </Button>
-          <Button variant="outline" className="rounded-xl" onClick={() => setStage('started')} disabled={saving}>
-            They&apos;ve started
+          <Button
+            variant="outline"
+            className="rounded-xl text-gray-700"
+            disabled={saving}
+            onClick={async () => {
+              setSaving(true)
+              const res = await fetch('/api/enquiries/close', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prospectId: prospect.id, outcome: 'lost', lostReason }),
+              })
+              setSaving(false)
+              if (!res.ok) {
+                toast.error('Could not close.')
+                return
+              }
+              setProspect({ ...prospect, stage: 'lost' })
+              toast.success('Marked as no interest.')
+            }}
+          >
+            Lost / no interest
           </Button>
         </div>
       )}
 
-      {prospect.stage === 'accepted' || prospect.stage === 'started' ? (
-        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900 space-y-3">
-          <p>
-            {prospect.stage === 'accepted'
-              ? 'Email them your contract and starter pack from Gmail. When they are on roll, add them to invoicing.'
-              : 'They are on roll. Add them to invoicing so Dottie can raise invoices.'}
-          </p>
+      {prospect.stage === 'accepted' ? (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900 space-y-2">
+          <p className="font-semibold">Waiting for the parent to complete signup</p>
+          <p>They have a 7-day link. You can still add them yourself if they are already on roll.</p>
           <Link
             href={addToInvoicingHref({ invoicingActive, prospectId: prospect.id })}
             className="inline-flex items-center h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium"
           >
-            Add to invoicing
+            Already on roll
+          </Link>
+        </div>
+      ) : null}
+
+      {prospect.stage === 'started' ? (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-950 space-y-2">
+          <p className="font-semibold">Onboarded</p>
+          <p>Dottie can raise invoices from their days and rates. Parents pay by bank transfer — not through Dottie.</p>
+          <Link
+            href="/invoices/new"
+            className="inline-flex items-center h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium"
+          >
+            Create first invoice
           </Link>
         </div>
       ) : null}
