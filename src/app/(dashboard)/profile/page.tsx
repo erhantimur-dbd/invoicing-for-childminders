@@ -33,6 +33,7 @@ export default function ProfilePage() {
     postcode: '',
     ofsted_number: '',
     show_ofsted_on_invoice: false,
+    accept_online_payments: false,
     invoice_frequency: 'weekly',
     invoice_day: 'sunday',
     invoice_hour: 7,
@@ -73,6 +74,7 @@ export default function ProfilePage() {
         postcode: profile.postcode,
         ofsted_number: profile.ofsted_number || null,
         show_ofsted_on_invoice: profile.show_ofsted_on_invoice ?? false,
+        accept_online_payments: profile.accept_online_payments ?? false,
         invoice_frequency: profile.invoice_frequency || 'weekly',
         invoice_day: profile.invoice_day || 'sunday',
         invoice_hour: profile.invoice_hour ?? 7,
@@ -253,6 +255,18 @@ export default function ProfilePage() {
             {!profile.ofsted_number && (
               <p className="text-xs text-gray-400">Enter your Ofsted number above to enable this toggle</p>
             )}
+            <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3.5">
+              <div>
+                <p className="text-sm font-medium text-gray-900">Accept online payments</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Parents can pay via your Stripe or PayPal link on the invoice. Dottie never takes the money or chargebacks. Bank transfer still shows.
+                </p>
+              </div>
+              <Switch
+                checked={profile.accept_online_payments ?? false}
+                onCheckedChange={v => set('accept_online_payments', v)}
+              />
+            </div>
           </CardContent>
         </Card>
 

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { format } from 'date-fns'
 import { decryptField } from '@/lib/crypto'
+import { invoicePayButtonHtml, invoicePayHref } from '@/lib/invoices/pay-link.mjs'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
@@ -150,6 +151,11 @@ export async function POST(request: NextRequest) {
           View invoice
         </a>
       </div>
+      ${invoicePayButtonHtml(invoicePayHref({
+        acceptOnlinePayments: Boolean(profile.accept_online_payments),
+        payUrl: invoice.stripe_payment_link,
+        status: invoice.status,
+      }))}
       ${invoice.notes ? `<p style="margin-top:20px;padding:12px;background:#fffbeb;border-radius:8px;font-size:14px;">${esc(invoice.notes)}</p>` : ''}
       <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;">
       <p style="font-size:12px;color:#9ca3af;text-align:center;">

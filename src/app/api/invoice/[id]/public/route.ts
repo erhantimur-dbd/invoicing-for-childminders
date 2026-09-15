@@ -39,7 +39,7 @@ export async function GET(
   // Childminder profile + primary bank account
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('full_name, email, phone, address_line1, address_line2, city, postcode, ofsted_number, show_ofsted_on_invoice, primary_bank_account_id')
+    .select('full_name, email, phone, address_line1, address_line2, city, postcode, ofsted_number, show_ofsted_on_invoice, primary_bank_account_id, accept_online_payments')
     .eq('id', invoice.childminder_id)
     .single()
 

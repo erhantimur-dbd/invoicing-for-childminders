@@ -17,6 +17,7 @@ export type Profile = {
   // Ofsted
   ofsted_number: string | null
   show_ofsted_on_invoice: boolean
+  accept_online_payments?: boolean
   // Invoice generation
   invoice_frequency: 'weekly' | 'fortnightly' | 'monthly'
   invoice_day: string

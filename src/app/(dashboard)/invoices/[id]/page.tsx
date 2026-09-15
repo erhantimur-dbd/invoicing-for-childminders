@@ -491,9 +491,9 @@ export default function InvoicePage() {
               <div className="flex items-center gap-2">
                 <Link2 className="h-5 w-5 text-emerald-600" />
                 <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">Payment link</p>
+                  <p className="text-sm font-medium text-gray-900">Your Stripe or PayPal link</p>
                   <p className="text-xs text-gray-500">
-                    {invoice.stripe_payment_link ? 'Parents can pay online' : 'Not set'}
+                    {invoice.stripe_payment_link ? 'Pay button uses this link' : 'Not set — turn on online payments in Settings'}
                   </p>
                 </div>
               </div>
@@ -507,13 +507,13 @@ export default function InvoicePage() {
                   <Input
                     type="url"
                     inputMode="url"
-                    placeholder="https://buy.stripe.com/…"
+                    placeholder="https://buy.stripe.com/… or PayPal.Me"
                     value={paymentLink}
                     onChange={e => setPaymentLink(e.target.value)}
                     className="h-11"
                   />
                   <p className="text-xs text-gray-400">
-                    Paste a payment link (e.g. from Stripe, Monzo or PayPal). A &quot;Pay now&quot; button appears on the invoice page and in emails to the parent.
+                    Paste your own Stripe Payment Link or PayPal link for this invoice total. Dottie does not take the payment. Turn on Accept online payments in Settings or parents only see bank transfer.
                   </p>
                 </div>
                 <Button
