@@ -182,7 +182,7 @@ export default function ProspectDetail({
           <p>She could not answer this with full confidence, so she did not send it.</p>
           <ul className="list-disc pl-5 space-y-1">
             {(prospect.escalate_reasons || []).map((r) => (
-              <li key={r}>{ESCALATE_LABELS[r] || r}</li>
+              <li key={r}>{(ESCALATE_LABELS as Record<string, string>)[r] || r}</li>
             ))}
           </ul>
           <Button
