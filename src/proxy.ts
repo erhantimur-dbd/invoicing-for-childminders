@@ -44,6 +44,7 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname === '/pack' || pathname.startsWith('/pack/')) return true
   if (pathname.startsWith('/signup-place/')) return true
   if (pathname === '/api/enquiries/onboard' || pathname.startsWith('/api/enquiries/onboard')) return true
+  if (pathname.startsWith('/api/invoices/pay/')) return true
   return false
 }
 

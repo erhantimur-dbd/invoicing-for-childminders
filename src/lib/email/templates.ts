@@ -335,6 +335,7 @@ export function paymentReminderEmail({
     </table>
 
     ${payUrl ? ctaButton('Pay now', payUrl) : ''}
+    ${payUrl ? `<p style="margin:0 0 16px;font-size:12px;color:#6b7280;">Your childminder uses their own Stripe or PayPal. Dottie doesn't handle payments, refunds or disputes.</p>` : ''}
     ${ctaButton('View invoice', publicUrl)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">

@@ -20,6 +20,7 @@ import {
   Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link2, Trash2, Undo2
 } from 'lucide-react'
 import InvoiceLineItemEditor from '@/components/InvoiceLineItemEditor'
+import PayDisclaimer from '@/components/PayDisclaimer'
 import type { Invoice, Profile, BankAccount } from '@/lib/types'
 import { format } from 'date-fns'
 import { paymentLinkSchema } from '@/lib/validation'
@@ -491,9 +492,16 @@ export default function InvoicePage() {
               <div className="flex items-center gap-2">
                 <Link2 className="h-5 w-5 text-emerald-600" />
                 <div className="text-left">
-                  <p className="text-sm font-medium text-gray-900">Your Stripe or PayPal link</p>
+                  <p className="text-sm font-medium text-gray-900 inline-flex items-center gap-1.5">
+                    Your Stripe or PayPal link
+                    <PayDisclaimer />
+                  </p>
                   <p className="text-xs text-gray-500">
-                    {invoice.stripe_payment_link ? 'Pay button uses this link' : 'Not set — turn on online payments in Settings'}
+                    {profile?.stripe_connect_charges_enabled
+                      ? 'Pay uses your connected Stripe for this total. Paste a PayPal/Stripe link only as a fallback.'
+                      : invoice.stripe_payment_link
+                        ? 'Pay button uses this link'
+                        : 'Optional fallback — Connect Stripe in Settings for card payments'}
                   </p>
                 </div>
               </div>
@@ -513,7 +521,7 @@ export default function InvoicePage() {
                     className="h-11"
                   />
                   <p className="text-xs text-gray-400">
-                    Paste your own Stripe Payment Link or PayPal link for this invoice total. Dottie does not take the payment. Turn on Accept online payments in Settings or parents only see bank transfer.
+                    Connect Stripe in Settings for the exact invoice total. Or paste a PayPal/Stripe link. Turn on Accept online payments or parents only see bank transfer.
                   </p>
                 </div>
                 <Button

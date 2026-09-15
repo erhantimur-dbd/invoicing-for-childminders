@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { log } from '@/lib/log'
+import { accountCanCharge, stripeClient } from '@/lib/stripe/connect'
 
 function createServiceClient() {
   return createServerClient(
@@ -61,13 +62,29 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (event.type) {
-      case 'checkout.session.completed': {
+      case 'checkout.session.completed':
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object as import('stripe').Stripe.Checkout.Session
+        if (session.metadata?.dottie_kind === 'parent_invoice' && session.metadata.invoice_id) {
+          if (session.payment_status === 'paid' || session.payment_status === 'no_payment_required' || event.type === 'checkout.session.async_payment_succeeded') {
+            await supabase
+              .from('invoices')
+              .update({
+                status: 'paid',
+                paid_at: new Date().toISOString(),
+                payment_method: 'stripe',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', session.metadata.invoice_id)
+          }
+          break
+        }
+        if (event.type === 'checkout.session.async_payment_succeeded') break
         // Attach Stripe customer + subscription IDs. Enquiries has no self-serve
         // trial — a paid checkout must set enquiries_status so the success page
         // (which polls status, not Stripe IDs) does not race subscription.updated.
         // Invoicing status still comes from customer.subscription.created/updated
         // so admin-granted trials are not overwritten as 'active'.
-        const session = event.data.object as import('stripe').Stripe.Checkout.Session
         const userId = session.metadata?.user_id
         const plan = session.metadata?.plan
         const tier = session.metadata?.tier
@@ -295,6 +312,25 @@ export async function POST(request: NextRequest) {
             })
             .eq('stripe_customer_id', stripeCustomerId)
         }
+        break
+      }
+
+      case 'account.updated': {
+        const account = event.data.object as { id: string; charges_enabled?: boolean }
+        let ready = Boolean(account.charges_enabled)
+        try {
+          const stripe = stripeClient()
+          ready = await accountCanCharge(stripe, account.id)
+        } catch {
+          // keep charges_enabled from the event
+        }
+        await supabase
+          .from('profiles')
+          .update({
+            stripe_connect_charges_enabled: ready,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('stripe_connect_account_id', account.id)
         break
       }
 

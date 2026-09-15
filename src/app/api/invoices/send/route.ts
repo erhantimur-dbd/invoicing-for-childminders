@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { format } from 'date-fns'
 import { decryptField } from '@/lib/crypto'
 import { invoicePayButtonHtml, invoicePayHref } from '@/lib/invoices/pay-link.mjs'
+import { createInvoicePaySig } from '@/lib/invoices/pay-sig.mjs'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
@@ -151,11 +152,22 @@ export async function POST(request: NextRequest) {
           View invoice
         </a>
       </div>
-      ${invoicePayButtonHtml(invoicePayHref({
-        acceptOnlinePayments: Boolean(profile.accept_online_payments),
-        payUrl: invoice.stripe_payment_link,
-        status: invoice.status,
-      }))}
+      ${invoicePayButtonHtml((() => {
+        const connectReady = Boolean(profile.stripe_connect_charges_enabled && profile.stripe_connect_account_id)
+        let sig: string | undefined
+        if (connectReady) {
+          try { sig = createInvoicePaySig(invoice.id) } catch { sig = undefined }
+        }
+        return invoicePayHref({
+          acceptOnlinePayments: Boolean(profile.accept_online_payments),
+          payUrl: invoice.stripe_payment_link,
+          status: invoice.status,
+          connectReady: Boolean(connectReady && sig),
+          invoiceId: invoice.id,
+          origin,
+          sig,
+        })
+      })())}
       ${invoice.notes ? `<p style="margin-top:20px;padding:12px;background:#fffbeb;border-radius:8px;font-size:14px;">${esc(invoice.notes)}</p>` : ''}
       <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;">
       <p style="font-size:12px;color:#9ca3af;text-align:center;">

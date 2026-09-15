@@ -18,6 +18,8 @@ export type Profile = {
   ofsted_number: string | null
   show_ofsted_on_invoice: boolean
   accept_online_payments?: boolean
+  stripe_connect_account_id?: string | null
+  stripe_connect_charges_enabled?: boolean
   // Invoice generation
   invoice_frequency: 'weekly' | 'fortnightly' | 'monthly'
   invoice_day: string

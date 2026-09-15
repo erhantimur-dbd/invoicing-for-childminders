@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { format } from 'date-fns'
 import { sendEmail } from '@/lib/email/resend'
 import { paymentReminderEmail } from '@/lib/email/templates'
+import { invoicePayHref } from '@/lib/invoices/pay-link.mjs'
+import { createInvoicePaySig } from '@/lib/invoices/pay-sig.mjs'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.godottie.cloud'
 
@@ -64,11 +66,12 @@ export async function sendDueReminders(
   const childminderIds = [...new Set(due.map(r => r.childminder_id))]
   const { data: profileRows } = await supabaseAdmin
     .from('profiles')
-    .select('id, full_name')
+    .select('id, full_name, accept_online_payments, stripe_connect_charges_enabled, stripe_connect_account_id')
     .in('id', childminderIds)
   const nameById = new Map(
     (profileRows ?? []).map(p => [p.id as string, (p.full_name as string) || ''])
   )
+  const profileById = new Map((profileRows ?? []).map(p => [p.id as string, p]))
 
   let sent = 0
   let deactivated = 0
@@ -103,6 +106,21 @@ export async function sendDueReminders(
       continue
     }
 
+    const cm = profileById.get(reminder.childminder_id)
+    let paySig: string | undefined
+    const connectReady = Boolean(cm?.stripe_connect_charges_enabled && cm?.stripe_connect_account_id)
+    if (connectReady) {
+      try { paySig = createInvoicePaySig(invoice.id) } catch { paySig = undefined }
+    }
+    const payUrl = invoicePayHref({
+      acceptOnlinePayments: Boolean(cm?.accept_online_payments),
+      payUrl: invoice.stripe_payment_link,
+      status: invoice.status,
+      connectReady: Boolean(connectReady && paySig),
+      invoiceId: invoice.id,
+      origin: APP_URL,
+      sig: paySig,
+    })
     const { subject, html } = paymentReminderEmail({
       parentName: child.parent_name || 'there',
       childFirstName: child.first_name,
@@ -112,7 +130,7 @@ export async function sendDueReminders(
         ? format(new Date(invoice.due_date), 'd MMMM yyyy')
         : null,
       publicUrl: `${APP_URL}/invoice/${invoice.id}`,
-      payUrl: invoice.stripe_payment_link || null,
+      payUrl,
       overdue: invoice.status === 'overdue',
       childminderName: nameById.get(reminder.childminder_id) || 'your childminder',
     })
