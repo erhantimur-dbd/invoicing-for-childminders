@@ -228,8 +228,9 @@ test('homepage overflow does not create a scroll container that unsticks the hea
 
 test('enquiries draft redacts SEN and fail-closes quota before calling the model', () => {
   const grok = readFileSync(join(root, 'lib/enquiries/grok.ts'), 'utf8')
-  assert.match(grok, /parentBlockForModel/)
-  assert.doesNotMatch(grok, /sen_notes \|\| 'none'/)
+  assert.match(grok, /assembleEnquiryLetter/)
+  assert.doesNotMatch(grok, /sen_notes/)
+  assert.doesNotMatch(grok, /parentBlockForModel/)
   const draft = readFileSync(join(root, 'app/api/enquiries/draft/route.ts'), 'utf8')
   const post = draft.slice(draft.indexOf('export async function POST'))
   assert.match(post, /runEnquiryDraft/)

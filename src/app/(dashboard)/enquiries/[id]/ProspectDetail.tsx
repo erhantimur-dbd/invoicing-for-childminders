@@ -205,6 +205,26 @@ export default function ProspectDetail({
             <Button type="button" className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={copyDraft}>
               Copy
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl"
+              onClick={async () => {
+                const res = await fetch('/api/enquiries/remember', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ prospectId: prospect.id, draftBody: latestDraft.body }),
+                })
+                const data = await res.json()
+                if (!res.ok) {
+                  toast.error(data.error || 'Could not save.')
+                  return
+                }
+                toast.success(data.added ? 'Saved for next letters.' : 'Nothing extra to learn from this draft.')
+              }}
+            >
+              Remember this wording
+            </Button>
             {prospect.parent_email ? (
               <Button type="button" variant="outline" className="rounded-xl" onClick={mailtoDraft}>
                 Open in email

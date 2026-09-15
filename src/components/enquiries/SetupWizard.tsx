@@ -75,6 +75,11 @@ export default function SetupWizard() {
   const [autoSend, setAutoSend] = useState(false)
   const [accountGuardrails, setAccountGuardrails] = useState('')
   const [inboundSlug, setInboundSlug] = useState<string | null>(null)
+  const [offerWaitlist, setOfferWaitlist] = useState(true)
+  const [templateOpening, setTemplateOpening] = useState('')
+  const [templateClosing, setTemplateClosing] = useState('')
+  const [includeOfsted, setIncludeOfsted] = useState(false)
+  const [learnedNuances, setLearnedNuances] = useState<string[]>([])
 
   useEffect(() => {
     async function load() {
@@ -103,6 +108,11 @@ export default function SetupWizard() {
         setAutoSend(Boolean(settings.auto_send_replies))
         setAccountGuardrails(settings.account_guardrails || '')
         setInboundSlug(settings.inbound_slug || null)
+        setOfferWaitlist(settings.offer_waitlist !== false)
+        setTemplateOpening(settings.template_opening || '')
+        setTemplateClosing(settings.template_closing || '')
+        setIncludeOfsted(Boolean(settings.include_ofsted))
+        setLearnedNuances(Array.isArray(settings.learned_nuances) ? settings.learned_nuances : [])
       }
 
       const { data: vacRows } = await supabase.from('enquiry_vacancies').select('*').eq('user_id', user.id)
@@ -173,6 +183,11 @@ export default function SetupWizard() {
       inbound_slug: makeInboundSlug(displayName, user.id),
       auto_send_replies: autoSend,
       account_guardrails: accountGuardrails.trim() || null,
+      offer_waitlist: offerWaitlist,
+      template_opening: templateOpening.trim() || null,
+      template_closing: templateClosing.trim() || null,
+      include_ofsted: includeOfsted,
+      learned_nuances: learnedNuances,
       setup_completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
@@ -490,6 +505,65 @@ export default function SetupWizard() {
               placeholder="I email my parent contract, child information form, and privacy notice. Settling-in is two mornings in the first week."
             />
             <p className="text-xs text-gray-400">You can attach the real PDFs later. For now, tell Dottie what the pack includes.</p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-4 space-y-4">
+            <p className="text-sm font-semibold text-gray-900">Your letter</p>
+            <p className="text-xs text-gray-500">
+              Dottie always writes: greeting, the place, hours if needed, a visit ask, then your name. You can add a line and turn waitlist on or off.
+            </p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-800">Offer a waitlist</p>
+                <p className="text-xs text-gray-500 mt-0.5">When you have no matching space, mention the waitlist.</p>
+              </div>
+              <Switch checked={offerWaitlist} onCheckedChange={setOfferWaitlist} />
+            </div>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-800">Include Ofsted URN</p>
+              </div>
+              <Switch checked={includeOfsted} onCheckedChange={setIncludeOfsted} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Extra line after the greeting</Label>
+              <Textarea
+                rows={2}
+                value={templateOpening}
+                onChange={(e) => setTemplateOpening(e.target.value)}
+                placeholder="Optional. Example: I am based near the park and walk to St Mary's."
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Extra line before your name</Label>
+              <Textarea
+                rows={2}
+                value={templateClosing}
+                onChange={(e) => setTemplateClosing(e.target.value)}
+                placeholder="Optional. Example: Looking forward to meeting you both."
+              />
+            </div>
+            {learnedNuances.length > 0 ? (
+              <div className="space-y-2">
+                <Label>What Dottie has learned</Label>
+                <ul className="space-y-2">
+                  {learnedNuances.map((n, i) => (
+                    <li key={`${n}-${i}`} className="flex items-start gap-2 text-sm text-gray-700">
+                      <span className="flex-1">{n}</span>
+                      <button
+                        type="button"
+                        className="text-gray-400 hover:text-red-500"
+                        onClick={() => setLearnedNuances(learnedNuances.filter((_, j) => j !== i))}
+                        aria-label="Remove learned note"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">When a draft sounds like you, tap Remember this wording on the parent page. Dottie will reuse those lines.</p>
+            )}
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white p-4 space-y-3">
             <div className="flex items-start justify-between gap-4">

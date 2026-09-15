@@ -29,12 +29,14 @@ test('admin guardrails are locked and aim at a visit', () => {
 
 test('drafts use the admin prompt module, not a free-form system string from the client', () => {
   const grok = read('lib/enquiries/grok.ts')
-  assert.match(grok, /adminSystemPrompt/)
-  assert.match(grok, /accountCustomisationBlock/)
+  assert.match(grok, /assembleEnquiryLetter/)
   assert.doesNotMatch(grok, /You are \$\{name\}'s assistant/)
   const draftRoute = read('app/api/enquiries/draft/route.ts')
   assert.doesNotMatch(draftRoute, /systemPrompt/)
   assert.doesNotMatch(draftRoute, /ADMIN_JOB/)
+  const template = read('lib/enquiries/letter-template.mjs')
+  assert.match(template, /Which of those suits you/)
+  assert.match(template, /waitlist/)
 })
 
 test('account customisations cannot jailbreak admin rules', () => {

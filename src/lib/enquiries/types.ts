@@ -74,6 +74,11 @@ export type EnquirySettings = {
   payment_instructions?: string | null
   auto_send_replies?: boolean
   account_guardrails?: string | null
+  offer_waitlist?: boolean
+  template_opening?: string | null
+  template_closing?: string | null
+  include_ofsted?: boolean
+  learned_nuances?: string[] | null
 }
 
 export type EnquiryVacancy = {
