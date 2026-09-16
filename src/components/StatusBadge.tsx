@@ -13,7 +13,7 @@ export default function StatusBadge({ status }: { status: InvoiceStatus }) {
   const { label, dot, bg, text } = config[status]
   return (
     <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold', bg, text)}>
-      <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', dot)} />
+      <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', dot)} aria-hidden="true" />
       {label}
     </span>
   )

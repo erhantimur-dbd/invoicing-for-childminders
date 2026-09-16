@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import InvoicePreview from '@/components/InvoicePreview'
-import { Loader2, ShieldCheck, AlertCircle, CheckCircle } from 'lucide-react'
+import PayDisclaimer from '@/components/PayDisclaimer'
+import { Loader2, ShieldCheck, AlertCircle, CheckCircle, CreditCard } from 'lucide-react'
 
 const TOKEN_KEY = (id: string) => `inv_token_${id}`
 
@@ -199,8 +200,10 @@ function InvoiceView({ invoiceId, token }: { invoiceId: string; token: string })
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [justPaid, setJustPaid] = useState(false)
 
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('paid') === '1') setJustPaid(true)
     fetch(`/api/invoice/${invoiceId}/public`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
@@ -257,6 +260,29 @@ function InvoiceView({ invoiceId, token }: { invoiceId: string; token: string })
 
       {/* Invoice */}
       <div className="max-w-3xl mx-auto px-4 py-6">
+        {justPaid && (
+          <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 print:hidden">
+            Payment received. Thank you.
+          </div>
+        )}
+        {profile.accept_online_payments && invoice.status !== 'paid' && (profile.stripe_connect_charges_enabled || invoice.stripe_payment_link) && (
+          <div className="mb-4 print:hidden">
+            <a
+              href={
+                profile.stripe_connect_charges_enabled
+                  ? `/api/invoices/pay/${invoiceId}?access=${encodeURIComponent(token)}`
+                  : invoice.stripe_payment_link
+              }
+              className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm transition-colors"
+            >
+              <CreditCard className="h-5 w-5" aria-hidden="true" />
+              Pay this invoice
+            </a>
+            <div className="mt-2 flex justify-center">
+              <PayDisclaimer audience="parent" />
+            </div>
+          </div>
+        )}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <InvoicePreview
             invoice={invoice}
@@ -296,7 +322,13 @@ export default function PublicInvoicePage() {
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    // Check for an existing valid session token
+    const access = new URLSearchParams(window.location.search).get('access')
+    if (access) {
+      sessionStorage.setItem(TOKEN_KEY(invoiceId), access)
+      setToken(access)
+      setChecking(false)
+      return
+    }
     const stored = sessionStorage.getItem(TOKEN_KEY(invoiceId))
     if (stored) {
       setToken(stored)

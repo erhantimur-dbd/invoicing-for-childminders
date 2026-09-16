@@ -20,8 +20,10 @@ import {
   Bell, Loader2, Share2, ChevronDown, ChevronUp, Pencil, X, Link2, Trash2, Undo2
 } from 'lucide-react'
 import InvoiceLineItemEditor from '@/components/InvoiceLineItemEditor'
+import PayDisclaimer from '@/components/PayDisclaimer'
 import type { Invoice, Profile, BankAccount } from '@/lib/types'
 import { format } from 'date-fns'
+import { paymentLinkSchema } from '@/lib/validation'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
@@ -51,6 +53,9 @@ export default function InvoicePage() {
   const [sendingEmail, setSendingEmail] = useState(false)
   const [editingLineItems, setEditingLineItems] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false)
+  const [paymentLink, setPaymentLink] = useState('')
+  const [savingPaymentLink, setSavingPaymentLink] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -68,17 +73,22 @@ export default function InvoicePage() {
         supabase.from('reminders').select('*').eq('invoice_id', id).maybeSingle(),
       ])
 
-      if (inv) setInvoice(inv)
+      if (inv) {
+        setInvoice(inv)
+        setPaymentLink(inv.stripe_payment_link || '')
+      }
       if (prof) {
         setProfile(prof)
-        // Fetch primary bank account if set
+        // Bank details are encrypted at rest — fetch via the server route
+        // that decrypts before returning.
         if (prof.primary_bank_account_id) {
-          const { data: bank } = await supabase
-            .from('bank_accounts')
-            .select('*')
-            .eq('id', prof.primary_bank_account_id)
-            .single()
-          if (bank) setPrimaryBankAccount(bank)
+          try {
+            const r = await fetch('/api/bank-accounts/primary')
+            if (r.ok) {
+              const { account } = await r.json()
+              if (account) setPrimaryBankAccount(account)
+            }
+          } catch { /* non-fatal */ }
         }
       }
       if (reminder) {
@@ -94,24 +104,20 @@ export default function InvoicePage() {
   async function handleMarkPaid() {
     if (!invoice) return
     setMarkingPaid(true)
-    const now = new Date().toISOString()
-    const { error } = await supabase
-      .from('invoices')
-      .update({
-        status: 'paid',
-        paid_at: now,
-        payment_method: 'bank_transfer',
-        payment_reference: paymentRef,
-        updated_at: now,
+    try {
+      const res = await fetch('/api/invoices/mark-paid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId: invoice.id, paymentReference: paymentRef }),
       })
-      .eq('id', invoice.id)
-
-    if (error) {
-      toast.error('Failed to mark as paid')
-    } else {
+      if (!res.ok) throw new Error('Failed')
+      const { paidAt, emailSent } = await res.json()
+      const now = paidAt || new Date().toISOString()
       setInvoice(prev => prev ? { ...prev, status: 'paid', paid_at: now } : null)
       setShowMarkPaid(false)
-      toast.success('Invoice marked as paid!')
+      toast.success(emailSent ? 'Marked as paid — receipt emailed to parent!' : 'Invoice marked as paid!')
+    } catch {
+      toast.error('Failed to mark as paid')
     }
     setMarkingPaid(false)
   }
@@ -147,7 +153,7 @@ export default function InvoicePage() {
     const child = (invoice as any).children
     const publicLink = `${window.location.origin}/invoice/${invoice.id}`
     const message = encodeURIComponent(
-      `Hi ${child?.parent_name || ''},\n\nPlease find your invoice ${invoice.invoice_number} for ${child ? `${child.first_name}'s` : ''} childcare.\n\nAmount due: ${formatGBP(Number(invoice.total))}\n${invoice.due_date ? `Due by: ${format(new Date(invoice.due_date), 'd MMM yyyy')}\n` : ''}\nView invoice: ${publicLink}\n${invoice.stripe_payment_link ? `\nPay online: ${invoice.stripe_payment_link}\n` : ''}\nKind regards,\n${profile.full_name}`
+      `Hi ${child?.parent_name || ''},\n\nPlease find your invoice ${invoice.invoice_number} for ${child ? `${child.first_name}'s` : ''} childcare.\n\nAmount due: ${formatGBP(Number(invoice.total))}\n${invoice.due_date ? `Due by: ${format(new Date(invoice.due_date), 'd MMM yyyy')}\n` : ''}\nView invoice: ${publicLink}\n\nPay by bank transfer using the details on the invoice. You do not pay through Dottie.\n\nKind regards,\n${profile.full_name}`
     )
     window.open(`https://wa.me/?text=${message}`, '_blank')
     // Update status to sent if draft or approved
@@ -166,6 +172,13 @@ export default function InvoicePage() {
     if (el) el.style.display = 'block'
     window.print()
     if (el) el.style.display = 'none'
+  }
+
+  async function handleCopyParentLink() {
+    if (!invoice) return
+    const url = `${window.location.origin}/invoice/${invoice.id}`
+    await navigator.clipboard.writeText(url)
+    toast.success('Parent link copied. They confirm with the child’s date of birth. Pay by bank transfer — not through Dottie.')
   }
 
   async function handleDelete() {
@@ -197,6 +210,33 @@ export default function InvoicePage() {
     }
     setInvoice(prev => prev ? { ...prev, status: 'draft' } : null)
     toast.success('Invoice reverted to draft — you can now edit and re-send')
+  }
+
+  async function handleSavePaymentLink() {
+    if (!invoice) return
+    const trimmed = paymentLink.trim()
+    // Empty clears the link; otherwise it must be a valid https URL because
+    // it's injected into parent-facing emails and the public invoice page.
+    if (trimmed) {
+      const check = paymentLinkSchema.safeParse(trimmed)
+      if (!check.success) {
+        toast.error(check.error.issues[0]?.message ?? 'Enter a valid https:// link')
+        return
+      }
+    }
+    setSavingPaymentLink(true)
+    const { error } = await supabase
+      .from('invoices')
+      .update({ stripe_payment_link: trimmed, updated_at: new Date().toISOString() })
+      .eq('id', invoice.id)
+    if (error) {
+      toast.error('Failed to save payment link')
+    } else {
+      setInvoice(prev => prev ? { ...prev, stripe_payment_link: trimmed } : null)
+      toast.success(trimmed ? 'Payment link saved' : 'Payment link removed')
+      setShowPaymentLinkForm(false)
+    }
+    setSavingPaymentLink(false)
   }
 
   async function handleSaveReminder() {
@@ -278,6 +318,9 @@ export default function InvoicePage() {
           )}
           <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
             <Printer className="h-4 w-4" /> Print
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleCopyParentLink} className="gap-2">
+            <Link2 className="h-4 w-4" /> Copy parent link
           </Button>
           {invoice.status !== 'paid' && (
             <>
@@ -421,7 +464,7 @@ export default function InvoicePage() {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-gray-400">
-                      You&apos;ll be reminded to send a follow-up if the invoice isn&apos;t paid
+                      The parent gets an automatic reminder email if the invoice isn&apos;t paid — starting this many days after the due date, then repeating
                     </p>
                   </div>
                 )}
@@ -431,6 +474,62 @@ export default function InvoicePage() {
                   disabled={savingReminder}
                 >
                   {savingReminder ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save reminder'}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Payment link */}
+      {invoice.status !== 'paid' && (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <button
+              className="flex items-center justify-between w-full"
+              onClick={() => setShowPaymentLinkForm(!showPaymentLinkForm)}
+            >
+              <div className="flex items-center gap-2">
+                <Link2 className="h-5 w-5 text-emerald-600" />
+                <div className="text-left">
+                  <p className="text-sm font-medium text-gray-900 inline-flex items-center gap-1.5">
+                    Your Stripe or PayPal link
+                    <PayDisclaimer />
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {profile?.stripe_connect_charges_enabled
+                      ? 'Pay uses your connected Stripe for this total. Paste a PayPal/Stripe link only as a fallback.'
+                      : invoice.stripe_payment_link
+                        ? 'Pay button uses this link'
+                        : 'Optional fallback — Connect Stripe in Settings for card payments'}
+                  </p>
+                </div>
+              </div>
+              {showPaymentLinkForm ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+            </button>
+
+            {showPaymentLinkForm && (
+              <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Link (optional)</Label>
+                  <Input
+                    type="url"
+                    inputMode="url"
+                    placeholder="https://buy.stripe.com/… or PayPal.Me"
+                    value={paymentLink}
+                    onChange={e => setPaymentLink(e.target.value)}
+                    className="h-11"
+                  />
+                  <p className="text-xs text-gray-400">
+                    Connect Stripe in Settings for the exact invoice total. Or paste a PayPal/Stripe link. Turn on Accept online payments or parents only see bank transfer.
+                  </p>
+                </div>
+                <Button
+                  className="w-full h-11 bg-emerald-600 hover:bg-emerald-700"
+                  onClick={handleSavePaymentLink}
+                  disabled={savingPaymentLink}
+                >
+                  {savingPaymentLink ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save payment link'}
                 </Button>
               </div>
             )}

@@ -11,31 +11,15 @@ import { toast } from 'sonner'
 import { Loader2, Mail, Lock, User, CheckCircle2, XCircle } from 'lucide-react'
 import PasswordStrength from '@/components/PasswordStrength'
 import SSOButtons from '@/components/SSOButtons'
+import { passwordIsStrong, passwordRequirements } from '@/lib/password-policy.mjs'
+import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
 
-function getScore(password: string): number {
-  if (!password) return 0
-  let score = 0
-  if (password.length >= 8) score += 1
-  if (password.length >= 12) score += 1
-  if (/[a-z]/.test(password)) score += 1
-  if (/[A-Z]/.test(password)) score += 1
-  if (/[0-9]/.test(password)) score += 1
-  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) score += 1
-  return score
-}
-
-type Requirement = {
-  label: string
-  met: boolean
-}
-
-function getRequirements(password: string): Requirement[] {
-  return [
-    { label: 'At least 8 characters', met: password.length >= 8 },
-    { label: 'One uppercase letter', met: /[A-Z]/.test(password) },
-    { label: 'One number', met: /[0-9]/.test(password) },
-    { label: 'One special character', met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password) },
-  ]
+function nextAfterSignup() {
+  // Confirm-email + session both land on /subscribe?product=enquiries
+  return subscribeNext(
+    parseBilling(new URLSearchParams(window.location.search).get('billing')),
+    'enquiries',
+  )
 }
 
 export default function SignupPage() {
@@ -48,14 +32,15 @@ export default function SignupPage() {
   const [weakError, setWeakError] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [termsError, setTermsError] = useState(false)
+  const [checkInbox, setCheckInbox] = useState(false)
+  const [ssoError, setSsoError] = useState<string | null>(null)
 
-  const requirements = getRequirements(password)
+  const requirements = passwordRequirements(password)
   const showRequirements = passwordFocused || password.length > 0
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
-    const score = getScore(password)
-    if (score < 3) {
+    if (!passwordIsStrong(password)) {
       setWeakError(true)
       return
     }
@@ -67,44 +52,66 @@ export default function SignupPage() {
     setTermsError(false)
     setLoading(true)
     const supabase = createClient()
+    const next = nextAfterSignup()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: authCallbackRedirect(window.location.origin, next),
+      },
     })
     if (error) {
       toast.error(error.message)
       setLoading(false)
-    } else {
-      // Fire-and-forget: send welcome email
-      fetch('/api/email/welcome', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: data.user?.id }),
-      }).catch(console.error)
-      toast.success('Account created! Welcome aboard.')
-      router.push('/onboarding')
-      router.refresh()
+      return
     }
+
+    fetch('/api/email/welcome', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: data.user?.id }),
+    }).catch(console.error)
+
+    if (!data.session) {
+      setCheckInbox(true)
+      setLoading(false)
+      return
+    }
+
+    toast.success('Account created — start with Enquiries.')
+    router.push(next)
+    router.refresh()
+  }
+
+  if (checkInbox) {
+    return (
+      <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
+        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-6 h-6 text-emerald-600" />
+        </div>
+        <h2 className="text-lg font-bold text-gray-900 mb-2">Check your inbox</h2>
+        <p className="text-gray-500 text-sm mb-6">
+          We sent a confirmation link to <span className="font-medium text-gray-700">{email}</span>.
+          Open it to finish creating your account, then you can start Enquiries.
+        </p>
+        <Link
+          href="/login"
+          className="text-emerald-600 font-semibold text-sm hover:text-emerald-700"
+        >
+          Back to sign in
+        </Link>
+      </div>
+    )
   }
 
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
       <div className="space-y-6">
-        <ul className="space-y-2">
-          {[
-            '7-day free trial — no credit card required',
-            'Set up in under 5 minutes',
-            'Cancel anytime',
-          ].map((item) => (
-            <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        <SSOButtons mode="signup" />
+        <SSOButtons mode="signup" onError={setSsoError} />
+        {ssoError && (
+          <p className="text-sm text-red-600 text-center" role="alert">{ssoError}</p>
+        )}
 
         <div className="relative flex items-center gap-3">
           <div className="flex-1 h-px bg-gray-200" />
@@ -173,7 +180,7 @@ export default function SignupPage() {
             {showRequirements && (
               <ul className="mt-2 space-y-1">
                 {requirements.map((req) => (
-                  <li key={req.label} className="flex items-center gap-1.5 text-xs">
+                  <li key={req.id} className="flex items-center gap-1.5 text-xs">
                     {req.met
                       ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                       : <XCircle className="h-3.5 w-3.5 text-gray-300 shrink-0" />
@@ -184,14 +191,6 @@ export default function SignupPage() {
               </ul>
             )}
           </div>
-
-          <Button
-            type="submit"
-            className="w-full h-12 text-base bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-sm shadow-emerald-200"
-            disabled={loading}
-          >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create free account'}
-          </Button>
 
           <div className="space-y-1">
             <label className="flex items-start gap-3 cursor-pointer">
@@ -218,6 +217,14 @@ export default function SignupPage() {
               </p>
             )}
           </div>
+
+          <Button
+            type="submit"
+            className="w-full h-12 text-base bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-sm shadow-emerald-200"
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create account'}
+          </Button>
 
           <p className="text-sm text-gray-400 text-center pt-1">
             Already have an account?{' '}

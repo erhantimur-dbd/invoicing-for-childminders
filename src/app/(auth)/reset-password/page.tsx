@@ -9,6 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Loader2, Lock, CheckCircle2 } from 'lucide-react'
+import PasswordStrength from '@/components/PasswordStrength'
+import { passwordIsStrong } from '@/lib/password-policy.mjs'
+
+type LinkState = 'checking' | 'ready' | 'invalid'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -16,22 +20,48 @@ export default function ResetPasswordPage() {
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [sessionReady, setSessionReady] = useState(false)
+  const [linkState, setLinkState] = useState<LinkState>('checking')
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setSessionReady(true)
+    let cancelled = false
+    let ready = false
+
+    function markReady() {
+      if (cancelled || ready) return
+      ready = true
+      setLinkState('ready')
+    }
+
+    function markInvalid() {
+      if (cancelled || ready) return
+      setLinkState('invalid')
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) markReady()
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION'))) {
+        markReady()
       }
     })
+
+    const t = window.setTimeout(markInvalid, 4000)
+
+    return () => {
+      cancelled = true
+      subscription.unsubscribe()
+      window.clearTimeout(t)
+    }
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters')
+    if (!passwordIsStrong(password)) {
+      toast.error('Please choose a stronger password')
       return
     }
     if (password !== confirm) {
@@ -65,11 +95,28 @@ export default function ResetPasswordPage() {
     )
   }
 
-  if (!sessionReady) {
+  if (linkState === 'checking') {
     return (
       <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
         <Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto mb-4" />
         <p className="text-gray-500 text-sm">Verifying your reset link...</p>
+      </div>
+    )
+  }
+
+  if (linkState === 'invalid') {
+    return (
+      <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
+        <h2 className="text-lg font-bold text-gray-900 mb-2">This reset link is not valid</h2>
+        <p className="text-gray-500 text-sm mb-6">
+          It may have expired or already been used. Request a new one and try again.
+        </p>
+        <Link
+          href="/forgot-password"
+          className="text-emerald-600 font-semibold text-sm hover:text-emerald-700"
+        >
+          Request a new reset link
+        </Link>
       </div>
     )
   }
@@ -91,15 +138,15 @@ export default function ResetPasswordPage() {
             <Input
               id="password"
               type="password"
-              placeholder="At least 8 characters"
+              placeholder="Create a strong password"
               required
-              minLength={8}
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 text-base pl-10 border-gray-200 rounded-xl"
             />
           </div>
+          <PasswordStrength password={password} />
         </div>
 
         <div className="space-y-1.5">
@@ -113,7 +160,6 @@ export default function ResetPasswordPage() {
               type="password"
               placeholder="Re-enter your password"
               required
-              minLength={8}
               autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}

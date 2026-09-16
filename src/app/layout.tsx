@@ -3,6 +3,7 @@ import { Nunito, Fraunces, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import CookieConsent from "@/components/CookieConsent";
+import { RELOAD_TO_TOP_SCRIPT } from "@/lib/reload-to-top.mjs";
 
 // Warm, friendly body face with rounded terminals.
 const nunito = Nunito({
@@ -27,10 +28,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dottie — Invoicing simplified.",
+    default: "Dottie — AI assistant for UK childminders",
     template: "%s | Dottie",
   },
-  description: "You didn't become a childminder to spend Sunday nights writing invoices. That's Dottie's job. Invoicing on autopilot for UK childcare professionals.",
+  description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://www.godottie.cloud"),
   verification: {
@@ -38,22 +39,22 @@ export const metadata: Metadata = {
   },
   openGraph: {
     siteName: "Dottie",
-    title: "Dottie — Invoicing simplified.",
-    description: "Invoicing on autopilot for UK childminders and childcare professionals.",
+    title: "Dottie — AI for UK childminders",
+    description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
     url: "https://www.godottie.cloud",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dottie — Invoicing simplified.",
-    description: "Invoicing on autopilot for UK childminders and childcare professionals.",
+    title: "Dottie — AI for UK childminders",
+    description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
   },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#059669",
+  themeColor: "#0b1220",
 };
 
 export default function RootLayout({
@@ -63,7 +64,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-GB" className={`${nunito.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#fdf8f1]">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: RELOAD_TO_TOP_SCRIPT }} />
+      </head>
+      <body className="min-h-full flex flex-col bg-white">
         {children}
         <Toaster richColors position="top-center" />
         <CookieConsent gaId="G-CCYVZXRWK0" />

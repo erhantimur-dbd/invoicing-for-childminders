@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import StatusBadge from '@/components/StatusBadge'
-import { Plus, TrendingUp, Clock, AlertCircle, CheckCircle, Sparkles, Zap, ChevronRight, Receipt } from 'lucide-react'
+import { Plus, TrendingUp, Clock, AlertCircle, CheckCircle, Sparkles, Zap, ChevronRight, Receipt, Baby } from 'lucide-react'
+import { enquiriesActive, invoicingActive } from '@/lib/enquiries/access'
 import type { Invoice } from '@/lib/types'
 import { format } from 'date-fns'
 
@@ -32,7 +33,15 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
-  const setupIncomplete = !profile?.onboarding_completed
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('status, trial_end, enquiries_status')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const setupIncomplete = !profile?.onboarding_completed && invoicingActive(subscription)
+  const hasEnquiries = enquiriesActive(subscription)
+  const hasInvoicing = invoicingActive(subscription)
 
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
@@ -94,6 +103,44 @@ export default async function DashboardPage() {
         </Link>
       )}
 
+      <Link href={hasEnquiries ? '/enquiries' : '/subscribe?product=enquiries'}>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-amber-400 p-5 shadow-md shadow-emerald-200/40 hover:shadow-lg transition-all">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 ring-1 ring-white/30">
+              <Baby className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white">
+                {hasEnquiries ? 'New parents' : 'Start with Enquiries'}
+              </p>
+              <p className="text-xs text-white/80 mt-0.5">
+                {hasEnquiries
+                  ? 'See who has asked for a place, draft a reply, book a visit in your hours.'
+                  : 'Answer new parents while you are with the children. £19/month — invoicing waits until they start.'}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-white/80 flex-shrink-0" />
+          </div>
+        </div>
+      </Link>
+
+      {hasEnquiries && !hasInvoicing && (
+        <Link href="/subscribe?product=invoicing">
+          <div className="bg-white border border-amber-100 rounded-2xl p-4 flex items-center gap-3 hover:border-amber-300 hover:shadow-sm transition-all">
+            <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Receipt className="h-4 w-4 text-amber-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900">A child starting? Add invoicing</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Same login. Funded vs paid hours, PDFs, Sunday invoices — from £9.99/month.
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-amber-500 flex-shrink-0" />
+          </div>
+        </Link>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -101,25 +148,38 @@ export default async function DashboardPage() {
           <p className="text-gray-400 text-sm mt-0.5">{todayFormatted}</p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          {hasEnquiries && (
+            <Link href="/enquiries/new">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm">
+                <Plus className="h-4 w-4" />
+                Add a parent
+              </Button>
+            </Link>
+          )}
+          {hasInvoicing && (
+          <>
           <Link href="/invoices/bulk">
             <Button variant="outline" className="h-10 px-4 rounded-xl gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 text-sm font-medium">
               <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">Generate all</span>
             </Button>
           </Link>
-          <Link href="/children/new">
-            <Button variant="outline" className="h-10 px-4 rounded-xl gap-2 border-gray-200 text-gray-600 hover:bg-gray-50 text-sm hidden md:flex font-medium">
-              <Plus className="h-4 w-4" />
-              Add child
-            </Button>
-          </Link>
           <Link href="/invoices/new">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm">
+            <Button variant="outline" className="h-10 px-4 rounded-xl gap-2 border-gray-200 text-gray-600 hover:bg-gray-50 text-sm font-medium">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">New invoice</span>
               <span className="sm:hidden">Invoice</span>
             </Button>
           </Link>
+          </>
+          )}
+          {!hasEnquiries && !hasInvoicing && (
+            <Link href="/subscribe?product=enquiries">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm">
+                Start with Enquiries
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

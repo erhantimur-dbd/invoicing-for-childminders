@@ -9,10 +9,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { sortCodeSchema, accountNumberSchema } from '@/lib/validation'
 import { Landmark, Plus, Pencil, Trash2, Loader2, Star } from 'lucide-react'
-import type { BankAccount } from '@/lib/types'
 
-type AccountForm = Omit<BankAccount, 'id' | 'childminder_id' | 'created_at' | 'updated_at'>
+type AccountSummary = {
+  id: string
+  nickname: string
+  bank_name: string
+  account_name: string
+  sort_code_masked: string
+  account_number_masked: string
+  created_at: string
+  updated_at: string
+}
+
+type AccountForm = {
+  nickname: string
+  bank_name: string
+  account_name: string
+  sort_code: string
+  account_number: string
+}
 
 const emptyForm: AccountForm = {
   nickname: '',
@@ -22,18 +39,13 @@ const emptyForm: AccountForm = {
   account_number: '',
 }
 
-function maskAccount(number: string) {
-  if (!number || number.length < 4) return number
-  return '••••' + number.slice(-4)
-}
-
 export default function BankAccountsSection({ userId, initialPrimaryId }: {
   userId: string
   initialPrimaryId: string | null
 }) {
   const supabase = createClient()
 
-  const [accounts, setAccounts] = useState<BankAccount[]>([])
+  const [accounts, setAccounts] = useState<AccountSummary[]>([])
   const [primaryId, setPrimaryId] = useState<string | null>(initialPrimaryId)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -45,17 +57,16 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
   const [form, setForm] = useState<AccountForm>(emptyForm)
 
   useEffect(() => {
-    if (!userId) return
-    supabase
-      .from('bank_accounts')
-      .select('*')
-      .eq('childminder_id', userId)
-      .order('created_at')
-      .then(({ data }) => {
-        setAccounts(data || [])
-        setLoading(false)
+    let cancelled = false
+    fetch('/api/bank-accounts')
+      .then(r => r.ok ? r.json() : Promise.reject(r))
+      .then((j: { accounts: AccountSummary[] }) => {
+        if (!cancelled) setAccounts(j.accounts || [])
       })
-  }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
+      .catch(() => { if (!cancelled) toast.error('Failed to load bank accounts') })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [])
 
   function openAdd() {
     setEditingId(null)
@@ -63,14 +74,17 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
     setDialogOpen(true)
   }
 
-  function openEdit(account: BankAccount) {
+  function openEdit(account: AccountSummary) {
+    // Editing leaves sort_code / account_number blank — the user types new
+    // digits if they want to change them. We never send the plaintext back to
+    // the browser, so we cannot pre-fill those fields.
     setEditingId(account.id)
     setForm({
       nickname: account.nickname,
       bank_name: account.bank_name,
       account_name: account.account_name,
-      sort_code: account.sort_code,
-      account_number: account.account_number,
+      sort_code: '',
+      account_number: '',
     })
     setDialogOpen(true)
   }
@@ -80,36 +94,57 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
   }
 
   async function handleSave() {
-    if (!form.account_name.trim() || !form.account_number.trim()) {
-      toast.error('Account name and number are required')
+    if (!form.account_name.trim()) {
+      toast.error('Account name is required')
       return
     }
+    if (!editingId && (!form.account_number.trim() || !form.sort_code.trim())) {
+      toast.error('Sort code and account number are required')
+      return
+    }
+    // Mirror the server-side format checks so the user gets an instant,
+    // specific message instead of a generic "Failed to save".
+    if (form.sort_code.trim()) {
+      const check = sortCodeSchema.safeParse(form.sort_code)
+      if (!check.success) { toast.error(check.error.issues[0].message); return }
+    }
+    if (form.account_number.trim()) {
+      const check = accountNumberSchema.safeParse(form.account_number)
+      if (!check.success) { toast.error(check.error.issues[0].message); return }
+    }
+
     setSaving(true)
-    const now = new Date().toISOString()
 
     if (editingId) {
-      // Update
-      const { data, error } = await supabase
-        .from('bank_accounts')
-        .update({ ...form, updated_at: now })
-        .eq('id', editingId)
-        .select()
-        .single()
-      if (error) { toast.error('Failed to save'); setSaving(false); return }
-      setAccounts(prev => prev.map(a => a.id === editingId ? data : a))
+      // PATCH: only send fields that were actually filled in.
+      const patch: Partial<AccountForm> = {
+        nickname: form.nickname,
+        bank_name: form.bank_name,
+        account_name: form.account_name,
+      }
+      if (form.sort_code.trim()) patch.sort_code = form.sort_code
+      if (form.account_number.trim()) patch.account_number = form.account_number
+
+      const r = await fetch(`/api/bank-accounts/${editingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      })
+      if (!r.ok) { toast.error('Failed to save'); setSaving(false); return }
+      const { account }: { account: AccountSummary } = await r.json()
+      setAccounts(prev => prev.map(a => a.id === editingId ? account : a))
       toast.success('Bank account updated')
     } else {
-      // Insert
-      const { data, error } = await supabase
-        .from('bank_accounts')
-        .insert({ ...form, childminder_id: userId, created_at: now, updated_at: now })
-        .select()
-        .single()
-      if (error) { toast.error('Failed to save'); setSaving(false); return }
-      setAccounts(prev => [...prev, data])
-      // Auto-set as primary if it's the first one
+      const r = await fetch('/api/bank-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!r.ok) { toast.error('Failed to save'); setSaving(false); return }
+      const { account }: { account: AccountSummary } = await r.json()
+      setAccounts(prev => [...prev, account])
       if (accounts.length === 0) {
-        await setPrimary(data.id)
+        await setPrimary(account.id)
       }
       toast.success('Bank account added')
     }
@@ -122,11 +157,10 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
     if (!editingId) return
     if (!confirm('Delete this bank account?')) return
     setDeleting(true)
-    const { error } = await supabase.from('bank_accounts').delete().eq('id', editingId)
-    if (error) { toast.error('Failed to delete'); setDeleting(false); return }
+    const r = await fetch(`/api/bank-accounts/${editingId}`, { method: 'DELETE' })
+    if (!r.ok) { toast.error('Failed to delete'); setDeleting(false); return }
     const remaining = accounts.filter(a => a.id !== editingId)
     setAccounts(remaining)
-    // If deleted was primary, reassign to first remaining
     if (primaryId === editingId) {
       const newPrimary = remaining[0]?.id ?? null
       await setPrimary(newPrimary)
@@ -138,6 +172,7 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
 
   async function setPrimary(id: string | null) {
     setPrimaryId(id)
+    // primary_bank_account_id is just an FK on profiles, not sensitive — direct update is fine.
     await supabase
       .from('profiles')
       .update({ primary_bank_account_id: id, updated_at: new Date().toISOString() })
@@ -199,12 +234,12 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
                 <SelectContent>
                   {accounts.map(a => (
                     <SelectItem key={a.id} value={a.id}>
-                      {a.nickname || a.bank_name || 'Account'} — {maskAccount(a.account_number)}
+                      {a.nickname || a.bank_name || 'Account'} — {a.account_number_masked}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-400">This account's details appear on your invoices by default</p>
+              <p className="text-xs text-gray-400">This account&apos;s details appear on your invoices by default</p>
             </div>
           )}
 
@@ -245,7 +280,7 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
                         {account.bank_name && account.bank_name !== account.nickname
                           ? `${account.bank_name} · `
                           : ''}
-                        {account.account_name} · {maskAccount(account.account_number)}
+                        {account.account_name} · {account.account_number_masked}
                       </p>
                     </div>
                     <Button
@@ -273,6 +308,12 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
             <DialogTitle>{editingId ? 'Edit bank account' : 'Add bank account'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-1">
+
+            {editingId && (
+              <p className="text-xs text-gray-500 leading-relaxed bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
+                Sort code and account number are encrypted — leave blank to keep the existing values.
+              </p>
+            )}
 
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">
@@ -314,7 +355,7 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
                 <Input
                   value={form.sort_code}
                   onChange={e => setField('sort_code', e.target.value)}
-                  placeholder="00-00-00"
+                  placeholder={editingId ? '••-••-••' : '00-00-00'}
                   className="h-11 font-mono"
                 />
               </div>
@@ -323,9 +364,9 @@ export default function BankAccountsSection({ userId, initialPrimaryId }: {
                 <Input
                   value={form.account_number}
                   onChange={e => setField('account_number', e.target.value)}
-                  placeholder="12345678"
+                  placeholder={editingId ? '••••••••' : '12345678'}
                   className="h-11 font-mono"
-                  required
+                  required={!editingId}
                 />
               </div>
             </div>

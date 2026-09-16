@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
+import { lineItemSchema } from '@/lib/validation'
 import {
   Pencil, Trash2, Plus, Check, X, Loader2,
   CalendarDays, UtensilsCrossed, Baby, Landmark,
@@ -77,18 +78,23 @@ export default function InvoiceLineItemEditor({
   }
 
   function commitEdit(id: string) {
-    setItems(prev => prev.map(i => {
-      if (i.id !== id) return i
-      const qty = Number(editBuf.quantity) || i.quantity
-      const price = Number(editBuf.unit_price) || i.unit_price
-      return {
-        ...i,
-        description: editBuf.description || i.description,
-        quantity: qty,
-        unit_price: price,
-        amount: qty * price,
-      }
-    }))
+    const current = items.find(i => i.id === id)
+    if (!current) return
+    const parsed = lineItemSchema.safeParse({
+      description: editBuf.description ?? current.description,
+      quantity: editBuf.quantity ?? current.quantity,
+      unit_price: editBuf.unit_price ?? current.unit_price,
+    })
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? 'Check the item details')
+      return
+    }
+    const { description, quantity, unit_price } = parsed.data
+    setItems(prev => prev.map(i =>
+      i.id === id
+        ? { ...i, description, quantity, unit_price, amount: quantity * unit_price }
+        : i
+    ))
     setEditingId(null)
   }
 
@@ -122,9 +128,16 @@ export default function InvoiceLineItemEditor({
   function addCustomItem() {
     const cat = CUSTOM_CATEGORIES.find(c => c.key === customCategory)
     const desc = customDesc.trim() || cat?.defaultDesc || 'Custom item'
-    const qty = Number(customQty) || 1
-    const price = Number(customPrice)
-    if (!price) { toast.error('Enter a price'); return }
+    const parsed = lineItemSchema.safeParse({
+      description: desc,
+      quantity: customQty || 1,
+      unit_price: customPrice,
+    })
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? 'Check the item details')
+      return
+    }
+    const { quantity: qty, unit_price: price } = parsed.data
     const newItem: LineItem = {
       id: `new-${Date.now()}`,
       description: cat?.emoji ? `${cat.emoji} ${desc}` : desc,

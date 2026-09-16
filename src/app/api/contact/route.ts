@@ -1,27 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { rateLimit, clientIp } from '@/lib/rate-limit'
+import { log } from '@/lib/log'
+import { escapeHtml } from '@/lib/html-escape.mjs'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
-// ── Simple in-memory rate limiter ──────────────────────────────────────────
-// Max 3 submissions per IP per 15 minutes
-const RATE_LIMIT = 3
-const RATE_WINDOW_MS = 15 * 60 * 1000
-const ipSubmissions = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = ipSubmissions.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    ipSubmissions.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS })
-    return true
-  }
-
-  if (entry.count >= RATE_LIMIT) return false
-
-  entry.count++
-  return true
+// Lazy-init: `new Resend(undefined)` throws and fails `next build` page-data collection.
+function getResend() {
+  const key = process.env.RESEND_API_KEY
+  if (!key) return null
+  return new Resend(key)
 }
 
 // ── Spam keyword filter ────────────────────────────────────────────────────
@@ -36,16 +23,19 @@ function isSpam(text: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    req.headers.get('x-real-ip') ??
-    'unknown'
+  const ip = clientIp(req.headers)
 
-  // ── Rate limit ─────────────────────────────────────────────────────────
-  if (!checkRateLimit(ip)) {
+  // ── Rate limit: 3 submissions per IP per 15 minutes ─────────────────────
+  const rl = await rateLimit({
+    bucket: 'contact',
+    identifier: ip,
+    limit: 3,
+    windowMs: 15 * 60 * 1000,
+  })
+  if (!rl.ok) {
     return NextResponse.json(
       { error: 'Too many requests. Please wait a few minutes before trying again.' },
-      { status: 429 },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSeconds) } },
     )
   }
 
@@ -90,35 +80,47 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Send email via Resend ───────────────────────────────────────────────
-  const safeSubject = subject?.trim() || '(no subject)'
+  const resend = getResend()
+  if (!resend) {
+    return NextResponse.json(
+      { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
+      { status: 500 },
+    )
+  }
+
+  const safeSubject = escapeHtml(subject?.trim() || '(no subject)')
+  const safeName = escapeHtml(name.trim())
+  const safeEmail = escapeHtml(email.trim())
+  const safeMessage = escapeHtml(message.trim())
+  const safeFirst = escapeHtml(name.trim().split(' ')[0] || 'there')
 
   try {
     await resend.emails.send({
-      from: 'Dottie Contact Form <hello@dottie.cloud>',
-      to: 'support@dottie.cloud',
+      from: 'Dottie Contact Form <hello@godottie.cloud>',
+      to: 'support@godottie.cloud',
       replyTo: email.trim(),
-      subject: `[Contact] ${safeSubject}`,
+      subject: `[Contact] ${subject?.trim() || '(no subject)'}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
           <h2 style="color: #059669; margin-bottom: 4px;">New contact form submission</h2>
-          <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via dottie.cloud/support</p>
+          <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via godottie.cloud/support</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
           <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #6b7280; width: 80px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${name.trim()}</td></tr>
-            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;"><a href="mailto:${email.trim()}" style="color: #059669;">${email.trim()}</a></td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280; width: 80px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${safeName}</td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;"><a href="mailto:${safeEmail}" style="color: #059669;">${safeEmail}</a></td></tr>
             <tr><td style="padding: 6px 0; color: #6b7280;">Subject</td><td style="padding: 6px 0;">${safeSubject}</td></tr>
           </table>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
           <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Message</p>
-          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message.trim()}</div>
-          <p style="font-size: 11px; color: #9ca3af; margin-top: 16px;">IP: ${ip}</p>
+          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${safeMessage}</div>
+          <p style="font-size: 11px; color: #9ca3af; margin-top: 16px;">IP: ${escapeHtml(ip)}</p>
         </div>
       `,
     })
 
     // Send confirmation to the sender
     await resend.emails.send({
-      from: 'Dottie <hello@dottie.cloud>',
+      from: 'Dottie <hello@godottie.cloud>',
       to: email.trim(),
       subject: "Got your message — I'll be in touch soon 👋",
       html: `
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
             <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.8);">Invoicing simplified.</p>
           </div>
           <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none;">
-            <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 700;">Hi ${name.trim().split(' ')[0]}! 👋</h2>
+            <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 700;">Hi ${safeFirst}! 👋</h2>
             <p style="color: #6b7280; margin: 0 0 16px;">Thanks for getting in touch.</p>
             <p style="color: #374151; line-height: 1.6; margin: 0 0 16px;">
               I've received your message and will get back to you within 24 hours on business days.
@@ -139,7 +141,7 @@ export async function POST(req: NextRequest) {
             </p>
           </div>
           <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; padding: 16px 32px; text-align: center;">
-            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Dottie · <a href="https://www.dottie.cloud" style="color: #059669;">www.dottie.cloud</a></p>
+            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Dottie · <a href="https://www.godottie.cloud" style="color: #059669;">www.godottie.cloud</a></p>
           </div>
         </div>
       `,
@@ -147,9 +149,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('Contact form email error:', err)
+    log.error('contact_form_send_failed', err, { ip })
     return NextResponse.json(
-      { error: 'Failed to send message. Please email us directly at support@dottie.cloud.' },
+      { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
       { status: 500 },
     )
   }

@@ -13,6 +13,7 @@ import { Loader2, LogOut, User, MapPin, ShieldCheck, CalendarClock } from 'lucid
 import { useRouter } from 'next/navigation'
 import type { Profile } from '@/lib/types'
 import BankAccountsSection from '@/components/BankAccountsSection'
+import PayDisclaimer from '@/components/PayDisclaimer'
 
 type ProfileForm = Partial<Profile>
 
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [userId, setUserId] = useState<string>('')
   const [primaryBankId, setPrimaryBankId] = useState<string | null>(null)
+  const [connectingStripe, setConnectingStripe] = useState(false)
   const [profile, setProfile] = useState<ProfileForm>({
     full_name: '',
     email: '',
@@ -33,6 +35,7 @@ export default function ProfilePage() {
     postcode: '',
     ofsted_number: '',
     show_ofsted_on_invoice: false,
+    accept_online_payments: false,
     invoice_frequency: 'weekly',
     invoice_day: 'sunday',
     invoice_hour: 7,
@@ -49,6 +52,27 @@ export default function ProfilePage() {
         setPrimaryBankId(data.primary_bank_account_id ?? null)
       }
       setLoading(false)
+      const stripeStatus = new URLSearchParams(window.location.search).get('stripe')
+      if (stripeStatus === 'connected') {
+        toast.success('Stripe is ready. Turn on Accept online payments so parents see Pay.')
+        window.history.replaceState({}, '', '/profile')
+      } else if (stripeStatus === 'pending') {
+        toast('Finish Stripe onboarding to take card payments.')
+        window.history.replaceState({}, '', '/profile')
+      } else if (stripeStatus === 'refresh') {
+        window.history.replaceState({}, '', '/profile')
+        setConnectingStripe(true)
+        fetch('/api/stripe/connect/start', { method: 'POST' })
+          .then(r => r.json().then(data => ({ ok: r.ok, data })))
+          .then(({ ok, data }) => {
+            if (!ok || !data.url) {
+              toast.error(data.error || 'Could not resume Stripe.')
+              return
+            }
+            window.location.href = data.url
+          })
+          .finally(() => setConnectingStripe(false))
+      }
     }
     load()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -73,6 +97,7 @@ export default function ProfilePage() {
         postcode: profile.postcode,
         ofsted_number: profile.ofsted_number || null,
         show_ofsted_on_invoice: profile.show_ofsted_on_invoice ?? false,
+        accept_online_payments: profile.accept_online_payments ?? false,
         invoice_frequency: profile.invoice_frequency || 'weekly',
         invoice_day: profile.invoice_day || 'sunday',
         invoice_hour: profile.invoice_hour ?? 7,
@@ -253,6 +278,61 @@ export default function ProfilePage() {
             {!profile.ofsted_number && (
               <p className="text-xs text-gray-400">Enter your Ofsted number above to enable this toggle</p>
             )}
+            <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3.5">
+              <div>
+                <p className="text-sm font-medium text-gray-900 inline-flex items-center gap-1.5">
+                  Accept online payments
+                  <PayDisclaimer />
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Parents can pay via your Stripe account or a PayPal/Stripe link you paste on the invoice. Bank transfer still shows.
+                </p>
+              </div>
+              <Switch
+                checked={profile.accept_online_payments ?? false}
+                onCheckedChange={v => set('accept_online_payments', v)}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 px-4 py-3.5">
+              <div>
+                <p className="text-sm font-medium text-gray-900">Connect Stripe</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {profile.stripe_connect_charges_enabled
+                    ? 'Ready — Pay uses your Stripe for the exact invoice total.'
+                    : profile.stripe_connect_account_id
+                      ? 'Finish onboarding in Stripe to take card payments.'
+                      : 'Optional. Parents pay you; Dottie does not.'}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-xl shrink-0"
+                disabled={connectingStripe}
+                onClick={async () => {
+                  setConnectingStripe(true)
+                  try {
+                    const res = await fetch('/api/stripe/connect/start', { method: 'POST' })
+                    const data = await res.json()
+                    if (!res.ok || !data.url) {
+                      toast.error(data.error || 'Could not start Stripe.')
+                      return
+                    }
+                    window.location.href = data.url
+                  } finally {
+                    setConnectingStripe(false)
+                  }
+                }}
+              >
+                {connectingStripe
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : profile.stripe_connect_charges_enabled
+                    ? 'Stripe dashboard'
+                    : profile.stripe_connect_account_id
+                      ? 'Finish onboarding'
+                      : 'Connect Stripe'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

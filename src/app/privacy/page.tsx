@@ -1,5 +1,7 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
+import SiteHeader from '@/components/marketing/SiteHeader'
+import SiteFooter from '@/components/marketing/SiteFooter'
+import { marketing } from '@/lib/marketing.mjs'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -8,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: false },
 }
 
-const LAST_UPDATED = '27 March 2026'
+const LAST_UPDATED = '10 September 2026'
 const CONTACT_EMAIL = 'support@godottie.cloud'
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -24,7 +26,7 @@ function P({ children }: { children: React.ReactNode }) {
   return <p>{children}</p>
 }
 
-function Ul({ items }: { items: string[] }) {
+function Ul({ items }: { items: React.ReactNode[] }) {
   return (
     <ul className="list-disc list-inside space-y-1.5 pl-2">
       {items.map((item, i) => <li key={i}>{item}</li>)}
@@ -36,6 +38,7 @@ const TOC = [
   { id: 'who-we-are', label: 'Who we are' },
   { id: 'data-we-collect', label: 'Data we collect' },
   { id: 'how-we-use-your-data', label: 'How we use your data' },
+  { id: 'gmail-enquiries', label: 'Gmail and parent enquiries' },
   { id: 'lawful-basis', label: 'Lawful basis for processing' },
   { id: 'third-party-processors', label: 'Third-party processors' },
   { id: 'childrens-data', label: "Children's data" },
@@ -49,17 +52,18 @@ const TOC = [
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#fdf8f1]">
-      <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6">
+    <div
+      className={`${marketing.pageClass} min-h-screen flex flex-col`}
+      style={{ backgroundColor: marketing.canvas, color: marketing.ink, fontFamily: marketing.fontFamily }}
+    >
+      <SiteHeader />
+      <div className="flex-1 max-w-4xl mx-auto px-4 py-16 sm:px-6 w-full">
 
         {/* Header */}
         <div className="mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium mb-6">
-            ← Back to Dottie
-          </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Privacy Policy</h1>
           <p className="mt-2 text-sm text-gray-500">Last updated: {LAST_UPDATED}</p>
-          <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800">
+          <div className="mt-4 p-4 rounded-xl bg-[#eef0f3] border text-sm text-[#123a4a]">
             We've written this policy in plain English. We want you to understand exactly what we do with your data — and why.
           </div>
         </div>
@@ -75,7 +79,7 @@ export default function PrivacyPage() {
                   <a
                     key={item.id}
                     href={`#${item.id}`}
-                    className="block text-sm text-gray-500 hover:text-emerald-600 py-1 transition-colors"
+                    className="block text-sm text-gray-500 hover:text-[#123a4a] py-1 transition-colors"
                   >
                     {item.label}
                   </a>
@@ -93,7 +97,7 @@ export default function PrivacyPage() {
               </P>
               <P>
                 We are the data controller for the personal data you provide to us. If you have any questions about this policy or how we handle your data, please contact us at{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>.
               </P>
             </Section>
 
@@ -141,7 +145,7 @@ export default function PrivacyPage() {
               </div>
 
               <P>
-                We collect only what is necessary to provide the service. We do not collect sensitive special-category data beyond children&apos;s dates of birth, which are used solely for invoice access verification.
+                We collect only what is necessary to provide the service. Children&apos;s dates of birth are used to verify parent access to invoices. Extra-needs notes you type on an enquiry can be health data (Article 9) — see Children&apos;s data below.
               </P>
             </Section>
 
@@ -153,14 +157,64 @@ export default function PrivacyPage() {
                 'To allow parents to securely access their child\'s invoices (using DOB as verification)',
                 'To process subscription payments via Stripe',
                 'To send transactional emails (welcome, trial reminders, payment confirmations) via Resend',
-                'To generate draft invoices using AI assistance (Anthropic Claude) — see Third-party Processors',
+                'To generate draft invoices and parent-enquiry replies using AI assistance (xAI Grok) — see Third-party Processors',
                 'To provide expense tracking and tax-year reports',
                 'To respond to support requests',
                 'To comply with our legal obligations',
               ]} />
             </Section>
 
-            <Section id="lawful-basis" title="4. Lawful basis for processing">
+            <Section id="gmail-enquiries" title="4. Parent enquiries">
+              <P>
+                Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so new parent emails are ingested. Automatic send is off unless you turn it on. Dottie does not sync your whole personal mailbox as a product — she looks for new parent enquiry mail.
+              </P>
+
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl bg-white border border-gray-200">
+                  <p className="font-semibold text-gray-800 mb-2">What we store</p>
+                  <Ul items={[
+                    <>We store the parent facts and messages you enter (name, email, child age, days needed, and any extra-needs notes you type).</>,
+                    <>We store AI drafts so you can read them before anything is sent.</>,
+                  ]} />
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-gray-200">
+                  <p className="font-semibold text-gray-800 mb-2">How sending works</p>
+                  <Ul items={[
+                    <>Dottie drafts a visit letter in your voice. <strong>Automatic send is off until you turn it on</strong> in Your answers. With it off, you copy the draft into Gmail yourself.</>,
+                    <>If you connect Gmail, you can disconnect it at any time. Connecting Calendar lets Dottie write the visit you confirm onto your Google Calendar.</>,
+                  ]} />
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-gray-200">
+                  <p className="font-semibold text-gray-800 mb-2">How long we keep enquiry data</p>
+                  <Ul items={[
+                    <>Enquiry threads we store are kept for <strong>365 days by default</strong>.</>,
+                    <>Retention is <strong>configurable</strong> (you or we can set a different period where the product allows).</>,
+                    'After retention ends, we delete or anonymise that enquiry data as described in this Privacy notice.',
+                  ]} />
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-gray-200">
+                  <p className="font-semibold text-gray-800 mb-2">AI processing (xAI, Anthropic failover)</p>
+                  <Ul items={[
+                    <>Drafting enquiry replies uses AI services from <strong>xAI (Grok)</strong>. If xAI is unavailable, drafting may fall back to <strong>Anthropic (Claude)</strong>. You send the reply yourself (copy, mailto, or an explicit send tick). Extra-needs / SEN notes are stored for you and are not sent to those AI processors.</>,
+                    <>Drafting may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI or Anthropic process data). We only send what is needed to draft the reply for that enquiry thread.</>,
+                    <>See the <a href="#third-party-processors" className="text-emerald-600 underline">subprocessors / international transfers</a> section for more detail.</>,
+                  ]} />
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-gray-200">
+                  <p className="font-semibold text-gray-800 mb-2">What we do not claim / do not do via Gmail</p>
+                  <Ul items={[
+                    <>We do <strong>not</strong> run a full mailbox sync for unrelated personal or business mail.</>,
+                    <>Soft Launch Gmail Enquiries is <strong>not</strong> WhatsApp, medical records access, or DfE systems via Gmail.</>,
+                  ]} />
+                </div>
+              </div>
+            </Section>
+
+            <Section id="lawful-basis" title="5. Lawful basis for processing">
               <P>Under UK GDPR, we rely on the following lawful bases:</P>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
@@ -173,6 +227,7 @@ export default function PrivacyPage() {
                   <tbody>
                     {[
                       ['Providing the invoicing service', 'Contract (Article 6(1)(b))'],
+                      ['Generating parent-enquiry AI drafts', 'Contract (Article 6(1)(b))'],
                       ['Processing subscription payments', 'Contract (Article 6(1)(b))'],
                       ['Sending transactional emails', 'Contract (Article 6(1)(b))'],
                       ['Security monitoring and fraud prevention', 'Legitimate interests (Article 6(1)(f))'],
@@ -191,7 +246,7 @@ export default function PrivacyPage() {
               </P>
             </Section>
 
-            <Section id="third-party-processors" title="5. Third-party processors">
+            <Section id="third-party-processors" title="6. Third-party processors">
               <P>
                 We use the following sub-processors to provide our service. Each is bound by their own privacy policies and, where applicable, Data Processing Agreements (DPAs):
               </P>
@@ -211,15 +266,27 @@ export default function PrivacyPage() {
                   },
                   {
                     name: 'Resend',
-                    role: 'Transactional email delivery',
+                    role: 'Transactional email delivery, and inbound forwarding of parent emails to your unique Dottie address when you use that backup.',
                     location: 'EU',
                     link: 'https://resend.com/legal/privacy-policy',
                   },
                   {
+                    name: 'Google (Gmail and Calendar)',
+                    role: 'If you connect Gmail, we read new parent-enquiry messages and can send a reply from your Gmail when automatic send is on. If you connect Calendar, we create or update the visit you confirm. We do not use your mailbox for advertising.',
+                    location: 'USA (Standard Contractual Clauses apply)',
+                    link: 'https://policies.google.com/privacy',
+                  },
+                  {
                     name: 'Anthropic (Claude AI)',
-                    role: 'AI-assisted invoice generation. When invoices are auto-generated, schedule and rate data is sent to Anthropic\'s API. No child names or contact details are included in these requests.',
+                    role: 'AI-assisted invoice generation, and (when xAI is unavailable) failover drafting of enquiry replies for Soft Launch Gmail Enquiries. Sending the reply is via the childminder’s Gmail, not via Anthropic. We only send what is needed to draft that reply. When invoices are auto-generated, schedule and rate data is sent to Anthropic\'s API. No child names or contact details are included in these invoice requests.',
                     location: 'USA (Standard Contractual Clauses apply)',
                     link: 'https://www.anthropic.com/privacy',
+                  },
+                  {
+                    name: 'xAI (Grok)',
+                    role: 'Drafting enquiry replies for Soft Launch Gmail Enquiries. Sending the reply is via your Gmail (gmail.send), not via xAI. We only send what\'s needed to draft the reply for that enquiry thread.',
+                    location: 'USA (or other locations where xAI processes data)',
+                    link: 'https://x.ai/legal/privacy-policy',
                   },
                 ].map(p => (
                   <div key={p.name} className="p-4 rounded-xl bg-white border border-gray-200">
@@ -236,7 +303,7 @@ export default function PrivacyPage() {
               </P>
             </Section>
 
-            <Section id="childrens-data" title="6. Children's data">
+            <Section id="childrens-data" title="7. Children's data">
               <P>
                 As a childminder, you enter data about the children in your care. This data belongs to you and is used solely to provide the invoicing service. We act as your data processor for this information — you are the data controller for the children&apos;s data.
               </P>
@@ -247,11 +314,14 @@ export default function PrivacyPage() {
                 We store children&apos;s dates of birth for the sole purpose of verifying parent identity when they access an invoice. This verification step protects your bank details from unauthorised access.
               </P>
               <P>
+                Enquiries also store parent and child names, ages, and optional extra-needs (SEN) notes you type. Extra-needs notes can be health data (UK GDPR Article 9). We store them for you as processor; we do not send those notes to xAI or Anthropic. You remain the controller for family data and confirm you have a lawful basis to record it.
+              </P>
+              <P>
                 We do not share children&apos;s data with any third party other than the sub-processors listed above, and only to the extent necessary to deliver the service.
               </P>
             </Section>
 
-            <Section id="data-retention" title="7. Data retention">
+            <Section id="data-retention" title="8. Data retention">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse">
                   <thead>
@@ -267,6 +337,7 @@ export default function PrivacyPage() {
                       ['Invoice records', '6 years (UK tax law requirement)'],
                       ['Payment records (Stripe)', 'As required by financial regulations'],
                       ['Security/access logs', '90 days'],
+                      ['Enquiry records you enter', 'For the duration of your Enquiries subscription, then 30 days after cancellation'],
                     ].map(([type, period]) => (
                       <tr key={type} className="border-b border-gray-100">
                         <td className="px-4 py-2 border border-gray-200">{type}</td>
@@ -281,9 +352,9 @@ export default function PrivacyPage() {
               </P>
             </Section>
 
-            <Section id="your-rights" title="8. Your rights">
+            <Section id="your-rights" title="9. Your rights">
               <P>Under UK GDPR, you have the following rights. To exercise any of them, email us at{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>.
                 We will respond within 30 days.
               </P>
               <div className="space-y-3">
@@ -311,7 +382,7 @@ export default function PrivacyPage() {
               </P>
             </Section>
 
-            <Section id="cookies" title="9. Cookies">
+            <Section id="cookies" title="10. Cookies">
               <P>
                 We use essential cookies required for the service to function. These include session authentication cookies managed by Supabase. Essential cookies cannot be disabled as they are necessary for you to log in and use the app.
               </P>
@@ -320,7 +391,7 @@ export default function PrivacyPage() {
               </P>
             </Section>
 
-            <Section id="security" title="10. Security">
+            <Section id="security" title="11. Security">
               <Ul items={[
                 'All data is encrypted in transit using TLS 1.2+',
                 'Data at rest is encrypted using AES-256 (managed by Supabase)',
@@ -331,11 +402,11 @@ export default function PrivacyPage() {
               ]} />
               <P>
                 While we take all reasonable precautions, no internet service is completely secure. If you believe your account has been compromised, contact us immediately at{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>.
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>.
               </P>
             </Section>
 
-            <Section id="changes" title="11. Changes to this policy">
+            <Section id="changes" title="12. Changes to this policy">
               <P>
                 We may update this Privacy Policy from time to time. We will notify you of significant changes by email or by displaying a notice in the app. The &quot;Last updated&quot; date at the top of this page reflects the most recent revision.
               </P>
@@ -344,14 +415,14 @@ export default function PrivacyPage() {
               </P>
             </Section>
 
-            <Section id="contact" title="12. Contact us">
+            <Section id="contact" title="13. Contact us">
               <P>
                 For any questions, requests to exercise your rights, or data concerns, please contact us:
               </P>
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1">
                 <p className="font-semibold text-gray-900">Dottie</p>
                 <p>
-                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-600 underline">{CONTACT_EMAIL}</a>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>
                 </p>
                 <p className="text-gray-500">www.godottie.cloud</p>
               </div>
@@ -364,6 +435,7 @@ export default function PrivacyPage() {
           </div>
         </div>
       </div>
+      <SiteFooter />
     </div>
   )
 }

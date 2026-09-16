@@ -111,6 +111,7 @@ export default function NewInvoicePage() {
         const child = selectedChild as any
         const dayItems = buildLineItemsForDay(dateStr, dayName, {
           funding_type: child.funding_type || 'none',
+          funding_scheme: child.funding_scheme || null,
           funded_hours_per_day: child.funded_hours_per_day ? Number(child.funded_hours_per_day) : null,
           funded_days: child.funded_days || null,
           hourly_rate: child.hourly_rate ? Number(child.hourly_rate) : null,

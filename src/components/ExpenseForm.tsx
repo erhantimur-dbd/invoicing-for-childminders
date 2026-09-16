@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { Loader2, Receipt, Camera, Sparkles } from 'lucide-react'
 import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_EMOJI, type Expense } from '@/lib/types'
+import { moneyAmountSchema } from '@/lib/validation'
 import ReceiptUploader from './ReceiptUploader'
 
 type Props = {
@@ -114,7 +115,8 @@ export default function ExpenseForm({ mode, expense }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!amount || Number(amount) <= 0) { toast.error('Enter a valid amount'); return }
+    const amountCheck = moneyAmountSchema.safeParse(amount)
+    if (!amountCheck.success || amountCheck.data <= 0) { toast.error('Enter a valid amount'); return }
     setSaving(true)
 
     const { data: { user } } = await supabase.auth.getUser()
