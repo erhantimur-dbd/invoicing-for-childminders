@@ -222,22 +222,27 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-[data-email-flow] {
+[data-email-flow="true"] {
   contain: layout;
-}
-[data-email-flow] .ef-in {
-  animation: efIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  min-height: 38rem;
 }
 [data-email-flow] .ef-check {
   stroke-dasharray: 18;
   stroke-dashoffset: 18;
-  animation: efCheck 0.35s 0.28s ease-out forwards;
 }
 [data-email-flow] .ef-grow {
   transform-origin: left center;
+}
+[data-email-flow] .ef-active .ef-in {
+  animation: efIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+[data-email-flow] .ef-active .ef-check {
+  animation: efCheck 0.35s 0.28s ease-out forwards;
+}
+[data-email-flow] .ef-active .ef-grow {
   animation: efGrowX 0.4s 0.12s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-[data-email-flow] .ef-pop {
+[data-email-flow] .ef-active .ef-pop {
   animation: efPop 0.32s cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 
