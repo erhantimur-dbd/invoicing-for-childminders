@@ -125,20 +125,19 @@ export default function EmailFlow() {
           {beat.note || '.'}
         </p>
 
-        {/* One grid cell: height is always the tallest beat, so the page does not jump. */}
-        <div className="mt-5 grid">
+        {/* Stay mounted in one grid cell. Remounting the active beat restarted
+            translate/scale animations and collapsed the card for a frame. */}
+        <div className="mt-5 grid min-h-[22rem]">
           {loop.map((item) => {
             const active = item.id === id
             return (
               <div
                 key={item.id}
                 data-scene={item.id}
-                className={`col-start-1 row-start-1 ${active ? '' : 'invisible pointer-events-none'}`}
+                className={`col-start-1 row-start-1 ${active ? 'ef-active' : 'invisible pointer-events-none'}`}
                 aria-hidden={!active}
               >
-                <div key={active ? `on-${step}` : `off-${item.id}`}>
-                  <SceneBody id={item.id} />
-                </div>
+                <SceneBody id={item.id} />
               </div>
             )
           })}
