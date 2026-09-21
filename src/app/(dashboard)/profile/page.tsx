@@ -9,10 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { Loader2, LogOut, User, MapPin, ShieldCheck, CalendarClock } from 'lucide-react'
+import { Loader2, LogOut, User, MapPin, ShieldCheck, CalendarClock, FileSpreadsheet } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { Profile } from '@/lib/types'
 import BankAccountsSection from '@/components/BankAccountsSection'
+import {
+  DEFAULT_XERO_SETTINGS,
+  loadXeroSettingsFromStorage,
+  mergeXeroSettings,
+  saveXeroSettingsToStorage,
+  type XeroExportSettings,
+} from '@/lib/xero-export'
 
 type ProfileForm = Partial<Profile>
 
@@ -23,6 +30,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [userId, setUserId] = useState<string>('')
   const [primaryBankId, setPrimaryBankId] = useState<string | null>(null)
+  const [xeroSettings, setXeroSettings] = useState<XeroExportSettings>(DEFAULT_XERO_SETTINGS)
   const [profile, setProfile] = useState<ProfileForm>({
     full_name: '',
     email: '',
@@ -47,14 +55,28 @@ export default function ProfilePage() {
       if (data) {
         setProfile(data)
         setPrimaryBankId(data.primary_bank_account_id ?? null)
+        setXeroSettings(
+          mergeXeroSettings({
+            salesAccountCode: data.xero_sales_account_code || undefined,
+            defaultExpenseAccountCode: data.xero_default_expense_account_code || undefined,
+            taxType: data.xero_tax_type || undefined,
+            ...loadXeroSettingsFromStorage(),
+          })
+        )
+      } else {
+        setXeroSettings(mergeXeroSettings(loadXeroSettingsFromStorage()))
       }
       setLoading(false)
     }
     load()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function set(field: keyof ProfileForm, value: string | boolean) {
+  function set(field: keyof ProfileForm, value: string | boolean | number) {
     setProfile(prev => ({ ...prev, [field]: value }))
+  }
+
+  function setXero(field: keyof Pick<XeroExportSettings, 'salesAccountCode' | 'defaultExpenseAccountCode' | 'taxType'>, value: string) {
+    setXeroSettings(prev => ({ ...prev, [field]: value }))
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -62,6 +84,15 @@ export default function ProfilePage() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+
+    // Always persist Xero codes locally so exports work before DB migration lands
+    saveXeroSettingsToStorage({
+      salesAccountCode: xeroSettings.salesAccountCode,
+      defaultExpenseAccountCode: xeroSettings.defaultExpenseAccountCode,
+      taxType: xeroSettings.taxType,
+      expenseAccountMap: xeroSettings.expenseAccountMap,
+    })
+
     const { error } = await supabase
       .from('profiles')
       .update({
@@ -76,11 +107,40 @@ export default function ProfilePage() {
         invoice_frequency: profile.invoice_frequency || 'weekly',
         invoice_day: profile.invoice_day || 'sunday',
         invoice_hour: profile.invoice_hour ?? 7,
+        xero_sales_account_code: xeroSettings.salesAccountCode || null,
+        xero_default_expense_account_code: xeroSettings.defaultExpenseAccountCode || null,
+        xero_tax_type: xeroSettings.taxType || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
     if (error) {
-      toast.error('Failed to save settings')
+      // Columns may not exist until migration — localStorage still saved
+      if (error.message?.includes('xero_') || error.code === 'PGRST204') {
+        const { error: retryError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: profile.full_name,
+            phone: profile.phone,
+            address_line1: profile.address_line1,
+            address_line2: profile.address_line2,
+            city: profile.city,
+            postcode: profile.postcode,
+            ofsted_number: profile.ofsted_number || null,
+            show_ofsted_on_invoice: profile.show_ofsted_on_invoice ?? false,
+            invoice_frequency: profile.invoice_frequency || 'weekly',
+            invoice_day: profile.invoice_day || 'sunday',
+            invoice_hour: profile.invoice_hour ?? 7,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', user.id)
+        if (retryError) {
+          toast.error('Failed to save settings')
+        } else {
+          toast.success('Settings saved (Xero codes stored on this device)')
+        }
+      } else {
+        toast.error('Failed to save settings')
+      }
     } else {
       toast.success('Settings saved')
     }
@@ -312,7 +372,7 @@ export default function ProfilePage() {
               <Label className="text-sm font-medium">Time</Label>
               <select
                 value={profile.invoice_hour ?? 7}
-                onChange={e => set('invoice_hour', Number(e.target.value) as any)}
+                onChange={e => set('invoice_hour', Number(e.target.value))}
                 className="h-10 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-700 bg-white max-w-[140px]"
               >
                 {Array.from({ length: 24 }, (_, i) => (
@@ -348,6 +408,58 @@ export default function ProfilePage() {
                 })()}
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Xero export ──────────────────────────────────────── */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="w-7 h-7 bg-sky-100 rounded-lg flex items-center justify-center">
+                <FileSpreadsheet className="h-4 w-4 text-sky-600" />
+              </div>
+              Xero export
+            </CardTitle>
+            <p className="text-xs text-gray-500 mt-1">
+              Account codes must match your Xero chart of accounts exactly. Used when downloading Xero CSVs from Reports.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="xero_sales" className="text-sm font-medium">Sales account code</Label>
+                <Input
+                  id="xero_sales"
+                  value={xeroSettings.salesAccountCode}
+                  onChange={e => setXero('salesAccountCode', e.target.value)}
+                  placeholder={DEFAULT_XERO_SETTINGS.salesAccountCode}
+                  className="h-11 font-mono"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="xero_expense" className="text-sm font-medium">Default expense code</Label>
+                <Input
+                  id="xero_expense"
+                  value={xeroSettings.defaultExpenseAccountCode}
+                  onChange={e => setXero('defaultExpenseAccountCode', e.target.value)}
+                  placeholder={DEFAULT_XERO_SETTINGS.defaultExpenseAccountCode}
+                  className="h-11 font-mono"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="xero_tax" className="text-sm font-medium">Tax type</Label>
+                <Input
+                  id="xero_tax"
+                  value={xeroSettings.taxType}
+                  onChange={e => setXero('taxType', e.target.value)}
+                  placeholder={DEFAULT_XERO_SETTINGS.taxType}
+                  className="h-11"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-400">
+              Category-specific expense codes (Travel → 461, Insurance → 445, etc.) ship as defaults. Tax type must match Xero&apos;s display name (e.g. No VAT).
+            </p>
           </CardContent>
         </Card>
 

@@ -22,6 +22,10 @@ export type Profile = {
   invoice_day: string
   invoice_hour: number
   invoice_last_generated_at: string | null
+  // Xero export defaults (optional — see supabase migration)
+  xero_sales_account_code: string | null
+  xero_default_expense_account_code: string | null
+  xero_tax_type: string | null
   created_at: string
   updated_at: string
 }

@@ -1,97 +1,120 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import type { Expense } from '@/lib/types'
+import {
+  type AccountingBasis,
+  type InvoiceForExport,
+  type XeroExportSettings,
+  buildAccountantSummaryCsv,
+  buildXeroExpenseRows,
+  buildXeroInvoiceRows,
+  invoiceInPeriod,
+  mergeXeroSettings,
+  rowsToCsv,
+  XERO_INVOICE_HEADERS,
+} from '@/lib/xero-export'
 
-function toCSV(rows: Record<string, string | number | null>[]): string {
-  if (rows.length === 0) return ''
-  const headers = Object.keys(rows[0])
-  const lines = [
-    headers.join(','),
-    ...rows.map(row =>
-      headers.map(h => {
-        const val = row[h] ?? ''
-        const str = String(val)
-        return str.includes(',') || str.includes('"') || str.includes('\n')
-          ? `"${str.replace(/"/g, '""')}"`
-          : str
-      }).join(',')
-    ),
-  ]
-  return lines.join('\n')
+export type ExportFormat = 'summary' | 'xero-invoices' | 'xero-expenses'
+
+function parseBasis(value: string | null): AccountingBasis {
+  return value === 'accrual' ? 'accrual' : 'cash'
+}
+
+function parseFormat(value: string | null): ExportFormat {
+  if (value === 'xero-invoices' || value === 'xero-expenses') return value
+  return 'summary'
+}
+
+function parseSettings(searchParams: URLSearchParams): XeroExportSettings {
+  let expenseAccountMap: XeroExportSettings['expenseAccountMap'] = {}
+  const mapRaw = searchParams.get('expenseMap')
+  if (mapRaw) {
+    try {
+      expenseAccountMap = JSON.parse(mapRaw)
+    } catch {
+      expenseAccountMap = {}
+    }
+  }
+
+  return mergeXeroSettings({
+    salesAccountCode: searchParams.get('salesAccount') || undefined,
+    defaultExpenseAccountCode: searchParams.get('expenseAccount') || undefined,
+    taxType: searchParams.get('taxType') || undefined,
+    expenseAccountMap,
+  })
+}
+
+function csvResponse(body: string, filename: string) {
+  return new NextResponse(body, {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    },
+  })
 }
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
   const start = searchParams.get('start')
   const end = searchParams.get('end')
   const year = searchParams.get('year') || ''
+  const basis = parseBasis(searchParams.get('basis'))
+  const format = parseFormat(searchParams.get('format'))
+  const settings = parseSettings(searchParams)
 
-  if (!start || !end) return NextResponse.json({ error: 'Missing date range' }, { status: 400 })
+  if (!start || !end) {
+    return NextResponse.json({ error: 'Missing date range' }, { status: 400 })
+  }
 
-  const [{ data: invoices }, { data: expenses }] = await Promise.all([
+  const taxLabel = year ? `${year}-${String(Number(year) + 1).slice(2)}` : 'export'
+
+  // Fetch a wider invoice set, then filter in app for cash vs accrual dating
+  const [{ data: invoicesRaw }, { data: expensesRaw }] = await Promise.all([
     supabase
       .from('invoices')
-      .select('invoice_number, issue_date, due_date, status, total, payment_method, children(first_name, last_name, parent_name)')
+      .select(
+        'id, invoice_number, status, issue_date, due_date, paid_at, total, payment_method, payment_reference, children(first_name, last_name, parent_name, parent_email), invoice_line_items(description, quantity, unit_price, amount, is_funded)'
+      )
       .eq('childminder_id', user.id)
-      .eq('status', 'paid')
-      .gte('issue_date', start)
-      .lte('issue_date', end)
+      .neq('status', 'draft')
       .order('issue_date'),
     supabase
       .from('expenses')
-      .select('date, description, category, amount, notes')
+      .select('id, date, description, category, amount, notes, merchant_name, receipt_url, ai_extracted, childminder_id, created_at, updated_at')
       .eq('childminder_id', user.id)
       .gte('date', start)
       .lte('date', end)
       .order('date'),
   ])
 
-  const incomeRows = (invoices || []).map((inv: any) => ({
-    'Invoice Number': inv.invoice_number,
-    'Date': inv.issue_date,
-    'Child': inv.children ? `${inv.children.first_name} ${inv.children.last_name}` : '',
-    'Parent': inv.children?.parent_name || '',
-    'Amount (£)': Number(inv.total).toFixed(2),
-    'Payment Method': inv.payment_method || '',
-  }))
+  const invoices = ((invoicesRaw || []) as InvoiceForExport[]).filter(inv =>
+    invoiceInPeriod(inv, start, end, basis)
+  )
+  const expenses = (expensesRaw || []) as Expense[]
 
-  const expenseRows = (expenses || []).map((exp: any) => ({
-    'Date': exp.date,
-    'Description': exp.description,
-    'Category': exp.category,
-    'Amount (£)': Number(exp.amount).toFixed(2),
-    'Notes': exp.notes || '',
-  }))
+  if (format === 'xero-invoices') {
+    const rows = buildXeroInvoiceRows(invoices, settings, basis)
+    const csv = rowsToCsv(XERO_INVOICE_HEADERS, rows)
+    return csvResponse(csv, `xero-invoices-${taxLabel}-${basis}.csv`)
+  }
 
-  const taxLabel = year ? `${year}-${String(Number(year) + 1).slice(2)}` : 'export'
+  if (format === 'xero-expenses') {
+    const rows = buildXeroExpenseRows(expenses, settings)
+    const csv = rowsToCsv(XERO_INVOICE_HEADERS, rows)
+    return csvResponse(csv, `xero-expenses-${taxLabel}.csv`)
+  }
 
-  const incomeTotal = incomeRows.reduce((s, r) => s + Number(r['Amount (£)']), 0)
-  const expenseTotal = expenseRows.reduce((s, r) => s + Number(r['Amount (£)']), 0)
-
-  const parts: string[] = [
-    `CHILDMINDER TAX SUMMARY - Tax Year ${taxLabel}`,
-    `Generated: ${new Date().toLocaleDateString('en-GB')}`,
-    '',
-    '=== INCOME (Paid Invoices) ===',
-    toCSV(incomeRows),
-    `Total Income,,,${incomeTotal.toFixed(2)}`,
-    '',
-    '=== EXPENSES ===',
-    toCSV(expenseRows),
-    `Total Expenses,,,,${expenseTotal.toFixed(2)}`,
-    '',
-    `NET PROFIT,,,,${(incomeTotal - expenseTotal).toFixed(2)}`,
-  ]
-
-  const csv = parts.join('\n')
-
-  return new NextResponse(csv, {
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="tax-summary-${taxLabel}.csv"`,
-    },
+  const csv = buildAccountantSummaryCsv({
+    yearLabel: taxLabel,
+    basis,
+    invoices,
+    expenses,
   })
+  return csvResponse(csv, `tax-summary-${taxLabel}-${basis}.csv`)
 }
