@@ -14,6 +14,7 @@ interface SendEmailOptions {
   subject: string
   html: string
   from?: string
+  replyTo?: string
 }
 
 interface SendEmailResult {
@@ -27,6 +28,7 @@ export async function sendEmail({
   subject,
   html,
   from,
+  replyTo,
 }: SendEmailOptions): Promise<SendEmailResult> {
   const resend = getResend()
   if (!resend) {
@@ -40,6 +42,7 @@ export async function sendEmail({
       to,
       subject,
       html,
+      ...(replyTo ? { replyTo } : {}),
     })
 
     if (error) {
