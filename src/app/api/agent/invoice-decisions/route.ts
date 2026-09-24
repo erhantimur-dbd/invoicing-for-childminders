@@ -83,16 +83,12 @@ export async function POST(request: NextRequest) {
     // Fetch bank holidays
     const bankHolidays = await fetchUKBankHolidays()
 
-    // Run agent (with fallback if ANTHROPIC_API_KEY missing)
+    // Deterministic schedule and bank holidays. Haiku runs only for a free-text schedule note.
     let decisions
-    if (process.env.ANTHROPIC_API_KEY) {
-      try {
-        decisions = await runInvoiceAgent(children, weekDates, bankHolidays)
-      } catch (agentError) {
-        console.error('Agent error, falling back to deterministic:', agentError)
-        decisions = buildFallbackDecisions(children, weekDates, bankHolidays)
-      }
-    } else {
+    try {
+      decisions = await runInvoiceAgent(children, weekDates, bankHolidays)
+    } catch (agentError) {
+      console.error('Invoice decisions failed, falling back to deterministic:', agentError)
       decisions = buildFallbackDecisions(children, weekDates, bankHolidays)
     }
 

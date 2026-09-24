@@ -100,15 +100,11 @@ export async function GET(request: NextRequest) {
       children.map(c => [c.id, `${c.first_name} ${c.last_name}`])
     )
 
-    // Run agent
+    // Deterministic schedule and bank holidays. Haiku runs only for a free-text schedule note.
     let decisions
-    if (process.env.ANTHROPIC_API_KEY) {
-      try {
-        decisions = await runInvoiceAgent(children, weekDates, bankHolidays)
-      } catch {
-        decisions = buildFallbackDecisions(children, weekDates, bankHolidays)
-      }
-    } else {
+    try {
+      decisions = await runInvoiceAgent(children, weekDates, bankHolidays)
+    } catch {
       decisions = buildFallbackDecisions(children, weekDates, bankHolidays)
     }
 
