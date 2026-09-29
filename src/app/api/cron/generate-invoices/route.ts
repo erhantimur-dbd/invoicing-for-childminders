@@ -8,6 +8,7 @@ import {
   type AgentChild,
 } from '@/lib/agent/invoice-agent'
 import { persistInvoices } from '@/lib/agent/create-invoices'
+import { sendEmail } from '@/lib/email/resend'
 
 export async function GET(request: NextRequest) {
   // Verify cron secret — Vercel sends this automatically; also checked manually
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
     )
 
     // Send notification email if invoices were created
-    if (created.length > 0 && process.env.RESEND_API_KEY) {
+    if (created.length > 0) {
       await sendCronNotificationEmail(profile, created, skipped, weekStart, weekEnd)
     }
 
@@ -149,9 +150,7 @@ async function sendCronNotificationEmail(
   weekStart: string,
   weekEnd: string
 ) {
-  const { Resend } = await import('resend')
-  const resend = new Resend(process.env.RESEND_API_KEY)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://invoicing-for-childminders.vercel.app'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
 
   const weekLabel = `${new Date(weekStart + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(weekEnd + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
   const totalAmount = created.reduce((s, i) => s + i.total, 0)
@@ -168,8 +167,7 @@ async function sendCronNotificationEmail(
        </ul>`
     : ''
 
-  await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'invoices@invoicing-for-childminders.vercel.app',
+  const result = await sendEmail({
     to: profile.email,
     subject: `✨ ${created.length} draft invoice${created.length !== 1 ? 's' : ''} generated — w/c ${weekLabel}`,
     html: `
@@ -209,4 +207,8 @@ async function sendCronNotificationEmail(
       </div>
     `,
   })
+
+  if (!result.success) {
+    console.error('[cron] notification email failed for', profile.id, result.error)
+  }
 }

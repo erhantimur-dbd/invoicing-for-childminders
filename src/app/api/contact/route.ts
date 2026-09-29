@@ -1,28 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { sendEmail } from '@/lib/email/resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
-// ── Simple in-memory rate limiter ──────────────────────────────────────────
-// Max 3 submissions per IP per 15 minutes
-const RATE_LIMIT = 3
-const RATE_WINDOW_MS = 15 * 60 * 1000
-const ipSubmissions = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = ipSubmissions.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    ipSubmissions.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS })
-    return true
-  }
-
-  if (entry.count >= RATE_LIMIT) return false
-
-  entry.count++
-  return true
-}
+const CONTACT_INBOX = 'support@godottie.cloud'
 
 // ── Spam keyword filter ────────────────────────────────────────────────────
 const SPAM_PATTERNS = [
@@ -40,14 +19,6 @@ export async function POST(req: NextRequest) {
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     req.headers.get('x-real-ip') ??
     'unknown'
-
-  // ── Rate limit ─────────────────────────────────────────────────────────
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json(
-      { error: 'Too many requests. Please wait a few minutes before trying again.' },
-      { status: 429 },
-    )
-  }
 
   let body: Record<string, unknown>
   try {
@@ -92,13 +63,11 @@ export async function POST(req: NextRequest) {
   // ── Send email via Resend ───────────────────────────────────────────────
   const safeSubject = subject?.trim() || '(no subject)'
 
-  try {
-    await resend.emails.send({
-      from: 'Dottie Contact Form <hello@dottie.cloud>',
-      to: 'support@dottie.cloud',
-      replyTo: email.trim(),
-      subject: `[Contact] ${safeSubject}`,
-      html: `
+  const inbox = await sendEmail({
+    to: CONTACT_INBOX,
+    replyTo: email.trim(),
+    subject: `[Contact] ${safeSubject}`,
+    html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
           <h2 style="color: #059669; margin-bottom: 4px;">New contact form submission</h2>
           <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via dottie.cloud/support</p>
@@ -114,14 +83,21 @@ export async function POST(req: NextRequest) {
           <p style="font-size: 11px; color: #9ca3af; margin-top: 16px;">IP: ${ip}</p>
         </div>
       `,
-    })
+  })
 
-    // Send confirmation to the sender
-    await resend.emails.send({
-      from: 'Dottie <hello@dottie.cloud>',
-      to: email.trim(),
-      subject: "Got your message — I'll be in touch soon 👋",
-      html: `
+  if (!inbox.success) {
+    console.error('[contact] inbox email failed:', inbox.error)
+    return NextResponse.json(
+      { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
+      { status: 500 },
+    )
+  }
+
+  // Send confirmation to the sender
+  const confirmation = await sendEmail({
+    to: email.trim(),
+    subject: "Got your message — I'll be in touch soon 👋",
+    html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
           <div style="background: linear-gradient(135deg, #10b981, #0ea5e9); padding: 24px 32px; border-radius: 12px 12px 0 0;">
             <p style="margin: 0; font-size: 20px; font-weight: 700; color: #fff;">Dottie</p>
@@ -143,14 +119,15 @@ export async function POST(req: NextRequest) {
           </div>
         </div>
       `,
-    })
+  })
 
-    return NextResponse.json({ ok: true })
-  } catch (err) {
-    console.error('Contact form email error:', err)
+  if (!confirmation.success) {
+    console.error('[contact] confirmation email failed:', confirmation.error)
     return NextResponse.json(
-      { error: 'Failed to send message. Please email us directly at support@dottie.cloud.' },
+      { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
       { status: 500 },
     )
   }
+
+  return NextResponse.json({ ok: true })
 }

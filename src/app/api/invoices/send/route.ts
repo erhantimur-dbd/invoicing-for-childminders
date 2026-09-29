@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { sendEmail } from '@/lib/email/resend'
+import type { Invoice } from '@/lib/types'
 import { format } from 'date-fns'
 
 function formatGBP(amount: number) {
@@ -39,8 +40,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const child = (invoice as any).children
-  const items = (invoice as any).invoice_line_items || []
+  const row = invoice as Invoice
+  const child = row.children
+  const items = row.invoice_line_items ?? []
 
   if (!child?.parent_email) {
     return NextResponse.json({ error: 'No parent email on file' }, { status: 400 })
@@ -51,10 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Resend API key not configured' }, { status: 500 })
   }
 
-  const resend = new Resend(resendKey)
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'invoices@resend.dev'
-
-  const itemsHtml = items.map((item: any) => `
+  const itemsHtml = items.map((item) => `
     <tr>
       <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;">${esc(item.description)}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:center;">${esc(String(item.quantity))}</td>
@@ -70,17 +69,17 @@ export async function POST(request: NextRequest) {
       ${child.bank_account_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Account name:</strong> ${esc(child.bank_account_name)}</p>` : ''}
       ${child.bank_sort_code ? `<p style="margin:2px 0;font-size:14px;"><strong>Sort code:</strong> ${esc(child.bank_sort_code)}</p>` : ''}
       ${child.bank_account_number ? `<p style="margin:2px 0;font-size:14px;"><strong>Account number:</strong> ${esc(child.bank_account_number)}</p>` : ''}
-      <p style="margin:8px 0 0;font-size:14px;color:#6b7280;"><strong>Reference:</strong> ${esc(invoice.invoice_number)}</p>
+      <p style="margin:8px 0 0;font-size:14px;color:#6b7280;"><strong>Reference:</strong> ${esc(row.invoice_number)}</p>
     </div>
   ` : ''
 
   const html = `
     <!DOCTYPE html>
     <html>
-    <head><meta charset="utf-8"><title>Invoice ${esc(invoice.invoice_number)}</title></head>
+    <head><meta charset="utf-8"><title>Invoice ${esc(row.invoice_number)}</title></head>
     <body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#111;">
       <div style="background:#059669;color:white;padding:24px;border-radius:12px;margin-bottom:24px;">
-        <h1 style="margin:0;font-size:24px;">Invoice ${esc(invoice.invoice_number)}</h1>
+        <h1 style="margin:0;font-size:24px;">Invoice ${esc(row.invoice_number)}</h1>
         <p style="margin:4px 0 0;opacity:0.9;">${esc(profile.full_name)}</p>
       </div>
       <p>Dear ${esc(child.parent_name)},</p>
@@ -98,19 +97,19 @@ export async function POST(request: NextRequest) {
       </table>
       <div style="text-align:right;margin:16px 0;">
         <div style="display:inline-block;background:#059669;color:white;padding:12px 24px;border-radius:8px;">
-          <strong style="font-size:18px;">Total: ${formatGBP(Number(invoice.total))}</strong>
+          <strong style="font-size:18px;">Total: ${formatGBP(Number(row.total))}</strong>
         </div>
       </div>
-      ${invoice.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
+      ${row.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(row.due_date), 'd MMMM yyyy')}</p>` : ''}
       ${bankHtml}
-      ${invoice.stripe_payment_link ? `
+      ${row.stripe_payment_link ? `
         <div style="margin-top:20px;text-align:center;">
-          <a href="${esc(invoice.stripe_payment_link)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
+          <a href="${esc(row.stripe_payment_link)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
             Pay online now
           </a>
         </div>
       ` : ''}
-      ${invoice.notes ? `<p style="margin-top:20px;padding:12px;background:#fffbeb;border-radius:8px;font-size:14px;">${esc(invoice.notes)}</p>` : ''}
+      ${row.notes ? `<p style="margin-top:20px;padding:12px;background:#fffbeb;border-radius:8px;font-size:14px;">${esc(row.notes)}</p>` : ''}
       <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;">
       <p style="font-size:12px;color:#9ca3af;text-align:center;">
         ${esc(profile.full_name)} · ${esc(profile.email)} · ${esc(profile.phone || '')}
@@ -119,20 +118,18 @@ export async function POST(request: NextRequest) {
     </html>
   `
 
-  const { error } = await resend.emails.send({
-    from: fromEmail,
+  const result = await sendEmail({
     to: child.parent_email,
-    subject: `Invoice ${invoice.invoice_number} from ${profile.full_name} — ${formatGBP(Number(invoice.total))}`,
+    subject: `Invoice ${row.invoice_number} from ${profile.full_name} — ${formatGBP(Number(row.total))}`,
     html,
   })
 
-  if (error) {
-    console.error('Resend error:', error)
+  if (!result.success) {
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
   }
 
   // Mark as sent if draft
-  if (invoice.status === 'draft') {
+  if (row.status === 'draft') {
     await supabase
       .from('invoices')
       .update({ status: 'sent', updated_at: new Date().toISOString() })

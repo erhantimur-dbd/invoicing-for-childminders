@@ -48,9 +48,6 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  async rewrites() {
-    return [{ source: '/sitemap.xml', destination: '/api/sitemap' }]
-  },
   async headers() {
     return [
       {

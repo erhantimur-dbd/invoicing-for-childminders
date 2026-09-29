@@ -11,7 +11,6 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
   '/reset-password',
   '/support',
-  '/pricing',
   '/privacy',
   '/terms',
   '/faq',
@@ -25,8 +24,6 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith('/api/stripe/webhook')) return true
   // Vercel cron — bearer-token-verified at the route
   if (pathname.startsWith('/api/cron/')) return true
-  // Sitemap proxy
-  if (pathname.startsWith('/api/sitemap')) return true
   // Public invoice view (DOB-gated for parents)
   if (pathname.startsWith('/invoice/')) return true
   if (pathname.startsWith('/api/invoice/')) return true
@@ -95,6 +92,16 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // getUser() may rotate the session. Redirects are a new response, so copy
+  // those Set-Cookie headers or the browser drops the refreshed session.
+  function redirectWithSession(url: URL) {
+    const redirectResponse = NextResponse.redirect(url)
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      redirectResponse.cookies.set(cookie)
+    }
+    return redirectResponse
+  }
+
   const { pathname } = request.nextUrl
 
   // ── 1. Unauthenticated access ─────────────────────────────────────────────
@@ -112,7 +119,7 @@ export async function proxy(request: NextRequest) {
     if (isProtectedRoute(pathname)) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'
-      return NextResponse.redirect(url)
+      return redirectWithSession(url)
     }
     return supabaseResponse
   }
@@ -121,7 +128,7 @@ export async function proxy(request: NextRequest) {
   if (pathname === '/') {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+    return redirectWithSession(url)
   }
 
   // ── 3. Admin route guard ──────────────────────────────────────────────────
@@ -135,7 +142,7 @@ export async function proxy(request: NextRequest) {
     if (!profile || profile.role !== 'admin') {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
+      return redirectWithSession(url)
     }
 
     return supabaseResponse
@@ -160,7 +167,7 @@ export async function proxy(request: NextRequest) {
     if (!isActive && !isValidTrial) {
       const url = request.nextUrl.clone()
       url.pathname = '/subscribe'
-      return NextResponse.redirect(url)
+      return redirectWithSession(url)
     }
   }
 

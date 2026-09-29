@@ -5,48 +5,27 @@ import { sendEmail } from '@/lib/email/resend'
 import { welcomeEmail } from '@/lib/email/templates'
 
 export async function POST(request: NextRequest) {
-  // ── Auth: accept either a valid session cookie OR a shared internal secret ──
-  const internalSecret = request.headers.get('x-internal-secret')
-  const secretMatches =
-    internalSecret &&
-    process.env.INTERNAL_SECRET &&
-    internalSecret === process.env.INTERNAL_SECRET
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  let userId: string | undefined
-
-  if (secretMatches) {
-    // Caller supplied a valid internal secret — trust the userId from the body
-    const body = await request.json()
-    userId = body?.userId
-  } else {
-    // Fall back to verifying the user's own session
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-    }
-
-    const body = await request.json().catch(() => ({}))
-    const requestedId: string | undefined = body?.userId
-
-    // A user may only trigger a welcome email for themselves
-    if (requestedId && requestedId !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    userId = user.id
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
   }
 
-  if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
+  const body = await request.json().catch(() => ({}))
+  const requestedId: string | undefined = body?.userId
+
+  // A user may only trigger a welcome email for themselves
+  if (requestedId && requestedId !== user.id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
+
+  const userId = user.id
 
   // ── Fetch the user profile ────────────────────────────────────────────────
-  // Prefer service-role client so this works even when called server-side
-  // immediately after signup (before the cookie is propagated).
+  // Prefer service-role client so the profile can be read immediately after signup.
   const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
