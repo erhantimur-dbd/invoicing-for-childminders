@@ -1,13 +1,23 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BarChart3, TrendingUp, TrendingDown, Download, Receipt } from 'lucide-react'
+import { BarChart3, TrendingUp, TrendingDown, Download, Receipt, FileSpreadsheet } from 'lucide-react'
 import type { Expense } from '@/lib/types'
 import { EXPENSE_CATEGORY_EMOJI } from '@/lib/types'
+import {
+  type AccountingBasis,
+  type InvoiceForExport,
+  invoiceInPeriod,
+  invoiceAccountingDate,
+  loadXeroSettingsFromStorage,
+  mergeXeroSettings,
+} from '@/lib/xero-export'
+
+type DownloadFormat = 'summary' | 'xero-invoices' | 'xero-expenses'
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
@@ -44,14 +54,12 @@ function getMonthKey(date: Date, taxYearStart: number): number {
   return offset
 }
 
-// Palette for pie slices
 const PIE_COLOURS = [
   '#059669', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6',
   '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
   '#06b6d4', '#d946ef', '#78716c', '#64748b',
 ]
 
-// Build SVG arc path for a pie slice
 function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number): string {
   const toRad = (deg: number) => (deg - 90) * (Math.PI / 180)
   const x1 = cx + r * Math.cos(toRad(startAngle))
@@ -71,13 +79,14 @@ function PieChart({ data }: { data: { label: string; value: number; colour: stri
   const cy = 80
   const r = 70
 
-  let cumAngle = 0
-  const slices = data.map((d, i) => {
+  const slices = data.reduce<
+    { label: string; value: number; colour: string; start: number; end: number; angle: number; index: number }[]
+  >((acc, d, i) => {
     const angle = (d.value / total) * 360
-    const start = cumAngle
-    cumAngle += angle
-    return { ...d, start, end: cumAngle, angle, index: i }
-  })
+    const start = acc.length ? acc[acc.length - 1].end : 0
+    acc.push({ ...d, start, end: start + angle, angle, index: i })
+    return acc
+  }, [])
 
   return (
     <svg viewBox="0 0 160 160" className="w-full max-w-[160px]">
@@ -92,9 +101,7 @@ function PieChart({ data }: { data: { label: string; value: number; colour: stri
           onMouseLeave={() => setHovered(null)}
         />
       ))}
-      {/* Centre hole */}
       <circle cx={cx} cy={cy} r={36} fill="white" />
-      {/* Centre label */}
       {hovered !== null ? (
         <>
           <text x={cx} y={cy - 6} textAnchor="middle" fontSize="10" fill="#374151" fontWeight="700">
@@ -118,45 +125,49 @@ function PieChart({ data }: { data: { label: string; value: number; colour: stri
 }
 
 export default function ReportsPage() {
-  const supabase = createClient()
   const taxYearOptions = generateTaxYearOptions()
   const [selectedYear, setSelectedYear] = useState(getCurrentTaxYear())
-  const [invoices, setInvoices] = useState<any[]>([])
+  const [basis, setBasis] = useState<AccountingBasis>('cash')
+  const [allInvoices, setAllInvoices] = useState<InvoiceForExport[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [loading, setLoading] = useState(true)
 
   const taxYear = getTaxYear(selectedYear)
+  const startStr = taxYear.start.toISOString().split('T')[0]
+  const endStr = taxYear.end.toISOString().split('T')[0]
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    const startStr = taxYear.start.toISOString().split('T')[0]
-    const endStr = taxYear.end.toISOString().split('T')[0]
+  useEffect(() => {
+    let cancelled = false
+    const supabase = createClient()
+    async function load() {
+      setLoading(true)
+      const [{ data: invData }, { data: expData }] = await Promise.all([
+        supabase
+          .from('invoices')
+          .select('*, children(first_name, last_name, parent_name), invoice_line_items(description, quantity, unit_price, amount, is_funded)')
+          .neq('status', 'draft'),
+        supabase
+          .from('expenses')
+          .select('*')
+          .gte('date', startStr)
+          .lte('date', endStr),
+      ])
+      if (cancelled) return
+      setAllInvoices((invData || []) as InvoiceForExport[])
+      setExpenses(expData || [])
+      setLoading(false)
+    }
+    load()
+    return () => { cancelled = true }
+  }, [selectedYear, startStr, endStr])
 
-    const [{ data: invData }, { data: expData }] = await Promise.all([
-      supabase
-        .from('invoices')
-        .select('*, children(first_name, last_name)')
-        .eq('status', 'paid')
-        .gte('issue_date', startStr)
-        .lte('issue_date', endStr),
-      supabase
-        .from('expenses')
-        .select('*')
-        .gte('date', startStr)
-        .lte('date', endStr),
-    ])
+  const invoices = allInvoices.filter(inv => invoiceInPeriod(inv, startStr, endStr, basis))
 
-    setInvoices(invData || [])
-    setExpenses(expData || [])
-    setLoading(false)
-  }, [selectedYear]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => { load() }, [load])
-
-  // Monthly income breakdown (Apr→Mar)
   const monthlyIncome = Array(12).fill(0)
   invoices.forEach(inv => {
-    const idx = getMonthKey(new Date(inv.issue_date), selectedYear)
+    const dateStr = invoiceAccountingDate(inv, basis)
+    if (!dateStr) return
+    const idx = getMonthKey(new Date(dateStr), selectedYear)
     if (idx >= 0) monthlyIncome[idx] += Number(inv.total)
   })
 
@@ -170,7 +181,6 @@ export default function ReportsPage() {
   const totalExpenses = expenses.reduce((s, e) => s + Number(e.amount), 0)
   const netProfit = totalIncome - totalExpenses
 
-  // Per child breakdown
   const byChild: Record<string, { name: string; total: number }> = {}
   invoices.forEach(inv => {
     const child = inv.children
@@ -181,14 +191,12 @@ export default function ReportsPage() {
   })
   const childBreakdown = Object.values(byChild).sort((a, b) => b.total - a.total)
 
-  // Per category expense breakdown
   const byCategory: Record<string, number> = {}
   expenses.forEach(exp => {
     byCategory[exp.category] = (byCategory[exp.category] || 0) + Number(exp.amount)
   })
   const categoryEntries = Object.entries(byCategory).sort((a, b) => b[1] - a[1])
 
-  // Pie chart data
   const pieData = categoryEntries.map(([label, value], i) => ({
     label,
     value,
@@ -200,46 +208,103 @@ export default function ReportsPage() {
 
   const maxMonthly = Math.max(...monthlyIncome, ...monthlyExpenses, 1)
 
-  async function exportCSV() {
-    const startStr = taxYear.start.toISOString().split('T')[0]
-    const endStr = taxYear.end.toISOString().split('T')[0]
-    window.location.href = `/api/reports/export-csv?start=${startStr}&end=${endStr}&year=${selectedYear}`
+  function exportCSV(format: DownloadFormat) {
+    const settings = mergeXeroSettings(loadXeroSettingsFromStorage())
+    const params = new URLSearchParams({
+      start: startStr,
+      end: endStr,
+      year: String(selectedYear),
+      basis,
+      format,
+      salesAccount: settings.salesAccountCode,
+      expenseAccount: settings.defaultExpenseAccountCode,
+      taxType: settings.taxType,
+    })
+    window.location.href = `/api/reports/export-csv?${params.toString()}`
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tax summary</h1>
-          <p className="text-gray-500 text-sm">UK tax year (6 Apr – 5 Apr)</p>
-        </div>
-        <Button variant="outline" className="gap-2 text-sm" onClick={exportCSV}>
-          <Download className="h-4 w-4" />
-          CSV
-        </Button>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Tax summary</h1>
+        <p className="text-gray-500 text-sm">UK tax year (6 Apr – 5 Apr)</p>
       </div>
 
-      {/* Tax year selector */}
-      <Select value={String(selectedYear)} onValueChange={v => setSelectedYear(Number(v))}>
-        <SelectTrigger className="h-12 text-base">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {taxYearOptions.map(opt => (
-            <SelectItem key={opt.year} value={String(opt.year)}>
-              Tax year {opt.label}
-            </SelectItem>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Select value={String(selectedYear)} onValueChange={v => setSelectedYear(Number(v))}>
+          <SelectTrigger className="h-12 text-base">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {taxYearOptions.map(opt => (
+              <SelectItem key={opt.year} value={String(opt.year)}>
+                Tax year {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="flex rounded-xl bg-gray-100 p-1 h-12">
+          {([
+            { value: 'cash' as const, label: 'Cash basis' },
+            { value: 'accrual' as const, label: 'Accrual' },
+          ]).map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setBasis(opt.value)}
+              className={`flex-1 rounded-lg text-sm font-medium transition-colors ${
+                basis === opt.value
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {opt.label}
+            </button>
           ))}
-        </SelectContent>
-      </Select>
+        </div>
+      </div>
+
+      <p className="text-xs text-gray-400 -mt-1">
+        {basis === 'cash'
+          ? 'Income counted when marked paid (recommended for most childminders).'
+          : 'Income counted on invoice issue date, including unpaid sent invoices.'}
+      </p>
+
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <div className="w-7 h-7 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+            </div>
+            Export
+          </CardTitle>
+          <p className="text-xs text-gray-500 mt-1">
+            Accountant summary, or Xero-ready CSVs (Business → Invoices / Bills → Import). Account codes can be set in Settings.
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('summary')}>
+            <Download className="h-4 w-4" />
+            Accountant summary
+          </Button>
+          <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('xero-invoices')}>
+            <Download className="h-4 w-4" />
+            Xero invoices
+          </Button>
+          <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('xero-expenses')}>
+            <Download className="h-4 w-4" />
+            Xero expenses
+          </Button>
+        </CardContent>
+      </Card>
 
       {loading ? (
         <div className="space-y-3">
-          {[1,2,3,4].map(i => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />)}
         </div>
       ) : (
         <>
-          {/* Summary cards */}
           <div className="grid grid-cols-3 gap-3">
             <Card className="border-0 shadow-sm bg-emerald-50">
               <CardContent className="p-4">
@@ -264,7 +329,6 @@ export default function ReportsPage() {
             </Card>
           </div>
 
-          {/* Monthly bar chart */}
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Month by month</CardTitle>
@@ -298,7 +362,6 @@ export default function ReportsPage() {
             </CardContent>
           </Card>
 
-          {/* ── Expense breakdown ──────────────────────────────── */}
           {expenses.length > 0 && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
@@ -310,8 +373,6 @@ export default function ReportsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-5">
-
-                {/* Expense stats row */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-gray-50 rounded-xl p-3 text-center">
                     <p className="text-lg font-bold text-gray-900">{expenses.length}</p>
@@ -329,14 +390,10 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                {/* Pie chart + legend */}
                 <div className="flex items-start gap-5">
-                  {/* Pie */}
                   <div className="flex-shrink-0 w-36">
                     <PieChart data={pieData} />
                   </div>
-
-                  {/* Legend */}
                   <div className="flex-1 space-y-2 min-w-0">
                     {pieData.map((slice) => {
                       const pct = totalExpenses > 0 ? ((slice.value / totalExpenses) * 100).toFixed(1) : '0'
@@ -359,7 +416,6 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                {/* Category bar breakdown */}
                 <div className="space-y-3 pt-1 border-t border-gray-50">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">By category</p>
                   {categoryEntries.map(([cat, amount], i) => {
@@ -389,12 +445,10 @@ export default function ReportsPage() {
                     )
                   })}
                 </div>
-
               </CardContent>
             </Card>
           )}
 
-          {/* Per child */}
           {childBreakdown.length > 0 && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-2">
@@ -423,7 +477,11 @@ export default function ReportsPage() {
             <div className="text-center py-16">
               <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 font-medium">No data for this tax year</p>
-              <p className="text-gray-400 text-sm mt-1">Paid invoices and expenses will appear here</p>
+              <p className="text-gray-400 text-sm mt-1">
+                {basis === 'cash'
+                  ? 'Paid invoices and expenses will appear here'
+                  : 'Sent or paid invoices and expenses will appear here'}
+              </p>
             </div>
           )}
         </>
