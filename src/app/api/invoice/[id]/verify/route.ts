@@ -5,16 +5,21 @@ import { createInvoiceToken } from '@/lib/invoiceToken'
 const MAX_ATTEMPTS = 5
 const WINDOW_MINUTES = 15
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    throw new Error('Supabase is not configured.')
+  }
+  return createClient(url, key)
+}
 
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: invoiceId } = await params
+  const supabaseAdmin = getAdmin()
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
   // 1. Rate limit — count failed attempts in the last WINDOW_MINUTES
