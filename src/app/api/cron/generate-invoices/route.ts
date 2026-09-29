@@ -9,11 +9,37 @@ import {
 } from '@/lib/agent/invoice-agent'
 import { persistInvoices } from '@/lib/agent/create-invoices'
 
+// Fluid compute duration (vercel.com/docs/functions/limitations): Hobby max is
+// 300s; Pro and Enterprise default to 300s and cap at 800s (1800s is an extended
+// beta). 300s stays inside every plan and covers a few sequential invoice-agent
+// loops in one hourly run. A timeout retry must not duplicate drafts.
+export const maxDuration = 300
+
+const INVOICE_TIME_ZONE = 'Europe/London'
+
+/** Weekday and hour on the Europe/London wall clock, including BST. */
+function londonScheduleClock(now: Date): { weekday: string; hour: number } {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: INVOICE_TIME_ZONE,
+    weekday: 'long',
+    hour: 'numeric',
+    hourCycle: 'h23',
+  }).formatToParts(now)
+
+  const weekday = parts.find((part) => part.type === 'weekday')?.value.toLowerCase() ?? ''
+  let hour = Number(parts.find((part) => part.type === 'hour')?.value)
+  // Some ICU builds report midnight as 24 even with hourCycle h23.
+  if (hour === 24) hour = 0
+
+  return { weekday, hour }
+}
+
 export async function GET(request: NextRequest) {
-  // Verify cron secret — Vercel sends this automatically; also checked manually
+  // Proxy leaves /api/cron/ public, so this bearer check is the only gate.
+  // Fail closed when CRON_SECRET is unset or empty.
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -41,10 +67,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'No eligible childminders', week: weekStart })
   }
 
-  // Determine today's day name and current hour (UTC)
+  // Profile "Time" is a clock hour with no timezone. Compare it to Europe/London
+  // so 7:00 AM means 07:00 UK. In summer (BST, UTC+1) that is one hour earlier
+  // than the previous UTC match.
   const now = new Date()
-  const todayDayName = now.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase()
-  const currentHour = now.getUTCHours()
+  const { weekday: todayDayName, hour: currentHour } = londonScheduleClock(now)
+  if (!todayDayName || !Number.isInteger(currentHour)) {
+    return NextResponse.json({ error: 'Could not resolve Europe/London schedule clock' }, { status: 500 })
+  }
 
   const results = []
 
