@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { emitReceiptOcrUsage, RECEIPT_OCR_MODEL } from '@/lib/ai/receipt-ocr-usage'
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
     const response = await client.messages.create({
-      model: 'claude-opus-4-5',
+      model: RECEIPT_OCR_MODEL,
       max_tokens: 1024,
       messages: [{
         role: 'user',
@@ -63,6 +64,12 @@ Omit any field you cannot determine with reasonable confidence. Return only the 
           }
         ]
       }]
+    })
+
+    emitReceiptOcrUsage({
+      id: response.id,
+      model: response.model,
+      usage: response.usage,
     })
 
     const rawText = response.content[0].type === 'text' ? response.content[0].text : ''
