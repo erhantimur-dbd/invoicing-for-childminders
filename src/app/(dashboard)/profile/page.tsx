@@ -13,6 +13,7 @@ import { Loader2, LogOut, User, MapPin, ShieldCheck, CalendarClock, FileSpreadsh
 import { useRouter } from 'next/navigation'
 import type { Profile } from '@/lib/types'
 import BankAccountsSection from '@/components/BankAccountsSection'
+import XeroConnectSection from '@/components/XeroConnectSection'
 import {
   DEFAULT_XERO_SETTINGS,
   loadXeroSettingsFromStorage,
@@ -20,6 +21,15 @@ import {
   saveXeroSettingsToStorage,
   type XeroExportSettings,
 } from '@/lib/xero-export'
+
+function currentTaxYearRange() {
+  const now = new Date()
+  const year = now >= new Date(`${now.getFullYear()}-04-06`) ? now.getFullYear() : now.getFullYear() - 1
+  return {
+    start: `${year}-04-06`,
+    end: `${year + 1}-04-05`,
+  }
+}
 
 type ProfileForm = Partial<Profile>
 
@@ -387,17 +397,17 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* ── Xero export ──────────────────────────────────────── */}
+        {/* ── Xero account codes ───────────────────────────────── */}
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <div className="w-7 h-7 bg-sky-100 rounded-lg flex items-center justify-center">
                 <FileSpreadsheet className="h-4 w-4 text-sky-600" />
               </div>
-              Xero export
+              Xero account codes
             </CardTitle>
             <p className="text-xs text-gray-500 mt-1">
-              Account codes must match your Xero chart of accounts exactly. Used when downloading Xero CSVs from Reports.
+              Must match your Xero chart of accounts. Used for CSV export and one-click sync.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -447,6 +457,13 @@ export default function ProfilePage() {
           {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save settings'}
         </Button>
       </form>
+
+      {/* ── Xero Connect (outside form — own actions) ─────────── */}
+      <XeroConnectSection
+        defaultStart={currentTaxYearRange().start}
+        defaultEnd={currentTaxYearRange().end}
+        defaultBasis="cash"
+      />
 
       {/* ── Bank accounts ─────────────────────────────────────── */}
       {userId && (

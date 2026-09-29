@@ -223,7 +223,7 @@ export default function Page() {
         <ul className="space-y-2 mb-6 text-gray-700">
           <li className="flex gap-3">
             <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-            <span><strong className="text-gray-900">Bridge to Xero / FreeAgent / QuickBooks.</strong> <span className="text-gray-600">Download accountant and Xero-ready CSVs from Dottie&apos;s reports (invoices + expenses) and import them into your bookkeeping software. One-click Xero sync is on the roadmap.</span></span>
+            <span><strong className="text-gray-900">Bridge to Xero / FreeAgent / QuickBooks.</strong> <span className="text-gray-600">Download accountant and Xero-ready CSVs from Reports, or connect Xero for one-click draft sync of invoices and expenses.</span></span>
           </li>
           <li className="flex gap-3">
             <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />

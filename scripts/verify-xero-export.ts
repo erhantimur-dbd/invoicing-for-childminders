@@ -51,6 +51,7 @@ const expenses: Expense[] = [
     receipt_url: null,
     merchant_name: 'Tesco',
     ai_extracted: false,
+    xero_bill_id: null,
     created_at: '',
     updated_at: '',
   },

@@ -57,6 +57,7 @@ export type Child = {
   funded_hours_per_day: number | null
   funded_days: string[] | null
   archived_at: string | null
+  xero_contact_id?: string | null
   created_at: string
   updated_at: string
 }
@@ -94,6 +95,7 @@ export type Invoice = {
   paid_at: string | null
   stripe_payment_link: string
   stripe_payment_intent_id: string
+  xero_invoice_id?: string | null
   created_at: string
   updated_at: string
   children?: Child
@@ -134,6 +136,7 @@ export type Expense = {
   receipt_url: string | null
   merchant_name: string | null
   ai_extracted: boolean | null
+  xero_bill_id?: string | null
   created_at: string
   updated_at: string
 }
