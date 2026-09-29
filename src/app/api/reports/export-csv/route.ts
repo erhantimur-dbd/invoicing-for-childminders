@@ -25,7 +25,14 @@ function parseFormat(value: string | null): ExportFormat {
   return 'summary'
 }
 
-function parseSettings(searchParams: URLSearchParams): XeroExportSettings {
+function parseSettings(
+  searchParams: URLSearchParams,
+  profile?: {
+    xero_sales_account_code?: string | null
+    xero_default_expense_account_code?: string | null
+    xero_tax_type?: string | null
+  } | null
+): XeroExportSettings {
   let expenseAccountMap: XeroExportSettings['expenseAccountMap'] = {}
   const mapRaw = searchParams.get('expenseMap')
   if (mapRaw) {
@@ -36,10 +43,13 @@ function parseSettings(searchParams: URLSearchParams): XeroExportSettings {
     }
   }
 
+  // Query params override profile; profile overrides code defaults
   return mergeXeroSettings({
-    salesAccountCode: searchParams.get('salesAccount') || undefined,
-    defaultExpenseAccountCode: searchParams.get('expenseAccount') || undefined,
-    taxType: searchParams.get('taxType') || undefined,
+    salesAccountCode:
+      searchParams.get('salesAccount') || profile?.xero_sales_account_code || undefined,
+    defaultExpenseAccountCode:
+      searchParams.get('expenseAccount') || profile?.xero_default_expense_account_code || undefined,
+    taxType: searchParams.get('taxType') || profile?.xero_tax_type || undefined,
     expenseAccountMap,
   })
 }
@@ -66,7 +76,6 @@ export async function GET(request: NextRequest) {
   const year = searchParams.get('year') || ''
   const basis = parseBasis(searchParams.get('basis'))
   const format = parseFormat(searchParams.get('format'))
-  const settings = parseSettings(searchParams)
 
   if (!start || !end) {
     return NextResponse.json({ error: 'Missing date range' }, { status: 400 })
@@ -74,8 +83,13 @@ export async function GET(request: NextRequest) {
 
   const taxLabel = year ? `${year}-${String(Number(year) + 1).slice(2)}` : 'export'
 
-  // Fetch a wider invoice set, then filter in app for cash vs accrual dating
-  const [{ data: invoicesRaw }, { data: expensesRaw }] = await Promise.all([
+  // Fetch profile settings + a wider invoice set, then filter for cash vs accrual dating
+  const [{ data: profile }, { data: invoicesRaw }, { data: expensesRaw }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('xero_sales_account_code, xero_default_expense_account_code, xero_tax_type')
+      .eq('id', user.id)
+      .maybeSingle(),
     supabase
       .from('invoices')
       .select(
@@ -92,6 +106,8 @@ export async function GET(request: NextRequest) {
       .lte('date', end)
       .order('date'),
   ])
+
+  const settings = parseSettings(searchParams, profile)
 
   const invoices = ((invoicesRaw || []) as InvoiceForExport[]).filter(inv =>
     invoiceInPeriod(inv, start, end, basis)

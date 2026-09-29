@@ -1,6 +1,5 @@
--- Optional: persist Xero export account-code defaults on profiles.
--- Apply when the Supabase project is available.
--- Until then, Settings stores overrides in the browser (localStorage).
+-- Persist Xero export account-code defaults on profiles.
+-- Applied to childminder-invoicing (pvsiygkdprjqasdceuhm) as migration xero_export_settings.
 
 alter table public.profiles
   add column if not exists xero_sales_account_code text,

@@ -55,12 +55,15 @@ export default function ProfilePage() {
       if (data) {
         setProfile(data)
         setPrimaryBankId(data.primary_bank_account_id ?? null)
+        // Profile DB is source of truth; localStorage only fills gaps before first save
+        const stored = loadXeroSettingsFromStorage()
         setXeroSettings(
           mergeXeroSettings({
-            salesAccountCode: data.xero_sales_account_code || undefined,
-            defaultExpenseAccountCode: data.xero_default_expense_account_code || undefined,
-            taxType: data.xero_tax_type || undefined,
-            ...loadXeroSettingsFromStorage(),
+            salesAccountCode: data.xero_sales_account_code || stored?.salesAccountCode || undefined,
+            defaultExpenseAccountCode:
+              data.xero_default_expense_account_code || stored?.defaultExpenseAccountCode || undefined,
+            taxType: data.xero_tax_type || stored?.taxType || undefined,
+            expenseAccountMap: stored?.expenseAccountMap,
           })
         )
       } else {
@@ -85,14 +88,6 @@ export default function ProfilePage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // Always persist Xero codes locally so exports work before DB migration lands
-    saveXeroSettingsToStorage({
-      salesAccountCode: xeroSettings.salesAccountCode,
-      defaultExpenseAccountCode: xeroSettings.defaultExpenseAccountCode,
-      taxType: xeroSettings.taxType,
-      expenseAccountMap: xeroSettings.expenseAccountMap,
-    })
-
     const { error } = await supabase
       .from('profiles')
       .update({
@@ -114,34 +109,15 @@ export default function ProfilePage() {
       })
       .eq('id', user.id)
     if (error) {
-      // Columns may not exist until migration — localStorage still saved
-      if (error.message?.includes('xero_') || error.code === 'PGRST204') {
-        const { error: retryError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: profile.full_name,
-            phone: profile.phone,
-            address_line1: profile.address_line1,
-            address_line2: profile.address_line2,
-            city: profile.city,
-            postcode: profile.postcode,
-            ofsted_number: profile.ofsted_number || null,
-            show_ofsted_on_invoice: profile.show_ofsted_on_invoice ?? false,
-            invoice_frequency: profile.invoice_frequency || 'weekly',
-            invoice_day: profile.invoice_day || 'sunday',
-            invoice_hour: profile.invoice_hour ?? 7,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', user.id)
-        if (retryError) {
-          toast.error('Failed to save settings')
-        } else {
-          toast.success('Settings saved (Xero codes stored on this device)')
-        }
-      } else {
-        toast.error('Failed to save settings')
-      }
+      toast.error('Failed to save settings')
     } else {
+      // Mirror to localStorage so Reports can pass codes without an extra round-trip
+      saveXeroSettingsToStorage({
+        salesAccountCode: xeroSettings.salesAccountCode,
+        defaultExpenseAccountCode: xeroSettings.defaultExpenseAccountCode,
+        taxType: xeroSettings.taxType,
+        expenseAccountMap: xeroSettings.expenseAccountMap,
+      })
       toast.success('Settings saved')
     }
     setSaving(false)
