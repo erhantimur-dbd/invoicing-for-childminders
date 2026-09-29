@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { log } from '@/lib/log'
 import { accountCanCharge, stripeClient } from '@/lib/stripe/connect'
+import { resolveSubscriptionTier } from '@/lib/stripe/prices'
 
 function createServiceClient() {
   return createServerClient(
@@ -122,6 +123,8 @@ export async function POST(request: NextRequest) {
             await supabase.from('subscriptions').insert({ user_id: userId, ...patch })
           }
         } else {
+          const invoicingTier = resolveSubscriptionTier(tier, session.metadata?.price_id)
+          const storedPlan = invoicingTier && plan ? `${invoicingTier}_${plan}` : planTier
           await supabase
             .from('subscriptions')
             .upsert(
@@ -129,7 +132,8 @@ export async function POST(request: NextRequest) {
                 user_id: userId,
                 stripe_customer_id: customerId,
                 stripe_subscription_id: stripeSubId,
-                plan: planTier,
+                plan: storedPlan,
+                ...(invoicingTier ? { tier: invoicingTier } : {}),
                 updated_at: now,
               },
               { onConflict: 'user_id' },
@@ -199,6 +203,7 @@ export async function POST(request: NextRequest) {
           trial_end: number | null
           current_period_end: number | null
           metadata?: Record<string, string>
+          items?: { data?: Array<{ price?: string | { id?: string } | null }> }
         }
         const stripeCustomerId = subscription.customer
         const currentPeriodEnd = typeof subscription.current_period_end === 'number'
@@ -230,15 +235,53 @@ export async function POST(request: NextRequest) {
           const trialEnd = typeof subscription.trial_end === 'number'
             ? new Date(subscription.trial_end * 1000).toISOString()
             : null
-          await supabase
-            .from('subscriptions')
-            .update({
-              status: subscription.status,
-              trial_end: trialEnd,
-              current_period_end: currentPeriodEnd,
-              updated_at: now,
-            })
-            .eq('stripe_customer_id', stripeCustomerId)
+          const priceRef = subscription.items?.data?.[0]?.price
+          const priceId = typeof priceRef === 'string' ? priceRef : priceRef?.id ?? subscription.metadata?.price_id
+          const invoicingTier = resolveSubscriptionTier(subscription.metadata?.tier, priceId)
+          const metaPlan = subscription.metadata?.plan
+          const patch: Record<string, string | null> = {
+            status: subscription.status,
+            trial_end: trialEnd,
+            current_period_end: currentPeriodEnd,
+            stripe_customer_id: stripeCustomerId,
+            stripe_subscription_id: subscription.id,
+            updated_at: now,
+          }
+          if (invoicingTier) {
+            patch.tier = invoicingTier
+            if (metaPlan === 'monthly' || metaPlan === 'annual') {
+              patch.plan = `${invoicingTier}_${metaPlan}`
+            }
+          }
+          // subscription.created often arrives before checkout has inserted the
+          // row, so an update-by-customer-id would miss and the user would
+          // never get status or tier. Upsert by user_id in that case.
+          if (row) {
+            await supabase.from('subscriptions').update(patch).eq('stripe_customer_id', stripeCustomerId)
+          } else if (subscription.metadata?.user_id) {
+            const userId = subscription.metadata.user_id
+            // An admin-granted trial has no Stripe customer yet. Do not replace
+            // that trialing row with `incomplete` while Checkout is still open.
+            if (subscription.status === 'incomplete') {
+              const { data: existingUser } = await supabase
+                .from('subscriptions')
+                .select('status')
+                .eq('user_id', userId)
+                .maybeSingle()
+              if (existingUser?.status === 'trialing') {
+                delete patch.status
+                delete patch.trial_end
+              }
+            }
+            await supabase
+              .from('subscriptions')
+              .upsert(
+                { user_id: userId, ...patch },
+                { onConflict: 'user_id' },
+              )
+          } else {
+            log.warn('stripe_subscription_missing_user', { event_id: event.id, subscription_id: subscription.id })
+          }
         }
         break
       }

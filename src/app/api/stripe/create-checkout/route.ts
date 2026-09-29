@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
     user_id: user.id,
     plan,
     product,
+    price_id: priceId,
   }
   if (tier) metadata.tier = tier
 
