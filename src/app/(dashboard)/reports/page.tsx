@@ -5,7 +5,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BarChart3, TrendingUp, TrendingDown, Download, Receipt, FileSpreadsheet } from 'lucide-react'
+import { BarChart3, TrendingUp, TrendingDown, Download, Receipt, FileSpreadsheet, RefreshCw, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import type { Expense } from '@/lib/types'
 import { EXPENSE_CATEGORY_EMOJI } from '@/lib/types'
 import {
@@ -131,6 +132,7 @@ export default function ReportsPage() {
   const [allInvoices, setAllInvoices] = useState<InvoiceForExport[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
 
   const taxYear = getTaxYear(selectedYear)
   const startStr = taxYear.start.toISOString().split('T')[0]
@@ -223,6 +225,34 @@ export default function ReportsPage() {
     window.location.href = `/api/reports/export-csv?${params.toString()}`
   }
 
+  async function syncToXero() {
+    setSyncing(true)
+    try {
+      const res = await fetch('/api/xero/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ start: startStr, end: endStr, basis }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Sync failed')
+      const msg =
+        `Synced ${data.invoicesSynced} invoices, ${data.expensesSynced} expenses` +
+        (data.invoicesSkipped + data.expensesSkipped
+          ? ` (${data.invoicesSkipped + data.expensesSkipped} already synced)`
+          : '')
+      if (data.errors?.length) {
+        toast.warning(`${msg}. ${data.errors.length} error(s).`)
+        console.warn('Xero sync errors', data.errors)
+      } else {
+        toast.success(msg)
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Sync failed')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div>
@@ -280,21 +310,31 @@ export default function ReportsPage() {
             Export
           </CardTitle>
           <p className="text-xs text-gray-500 mt-1">
-            Accountant summary, or Xero-ready CSVs (Business → Invoices / Bills → Import). Account codes can be set in Settings.
+            CSV downloads, or push drafts to Xero (connect in Settings). Account codes must match your chart.
           </p>
         </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('summary')}>
-            <Download className="h-4 w-4" />
-            Accountant summary
-          </Button>
-          <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('xero-invoices')}>
-            <Download className="h-4 w-4" />
-            Xero invoices
-          </Button>
-          <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('xero-expenses')}>
-            <Download className="h-4 w-4" />
-            Xero expenses
+        <CardContent className="space-y-2">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('summary')}>
+              <Download className="h-4 w-4" />
+              Accountant summary
+            </Button>
+            <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('xero-invoices')}>
+              <Download className="h-4 w-4" />
+              Xero invoices
+            </Button>
+            <Button variant="outline" className="gap-2 text-sm flex-1" onClick={() => exportCSV('xero-expenses')}>
+              <Download className="h-4 w-4" />
+              Xero expenses
+            </Button>
+          </div>
+          <Button
+            className="w-full gap-2 text-sm h-11 bg-sky-600 hover:bg-sky-700"
+            disabled={syncing}
+            onClick={syncToXero}
+          >
+            {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            Sync selected year to Xero
           </Button>
         </CardContent>
       </Card>
