@@ -133,6 +133,15 @@ test('paid Enquiries checkout sets enquiries_status; success polls status not St
   assert.match(checkoutCase, /enquiries_status/)
   assert.match(checkoutCase, /payment_status/)
   assert.match(checkoutCase, /'active'/)
+  assert.match(checkoutCase, /tier: invoicingTier/)
+
+  const subscriptionCase = webhook.slice(
+    webhook.indexOf("customer.subscription.created"),
+    webhook.indexOf("customer.subscription.deleted"),
+  )
+  assert.match(subscriptionCase, /resolveSubscriptionTier/)
+  assert.match(subscriptionCase, /patch\.tier = invoicingTier/)
+  assert.match(subscriptionCase, /onConflict: 'user_id'/)
 
   const success = read('app/subscribe/success/page.tsx')
   assert.match(success, /checkoutLanded/)
