@@ -169,6 +169,13 @@
   30% { transform: translateY(-4px); }
 }
 
+/* Homepage hero “live enquiry” carousel (www.godottie.cloud).
+   Slides 01–03 have different content heights; lock the window so
+   the hero does not reflow when the loop advances. */
+[data-email-flow="true"] {
+  min-height: 42rem;
+}
+
 @media print {
   @page {
     size: A4 portrait;
