@@ -32,6 +32,8 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith('/api/invoice/')) return true
   // OAuth/email callback flows
   if (pathname.startsWith('/auth/')) return true
+  // Xero OAuth callback — completes with signed state cookies (user session may race)
+  if (pathname.startsWith('/api/xero/callback')) return true
   // Public marketing content
   if (pathname === '/guides' || pathname.startsWith('/guides/')) return true
   return false
