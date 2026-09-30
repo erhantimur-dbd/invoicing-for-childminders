@@ -5,10 +5,14 @@ import { createInvoiceToken } from '@/lib/invoiceToken'
 const MAX_ATTEMPTS = 5
 const WINDOW_MINUTES = 15
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+function getAdminClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for invoice verify')
+  }
+  return createClient(url, key, { auth: { persistSession: false } })
+}
 
 export async function POST(
   req: Request,
@@ -16,6 +20,13 @@ export async function POST(
 ) {
   const { id: invoiceId } = await params
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+  let supabaseAdmin
+  try {
+    supabaseAdmin = getAdminClient()
+  } catch {
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
 
   // 1. Rate limit — count failed attempts in the last WINDOW_MINUTES
   const windowStart = new Date(Date.now() - WINDOW_MINUTES * 60 * 1000).toISOString()
@@ -59,12 +70,14 @@ export async function POST(
     return NextResponse.json({ error: 'Invoice not found' }, { status: 404 })
   }
 
-  const child = (invoice as any).children
+  const child = (invoice as unknown as {
+    children?: { date_of_birth: string | null; first_name: string } | null
+  }).children
   const storedDob: string | null = child?.date_of_birth ?? null
 
   // 4. Compare DOB (both normalised to YYYY-MM-DD)
   const normalise = (d: string) => d.trim().replace(/\//g, '-')
-  const match = storedDob && normalise(dob) === normalise(storedDob)
+  const match = Boolean(storedDob && normalise(dob) === normalise(storedDob))
 
   // 5. Record attempt
   await supabaseAdmin.from('invoice_access_attempts').insert({
@@ -85,6 +98,11 @@ export async function POST(
   }
 
   // 6. Issue token
-  const token = createInvoiceToken(invoiceId)
-  return NextResponse.json({ token, childFirstName: child.first_name })
+  try {
+    const token = createInvoiceToken(invoiceId)
+    return NextResponse.json({ token, childFirstName: child?.first_name })
+  } catch (err) {
+    console.error('createInvoiceToken failed:', err)
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
 }

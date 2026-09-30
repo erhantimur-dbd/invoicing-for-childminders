@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Authenticate user
   const supabase = await createClient()
   const {
     data: { user },
@@ -21,7 +20,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
   }
 
-  // Fetch the user's Stripe customer ID from the subscriptions table
   const { data: subscription, error: subError } = await supabase
     .from('subscriptions')
     .select('stripe_customer_id')
@@ -41,15 +39,14 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Create a Stripe billing portal session
   const Stripe = (await import('stripe')).default
   const stripe = new Stripe(stripeKey)
 
-  const origin = request.nextUrl.origin
+  const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: stripeCustomerId,
-    return_url: `${origin}/dashboard/settings`,
+    return_url: `${origin.replace(/\/$/, '')}/profile`,
   })
 
   return NextResponse.json({ url: portalSession.url })

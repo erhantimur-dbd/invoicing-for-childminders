@@ -9,20 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Loader2, Mail, Lock, User, CheckCircle2, XCircle } from 'lucide-react'
-import PasswordStrength from '@/components/PasswordStrength'
+import PasswordStrength, { getScore } from '@/components/PasswordStrength'
 import SSOButtons from '@/components/SSOButtons'
-
-function getScore(password: string): number {
-  if (!password) return 0
-  let score = 0
-  if (password.length >= 8) score += 1
-  if (password.length >= 12) score += 1
-  if (/[a-z]/.test(password)) score += 1
-  if (/[A-Z]/.test(password)) score += 1
-  if (/[0-9]/.test(password)) score += 1
-  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) score += 1
-  return score
-}
 
 type Requirement = {
   label: string
@@ -31,7 +19,7 @@ type Requirement = {
 
 function getRequirements(password: string): Requirement[] {
   return [
-    { label: 'At least 8 characters', met: password.length >= 8 },
+    { label: 'At least 10 characters', met: password.length >= 10 },
     { label: 'One uppercase letter', met: /[A-Z]/.test(password) },
     { label: 'One number', met: /[0-9]/.test(password) },
     { label: 'One special character', met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password) },

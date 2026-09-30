@@ -74,6 +74,9 @@ export async function POST(request: NextRequest) {
     </div>
   ` : ''
 
+  const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
+  const viewUrl = `${origin.replace(/\/$/, '')}/invoice/${invoice.id}`
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -103,10 +106,15 @@ export async function POST(request: NextRequest) {
       </div>
       ${invoice.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
       ${bankHtml}
+      <div style="margin-top:20px;text-align:center;">
+        <a href="${esc(viewUrl)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
+          View invoice online
+        </a>
+      </div>
       ${invoice.stripe_payment_link ? `
-        <div style="margin-top:20px;text-align:center;">
-          <a href="${esc(invoice.stripe_payment_link)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
-            Pay online now
+        <div style="margin-top:12px;text-align:center;">
+          <a href="${esc(invoice.stripe_payment_link)}" style="color:#059669;font-weight:600;font-size:14px;">
+            Or pay online now →
           </a>
         </div>
       ` : ''}
