@@ -102,7 +102,8 @@ export async function POST(request: NextRequest) {
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: {
-      trial_period_days: 7,
+      // No free trial by default — checkout charges immediately. Discretionary
+      // trials are granted via /api/admin/grant-trial after a demo.
       metadata: { user_id: user.id, plan, tier },
     },
     metadata: { user_id: user.id, plan, tier },

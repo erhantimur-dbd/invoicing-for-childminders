@@ -67,9 +67,8 @@ export async function POST(request: NextRequest) {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
-        // Attach Stripe IDs only. Status / trial_end come from
-        // customer.subscription.created|updated — do NOT hardcode 'active'
-        // (Checkout uses a 7-day trial, so Stripe status is 'trialing').
+        // Attach Stripe IDs only. Status / trial_end / period end come from
+        // customer.subscription.created|updated (source of truth).
         const session = event.data.object as import('stripe').Stripe.Checkout.Session
         const userId = session.metadata?.user_id
         const plan = session.metadata?.plan
