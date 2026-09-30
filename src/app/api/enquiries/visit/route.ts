@@ -3,6 +3,7 @@ import { decryptField } from '@/lib/crypto'
 import { createClient } from '@/lib/supabase/server'
 import { slotMinutesFromSettings } from '@/lib/integrations/calendar-event.mjs'
 import { cancelVisitEvent, upsertVisitEvent } from '@/lib/integrations/google-calendar'
+import { googleCalendarVisitsEnabled } from '@/lib/integrations/google-calendar-flag'
 import { log } from '@/lib/log'
 
 export async function POST(request: Request) {
@@ -39,35 +40,37 @@ export async function POST(request: Request) {
   }
   if (visitAt) patch.stage = 'visit'
 
-  const { data: conn } = await supabase
-    .from('enquiry_connections')
-    .select('refresh_token_enc, status')
-    .eq('user_id', user.id)
-    .eq('provider', 'google')
-    .maybeSingle()
+  if (googleCalendarVisitsEnabled()) {
+    const { data: conn } = await supabase
+      .from('enquiry_connections')
+      .select('refresh_token_enc, status')
+      .eq('user_id', user.id)
+      .eq('provider', 'google')
+      .maybeSingle()
 
-  if (conn?.status === 'active') {
-    try {
-      const refresh = decryptField(conn.refresh_token_enc)
-      if (refresh && visitAt) {
-        const eventId = await upsertVisitEvent({
-          refreshToken: refresh,
-          eventId: prospect.calendar_event_id,
-          parentName: prospect.parent_name,
-          childName: prospect.child_name,
-          parentEmail: prospect.parent_email,
-          visitAt,
-          slotMinutes: slotMinutesFromSettings(settings),
-        })
-        patch.calendar_event_id = eventId
-        patch.calendar_provider = 'google'
-      } else if (refresh && prospect.calendar_event_id) {
-        await cancelVisitEvent({ refreshToken: refresh, eventId: prospect.calendar_event_id })
-        patch.calendar_event_id = null
-        patch.calendar_provider = null
+    if (conn?.status === 'active') {
+      try {
+        const refresh = decryptField(conn.refresh_token_enc)
+        if (refresh && visitAt) {
+          const eventId = await upsertVisitEvent({
+            refreshToken: refresh,
+            eventId: prospect.calendar_event_id,
+            parentName: prospect.parent_name,
+            childName: prospect.child_name,
+            parentEmail: prospect.parent_email,
+            visitAt,
+            slotMinutes: slotMinutesFromSettings(settings),
+          })
+          patch.calendar_event_id = eventId
+          patch.calendar_provider = 'google'
+        } else if (refresh && prospect.calendar_event_id) {
+          await cancelVisitEvent({ refreshToken: refresh, eventId: prospect.calendar_event_id })
+          patch.calendar_event_id = null
+          patch.calendar_provider = null
+        }
+      } catch (err) {
+        log.warn('calendar_sync_failed', { user_id: user.id, error: err instanceof Error ? err.message : 'fail' })
       }
-    } catch (err) {
-      log.warn('calendar_sync_failed', { user_id: user.id, error: err instanceof Error ? err.message : 'fail' })
     }
   }
 

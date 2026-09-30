@@ -38,7 +38,7 @@ export function overageAmountGbp(
 
 export function enquiriesQuotaCopy(q = ENQUIRIES_QUOTA) {
   const extra = q.overageGbpPerDraft.toFixed(2)
-  return `${q.includedDraftsPerMonth} AI email drafts a month included. Extra drafts are £${extra} each. Automatic send is off until you turn it on.`
+  return `${q.includedDraftsPerMonth} AI email drafts a month included. Extra drafts are £${extra} each. Auto-send is the default for classified parent enquiries.`
 }
 
 /**

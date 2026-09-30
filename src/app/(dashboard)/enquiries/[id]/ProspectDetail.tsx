@@ -21,17 +21,27 @@ import {
 } from '@/lib/enquiries/types'
 import { addToInvoicingHref } from '@/lib/enquiries/prospect-to-child.mjs'
 import { ESCALATE_LABELS } from '@/lib/enquiries/escalate.mjs'
+import { alreadyRepliedToLatestInbound, isOpenDraft, replySubject } from '@/lib/enquiries/inbox'
+import type { SendMode } from '@/lib/enquiries/send-mode'
 
 export default function ProspectDetail({
   prospect: initial,
   messages: initialMessages,
   invoicingActive,
   pendingKnowledge: initialPending = [],
+  agentPaused,
+  sendMode,
+  gmailConnected,
+  gmailEmail,
 }: {
   prospect: EnquiryProspect
   messages: EnquiryMessage[]
   invoicingActive: boolean
   pendingKnowledge?: EnquiryKnowledgePending[]
+  agentPaused: boolean
+  sendMode: SendMode
+  gmailConnected: boolean
+  gmailEmail: string | null
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -42,6 +52,15 @@ export default function ProspectDetail({
   const [saving, setSaving] = useState(false)
   const [lostReason, setLostReason] = useState(prospect.lost_reason || '')
   const [pending, setPending] = useState(initialPending)
+  const [draftBody, setDraftBody] = useState(() => {
+    const draft = [...initialMessages].reverse().find(isOpenDraft)
+    return draft?.body || ''
+  })
+  const [draftSubject, setDraftSubject] = useState(() => {
+    const draft = [...initialMessages].reverse().find(isOpenDraft)
+    const inbound = [...initialMessages].reverse().find((m) => m.direction === 'in')
+    return draft?.subject || replySubject(inbound?.subject, initial.child_name)
+  })
 
   const latestInbound = [...messages].reverse().find((m) => m.direction === 'in')
   const latestDraft = [...messages].reverse().find(isOpenDraft)
@@ -84,23 +103,49 @@ export default function ProspectDetail({
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Draft failed')
-      setMessages((prev) => [...prev, data.draft])
       setProspect({
         ...prospect,
         stage: prospect.stage === 'new' ? 'chatting' : prospect.stage,
         needs_human: Boolean(data.needsHuman),
         escalate_reasons: data.escalateReasons || [],
       })
-      toast.success(
-        data.needsHuman
-          ? 'Dottie needs you — she was not sure enough to send this.'
-          : 'Draft ready — read it, then send from your own email.',
-      )
+      if (data.sent) {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== data.draft?.id),
+          { ...data.draft, status: 'auto_sent' },
+          {
+            ...data.draft,
+            id: data.sent.gmailMessageId || `out-${Date.now()}`,
+            direction: 'out',
+            status: 'auto_sent',
+            body: data.draft.body,
+            from_address: gmailEmail,
+            to_address: prospect.parent_email,
+          },
+        ])
+        setDraftBody('')
+        toast.success('Drafted and sent from Gmail (auto-send is on).')
+      } else {
+        setMessages((prev) => [...prev, data.draft])
+        setDraftBody(data.draft?.body || '')
+        toast.success(
+          data.needsHuman
+            ? 'Dottie needs you — she was not sure enough to send this.'
+            : 'Draft ready — read it, then approve to send from Gmail.',
+        )
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not draft a reply.')
     } finally {
       setDrafting(false)
     }
+  }
+
+  function mailtoDraft() {
+    if (!draftBody || !prospect.parent_email) return
+    const subject = encodeURIComponent(draftSubject || `Your enquiry${prospect.child_name ? ` — ${prospect.child_name}` : ''}`)
+    const body = encodeURIComponent(draftBody)
+    window.location.href = `mailto:${prospect.parent_email}?subject=${subject}&body=${body}`
   }
 
   async function copyDraft() {
@@ -154,7 +199,7 @@ export default function ProspectDetail({
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <Link href="/enquiries" className="text-sm text-emerald-700 font-medium">← Inbox</Link>
+        <Link href="/enquiries" className="text-sm text-emerald-700 font-medium">← Parents</Link>
         <div className="flex flex-wrap items-start justify-between gap-3 mt-3">
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900">{prospect.parent_name || 'Parent'}</h1>
@@ -252,6 +297,12 @@ export default function ProspectDetail({
             />
           ))}
         </div>
+      ) : null}
+
+      {agentPaused ? (
+        <p className="text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
+          Dottie is paused. Turn her back on from New parents to read Gmail, draft, or send.
+        </p>
       ) : null}
 
       {prospect.stage === 'lost' || prospect.stage === 'started' ? null : (

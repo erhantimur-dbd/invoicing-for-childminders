@@ -3,7 +3,14 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { getSupabasePublicEnv } from '@/lib/supabase/env'
 import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
+import {
+  SOCIAL_AUTH_REDIRECT_GRACE_MS,
+  startSocialAuth,
+  socialAuthRedirectBlockedMessage,
+  type SocialProvider,
+} from '@/lib/auth/social-oauth'
 
 type Props = {
   mode: 'login' | 'signup'
@@ -21,22 +28,40 @@ export default function SSOButtons({ mode, onError }: Props) {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [appleLoading, setAppleLoading] = useState(false)
 
-  async function startOAuth(provider: 'google' | 'apple') {
+  function fail(message: string) {
+    onError?.(message)
+    if (!onError) toast.error(message)
+    setGoogleLoading(false)
+    setAppleLoading(false)
+  }
+
+  async function startOAuth(provider: SocialProvider) {
     if (provider === 'google') setGoogleLoading(true)
     else setAppleLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
+    const result = await startSocialAuth({
       provider,
-      options: {
-        redirectTo: authCallbackRedirect(window.location.origin, oauthNext(mode)),
+      origin: window.location.origin,
+      hasPublicEnv: getSupabasePublicEnv() !== null,
+      redirectTo: authCallbackRedirect(window.location.origin, oauthNext(mode)),
+      signIn: async ({ provider: nextProvider, redirectTo }) => {
+        const supabase = createClient()
+        return supabase.auth.signInWithOAuth({
+          provider: nextProvider,
+          options: {
+            redirectTo,
+            skipBrowserRedirect: true,
+          },
+        })
       },
     })
-    if (error) {
-      console.error(`${provider} OAuth error:`, error)
-      onError?.(error.message)
-      setGoogleLoading(false)
-      setAppleLoading(false)
+    if (!result.ok) {
+      fail(result.message)
+      return
     }
+    window.location.assign(result.url)
+    window.setTimeout(() => {
+      fail(socialAuthRedirectBlockedMessage(provider))
+    }, SOCIAL_AUTH_REDIRECT_GRACE_MS)
   }
 
   async function handleGoogle() {

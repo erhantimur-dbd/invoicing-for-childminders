@@ -68,7 +68,13 @@ export async function autoDraftAndSend(
         .eq('user_id', userId)
         .maybeSingle()
 
-      if (!prospect || !prospect.parent_email || prospect.stage === 'lost' || prospect.stage === 'started') {
+      if (
+        !prospect ||
+        !prospect.parent_email ||
+        prospect.stage === 'lost' ||
+        prospect.stage === 'started' ||
+        prospect.stage === 'accepted'
+      ) {
         skipped += 1
         continue
       }
@@ -85,12 +91,17 @@ export async function autoDraftAndSend(
         inbound.body || inbound.subject || undefined,
       )
 
+      if (draft.needsHuman) {
+        skipped += 1
+        continue
+      }
+
       await sendApprovedEnquiry({
         supabase,
         userId,
         prospectId: prospect.id,
-        draftId: draft.id,
-        body: draft.body,
+        draftId: draft.message.id,
+        body: draft.message.body,
         subject: inbound.subject || `Your enquiry`,
         via: 'auto',
       })

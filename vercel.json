@@ -9,8 +9,8 @@
       "schedule": "0 * * * *"
     },
     {
-      "path": "/api/cron/enquiries-ingest",
-      "schedule": "*/5 * * * *"
+      "path": "/api/cron/sync-enquiries",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

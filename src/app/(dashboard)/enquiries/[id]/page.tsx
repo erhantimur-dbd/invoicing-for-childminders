@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import ProspectDetail from './ProspectDetail'
 import { invoicingActive } from '@/lib/enquiries/access'
 import type { EnquiryKnowledgePending, EnquiryMessage, EnquiryProspect } from '@/lib/enquiries/types'
+import { parseSendMode } from '@/lib/enquiries/send-mode'
 
 export default async function ProspectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -56,6 +57,10 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
       messages={(messages ?? []) as EnquiryMessage[]}
       invoicingActive={invoicingActive(sub)}
       pendingKnowledge={(pending ?? []) as EnquiryKnowledgePending[]}
+      agentPaused={Boolean(settings?.agent_paused)}
+      sendMode={parseSendMode(settings?.send_mode)}
+      gmailConnected={Boolean(gmail?.email)}
+      gmailEmail={gmail?.email ?? null}
     />
   )
 }

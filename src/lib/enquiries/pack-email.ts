@@ -28,9 +28,18 @@ export function packPageUrl(slug: string | null | undefined, origin?: string | n
 
 export function packFilePublicUrl(filePath: string | null | undefined): string | null {
   if (!filePath) return null
+  const trimmed = filePath.trim()
+  if (!trimmed) return null
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!supabaseUrl) return null
-  return `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/public/enquiry-pack/${filePath}`
+  const base = supabaseUrl.replace(/\/$/, '')
+  const clean = trimmed.replace(/^\/+/, '')
+  const slash = clean.indexOf('/')
+  if (slash > 0) {
+    return `${base}/storage/v1/object/public/${clean}`
+  }
+  return `${base}/storage/v1/object/public/enquiry-pack/${clean}`
 }
 
 function policiesList(

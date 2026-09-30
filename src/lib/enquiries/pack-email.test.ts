@@ -33,7 +33,7 @@ describe('packFilePublicUrl', () => {
       )
       assert.equal(
         packFilePublicUrl('welcome.pdf'),
-        'https://example.supabase.co/storage/v1/object/public/enquiry-knowledge/welcome.pdf',
+        'https://example.supabase.co/storage/v1/object/public/enquiry-pack/welcome.pdf',
       )
     } finally {
       if (prev === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL

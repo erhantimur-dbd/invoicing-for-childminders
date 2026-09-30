@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils'
 import { FUNDING_OPTIONS, WEEKDAYS, type VisitingWindow } from '@/lib/enquiries/types'
 import { makeInboundSlug } from '@/lib/enquiries/slug'
 import { Switch } from '@/components/ui/switch'
-import GmailConnect from '@/components/enquiries/GmailConnect'
+import SendModeToggle from '@/components/enquiries/SendModeToggle'
+import { parseSendMode, type SendMode } from '@/lib/enquiries/send-mode'
 
 const STEPS = ['About you', 'Spaces', 'Funding', 'Visits', 'Your answers', 'Sending']
 
@@ -72,7 +73,7 @@ export default function SetupWizard() {
     { question: 'What do the children eat?', answer: '' },
   ])
   const [packNotes, setPackNotes] = useState('')
-  const [autoSend, setAutoSend] = useState(false)
+  const [sendMode, setSendMode] = useState<SendMode>('auto')
   const [accountGuardrails, setAccountGuardrails] = useState('')
   const [inboundSlug, setInboundSlug] = useState<string | null>(null)
   const [offerWaitlist, setOfferWaitlist] = useState(true)
@@ -106,7 +107,7 @@ export default function SetupWizard() {
         setSchemes(settings.funding_schemes || [])
         setStretched(settings.stretched_hours)
         setTermTimeOnly(settings.term_time_only)
-        setAutoSend(Boolean(settings.auto_send_replies))
+        setSendMode(parseSendMode(settings.send_mode))
         setAccountGuardrails(settings.account_guardrails || '')
         setInboundSlug(settings.inbound_slug || null)
         setOfferWaitlist(settings.offer_waitlist !== false)
@@ -183,7 +184,7 @@ export default function SetupWizard() {
       term_time_only: termTimeOnly,
       visiting_windows: windows,
       inbound_slug: makeInboundSlug(displayName, user.id),
-      auto_send_replies: autoSend,
+      send_mode: sendMode,
       account_guardrails: accountGuardrails.trim() || null,
       offer_waitlist: offerWaitlist,
       template_opening: templateOpening.trim() || null,
@@ -589,15 +590,6 @@ export default function SetupWizard() {
             )}
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white p-4 space-y-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Send automatic replies</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Off: Dottie drafts, you send. On: she sends the visit letter from your Gmail. Dottie&apos;s reply pattern cannot be turned off.
-                </p>
-              </div>
-              <Switch checked={autoSend} onCheckedChange={setAutoSend} />
-            </div>
             <div className="space-y-1.5">
               <Label>Your extra rules</Label>
               <Textarea
@@ -611,7 +603,11 @@ export default function SetupWizard() {
               </p>
             </div>
           </div>
-          <GmailConnect inboundSlug={inboundSlug} />
+          {inboundSlug ? (
+            <p className="text-xs text-gray-400">
+              Backup: forward parent emails to <span className="font-medium text-gray-600">{inboundSlug}@enquiries.godottie.cloud</span>
+            </p>
+          ) : null}
         </section>
       )}
 
@@ -619,7 +615,7 @@ export default function SetupWizard() {
         <section className="space-y-4">
           <h1 className="text-2xl font-extrabold text-gray-900">How should Dottie send?</h1>
           <p className="text-gray-500 text-sm">
-            You can change this later in the Parents inbox. Auto-send is the default. Draft &amp; approve is opt-in. Pause always stops reading Gmail, drafts, and sends.
+            You can change this later on New parents. Auto-send is the default. Draft &amp; approve is opt-in. Pause always stops reading Gmail, drafts, and sends.
           </p>
           <SendModeToggle value={sendMode} onChange={setSendMode} />
         </section>

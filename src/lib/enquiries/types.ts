@@ -134,6 +134,7 @@ export type EnquiryProspect = {
   lost_reason: string | null
   notes: string | null
   last_email_at: string | null
+  gmail_thread_id?: string | null
   calendar_event_id?: string | null
   calendar_provider?: string | null
   needs_human?: boolean

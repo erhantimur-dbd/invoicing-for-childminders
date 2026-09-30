@@ -78,6 +78,8 @@ export async function startSocialAuth(params: {
   hasPublicEnv: boolean
   signIn: SocialAuthSignIn
   timeoutMs?: number
+  /** Signup keeps the billing `next` path. Login defaults to /auth/callback on this origin. */
+  redirectTo?: string
 }): Promise<SocialAuthStartResult> {
   const { provider, origin, hasPublicEnv, signIn } = params
   const timeoutMs = params.timeoutMs ?? SOCIAL_AUTH_START_TIMEOUT_MS
@@ -87,7 +89,7 @@ export async function startSocialAuth(params: {
   }
 
   try {
-    const redirectTo = portalOAuthRedirectTo(origin)
+    const redirectTo = params.redirectTo || portalOAuthRedirectTo(origin)
     const { data, error } = await withTimeout(
       signIn({ provider, redirectTo }),
       timeoutMs,
