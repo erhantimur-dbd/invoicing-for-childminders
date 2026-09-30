@@ -90,10 +90,8 @@ export async function POST(request: NextRequest) {
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: {
+      // No trial days. Checkout uses the existing price and charges on signup.
       metadata,
-      // Charge on signup. `now` overrides a trial baked into the existing
-      // Stripe price. Price IDs are unchanged; this does not create products.
-      trial_end: 'now',
     },
     ...(existing?.stripe_customer_id
       ? { customer: existing.stripe_customer_id }

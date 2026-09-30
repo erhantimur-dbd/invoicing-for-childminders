@@ -114,8 +114,8 @@ test('signup is paid checkout, not a self-serve trial; demo stays on navy chrome
   )
 
   const checkout = read('app/api/stripe/create-checkout/route.ts')
-  assert.match(checkout, /trial_end:\s*'now'/)
   assert.doesNotMatch(checkout, /trial_period_days/)
+  assert.doesNotMatch(checkout, /trial_end/)
   assert.match(checkout, /resolveEnquiriesPriceId/)
   assert.match(checkout, /resolveInvoicingPriceId/)
 
