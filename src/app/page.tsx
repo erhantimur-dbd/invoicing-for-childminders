@@ -1,8 +1,5 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
-import { createClient } from '@/lib/supabase/server'
-import { getSupabasePublicEnv } from '@/lib/supabase/env'
 import SiteHeader from '@/components/marketing/SiteHeader'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import EmailFlow from '@/components/marketing/EmailFlow'
@@ -47,22 +44,7 @@ const jsonLd = {
   ],
 }
 
-function isNextRedirect(err: unknown): boolean {
-  return typeof err === 'object' && err !== null && 'digest' in err
-    && String((err as { digest: unknown }).digest).startsWith('NEXT_REDIRECT')
-}
-
-export default async function RootPage() {
-  if (getSupabasePublicEnv()) {
-    try {
-      const supabase = await createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) redirect('/dashboard')
-    } catch (err) {
-      if (isNextRedirect(err)) throw err
-    }
-  }
-
+export default function RootPage() {
   return (
     <div
       className={`${marketing.pageClass} min-h-screen overflow-x-clip`}
