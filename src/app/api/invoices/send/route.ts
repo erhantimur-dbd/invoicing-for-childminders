@@ -39,8 +39,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const child = (invoice as any).children
-  const items = (invoice as any).invoice_line_items || []
+  type InvoiceChild = {
+    parent_email?: string | null
+    parent_name?: string | null
+    first_name?: string | null
+    bank_account_number?: string | null
+    bank_name?: string | null
+    bank_account_name?: string | null
+    bank_sort_code?: string | null
+  }
+  type InvoiceItem = {
+    description?: string | null
+    quantity?: number | null
+    unit_price?: number | null
+    amount?: number | null
+  }
+
+  const child = (invoice as { children?: InvoiceChild | null }).children
+  const items = ((invoice as { invoice_line_items?: InvoiceItem[] | null }).invoice_line_items) || []
 
   if (!child?.parent_email) {
     return NextResponse.json({ error: 'No parent email on file' }, { status: 400 })
@@ -54,7 +70,7 @@ export async function POST(request: NextRequest) {
   const resend = new Resend(resendKey)
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'invoices@resend.dev'
 
-  const itemsHtml = items.map((item: any) => `
+  const itemsHtml = items.map((item) => `
     <tr>
       <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;">${esc(item.description)}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:center;">${esc(String(item.quantity))}</td>

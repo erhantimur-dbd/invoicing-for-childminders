@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy — constructing Resend at module load crashes `next build` when the key
+// is unset (common in CI / preview without secrets).
+function getResend() {
+  const key = process.env.RESEND_API_KEY
+  if (!key) return null
+  return new Resend(key)
+}
 
 // ── Simple in-memory rate limiter ──────────────────────────────────────────
 // Max 3 submissions per IP per 15 minutes
@@ -90,6 +96,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Send email via Resend ───────────────────────────────────────────────
+  const resend = getResend()
+  if (!resend) {
+    return NextResponse.json(
+      { error: 'Email is not configured. Please email us directly at support@dottie.cloud.' },
+      { status: 503 },
+    )
+  }
+
   const safeSubject = subject?.trim() || '(no subject)'
 
   try {
