@@ -91,6 +91,9 @@ export async function POST(request: NextRequest) {
     line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: {
       metadata,
+      // Charge on signup. `now` overrides a trial baked into the existing
+      // Stripe price. Price IDs are unchanged; this does not create products.
+      trial_end: 'now',
     },
     ...(existing?.stripe_customer_id
       ? { customer: existing.stripe_customer_id }

@@ -6,7 +6,8 @@ type Props = {
 }
 
 /**
- * Shown above dashboard pages when the user is on a free trial or past_due.
+ * Shown above dashboard pages when an admin-granted complimentary access
+ * period is still running, or when the last payment failed.
  *
  * `daysLeft` is computed by the caller (the dashboard layout) so this
  * component stays pure for the React Compiler.
@@ -48,7 +49,7 @@ export default function TrialBanner({ status, daysLeft }: Props) {
       }`}
     >
       <div className={`text-sm ${urgent ? 'text-amber-900' : 'text-emerald-900'}`}>
-        <span className="font-semibold">Free trial:</span>{' '}
+        <span className="font-semibold">Complimentary access:</span>{' '}
         {daysLeft} day{daysLeft === 1 ? '' : 's'} left
         {!urgent && <span className="text-emerald-700/80"> · pick a plan any time</span>}
       </div>

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { destinationAfterAuth } from '@/lib/enquiries/access'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -22,7 +23,22 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      let destination = next
+      const path = next.split('?')[0] ?? next
+      if (path === '/dashboard' || path === '/onboarding') {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (user) {
+          const { data: sub, error: subError } = await supabase
+            .from('subscriptions')
+            .select('status, trial_end, enquiries_status')
+            .eq('user_id', user.id)
+            .maybeSingle()
+          if (!subError) destination = destinationAfterAuth(next, sub)
+        }
+      }
+      return NextResponse.redirect(`${origin}${destination}`)
     }
   }
 

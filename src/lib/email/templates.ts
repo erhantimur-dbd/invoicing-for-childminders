@@ -180,10 +180,10 @@ export function trialExpiringEmail({
 
   const content = `
     <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Just a heads-up, ${firstName} ⏰</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Your free trial ends in ${daysLeft} ${dayWord}.</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Your complimentary access ends in ${daysLeft} ${dayWord}.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      I've been keeping your invoicing running smoothly — I'd love to keep doing that after your trial ends on <strong>${trialEnd}</strong>. Pick a plan and I'll carry on exactly as I have been.
+      I've been keeping your invoicing running smoothly — I'd love to keep doing that after your access ends on <strong>${trialEnd}</strong>. Pick a plan and I'll carry on exactly as I have been.
     </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fffbeb;border:1px solid #fde68a;border-radius:10px;margin:24px 0;">
@@ -227,7 +227,7 @@ export function trialExpiringEmail({
   `
 
   return {
-    subject: `Your Dottie trial ends in ${daysLeft} ${dayWord}`,
+    subject: `Your Dottie access ends in ${daysLeft} ${dayWord}`,
     html: baseLayout(content),
   }
 }
