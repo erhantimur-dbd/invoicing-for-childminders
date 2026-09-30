@@ -22,8 +22,11 @@ export default function LoginPage() {
   const [ssoError, setSsoError] = useState<string | null>(null)
 
   useEffect(() => {
-    const msg = loginErrorFromQuery(new URLSearchParams(window.location.search).get('error'))
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('error')
+    const msg = loginErrorFromQuery(code)
     if (msg) setError(msg)
+    if (code === 'auth_callback_failed' && msg) toast.error(msg)
   }, [])
 
   async function handleLogin(e: React.FormEvent) {
@@ -31,15 +34,17 @@ export default function LoginPage() {
     setError(null)
     setSsoError(null)
     setLoading(true)
-    const supabase = createClient()
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-    if (signInError) {
-      toast.error(signInError.message)
-      setError(signInError.message)
-      setLoading(false)
-    } else {
-      router.push('/dashboard')
-      router.refresh()
+    try {
+      const supabase = createClient()
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signInError) {
+        toast.error(signInError.message)
+        setError(signInError.message)
+        setLoading(false)
+      } else {
+        router.push('/dashboard')
+        router.refresh()
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not sign in.')
       setLoading(false)

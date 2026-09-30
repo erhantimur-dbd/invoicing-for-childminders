@@ -110,7 +110,7 @@ export default function SSOButtons({ mode, onError }: Props) {
     <div className="space-y-3">
       <button
         type="button"
-        onClick={() => void handleProvider('google')}
+        onClick={() => void handleGoogle()}
         disabled={busy}
         aria-busy={googleLoading}
         className="w-full h-12 flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
@@ -120,7 +120,7 @@ export default function SSOButtons({ mode, onError }: Props) {
       </button>
       <button
         type="button"
-        onClick={() => void handleProvider('apple')}
+        onClick={() => void handleApple()}
         disabled={busy}
         aria-busy={appleLoading}
         className="w-full h-12 flex items-center justify-center gap-3 bg-gray-950 border border-gray-950 rounded-xl text-sm font-semibold text-white hover:bg-gray-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
