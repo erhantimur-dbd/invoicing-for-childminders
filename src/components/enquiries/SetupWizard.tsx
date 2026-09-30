@@ -15,7 +15,7 @@ import { makeInboundSlug } from '@/lib/enquiries/slug'
 import { Switch } from '@/components/ui/switch'
 import GmailConnect from '@/components/enquiries/GmailConnect'
 
-const STEPS = ['About you', 'Spaces', 'Funding', 'Visits', 'Your answers']
+const STEPS = ['About you', 'Spaces', 'Funding', 'Visits', 'Your answers', 'Sending']
 
 type VacancyDraft = {
   weekday: number
@@ -612,6 +612,16 @@ export default function SetupWizard() {
             </div>
           </div>
           <GmailConnect inboundSlug={inboundSlug} />
+        </section>
+      )}
+
+      {step === 5 && (
+        <section className="space-y-4">
+          <h1 className="text-2xl font-extrabold text-gray-900">How should Dottie send?</h1>
+          <p className="text-gray-500 text-sm">
+            You can change this later in the Parents inbox. Auto-send is the default. Draft &amp; approve is opt-in. Pause always stops reading Gmail, drafts, and sends.
+          </p>
+          <SendModeToggle value={sendMode} onChange={setSendMode} />
         </section>
       )}
 

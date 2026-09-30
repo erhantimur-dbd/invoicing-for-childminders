@@ -1,3 +1,8 @@
+/**
+ * Public Supabase env is required to construct a browser/server client.
+ * Preview deployments sometimes omit NEXT_PUBLIC_SUPABASE_*; constructing
+ * with empty values throws and 500s every request (including `/`).
+ */
 export function getSupabasePublicEnv(): { url: string; anonKey: string } | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY

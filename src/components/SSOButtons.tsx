@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
 
@@ -78,13 +79,15 @@ export default function SSOButtons({ mode, onError }: Props) {
   )
 
   const actionText = mode === 'signup' ? 'Sign up' : 'Continue'
+  const busy = googleLoading || appleLoading
 
   return (
     <div className="space-y-3">
       <button
         type="button"
-        onClick={handleGoogle}
-        disabled={googleLoading || appleLoading}
+        onClick={() => void handleProvider('google')}
+        disabled={busy}
+        aria-busy={googleLoading}
         className="w-full h-12 flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
       >
         {googleLoading ? spinnerDark : googleIcon}
@@ -92,8 +95,9 @@ export default function SSOButtons({ mode, onError }: Props) {
       </button>
       <button
         type="button"
-        onClick={handleApple}
-        disabled={googleLoading || appleLoading}
+        onClick={() => void handleProvider('apple')}
+        disabled={busy}
+        aria-busy={appleLoading}
         className="w-full h-12 flex items-center justify-center gap-3 bg-gray-950 border border-gray-950 rounded-xl text-sm font-semibold text-white hover:bg-gray-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
       >
         {appleLoading ? spinnerWhite : appleIcon}

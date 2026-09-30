@@ -38,12 +38,15 @@ export default function ProspectDetail({
   const [prospect, setProspect] = useState(initial)
   const [messages, setMessages] = useState(initialMessages)
   const [drafting, setDrafting] = useState(false)
+  const [sending, setSending] = useState(false)
   const [saving, setSaving] = useState(false)
   const [lostReason, setLostReason] = useState(prospect.lost_reason || '')
   const [pending, setPending] = useState(initialPending)
 
   const latestInbound = [...messages].reverse().find((m) => m.direction === 'in')
-  const latestDraft = [...messages].reverse().find((m) => m.direction === 'draft')
+  const latestDraft = [...messages].reverse().find(isOpenDraft)
+  const alreadyReplied = alreadyRepliedToLatestInbound(messages)
+  const thread = messages.filter((m) => m.direction !== 'draft' || isOpenDraft(m))
 
   async function savePatch(patch: Partial<EnquiryProspect>) {
     setSaving(true)
@@ -100,23 +103,58 @@ export default function ProspectDetail({
     }
   }
 
-  function mailtoDraft() {
-    if (!latestDraft || !prospect.parent_email) return
-    const subject = encodeURIComponent(`Your enquiry${prospect.child_name ? ` — ${prospect.child_name}` : ''}`)
-    const body = encodeURIComponent(latestDraft.body)
-    window.location.href = `mailto:${prospect.parent_email}?subject=${subject}&body=${body}`
+  async function copyDraft() {
+    if (!draftBody) return
+    await navigator.clipboard.writeText(draftBody)
+    toast.success('Copied.')
   }
 
-  async function copyDraft() {
+  async function approveAndSend() {
     if (!latestDraft) return
-    await navigator.clipboard.writeText(latestDraft.body)
-    toast.success('Copied. Paste it into Gmail.')
+    setSending(true)
+    try {
+      const res = await fetch('/api/enquiries/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prospectId: prospect.id,
+          draftId: latestDraft.id,
+          body: draftBody,
+          subject: draftSubject,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Send failed')
+      setMessages((prev) => [
+        ...prev.map((m) => (m.id === latestDraft.id ? { ...m, status: 'approved', body: draftBody } : m)),
+        {
+          ...latestDraft,
+          id: `out-${data.gmailMessageId || Date.now()}`,
+          direction: 'out',
+          status: 'sent',
+          body: draftBody,
+          subject: draftSubject,
+          from_address: null,
+          to_address: prospect.parent_email,
+        },
+      ])
+      toast.success(
+        sendMode === 'auto'
+          ? 'Sent from your Gmail.'
+          : 'Sent from your Gmail. Dottie will not send again unless you approve.',
+      )
+      router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not send that reply.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <Link href="/enquiries" className="text-sm text-emerald-700 font-medium">← Parents</Link>
+        <Link href="/enquiries" className="text-sm text-emerald-700 font-medium">← Inbox</Link>
         <div className="flex flex-wrap items-start justify-between gap-3 mt-3">
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900">{prospect.parent_name || 'Parent'}</h1>
@@ -218,9 +256,13 @@ export default function ProspectDetail({
 
       {prospect.stage === 'lost' || prospect.stage === 'started' ? null : (
         <div className="flex flex-wrap gap-2">
-          <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={draftReply} disabled={drafting}>
+          <Button
+            className="rounded-xl bg-emerald-600 hover:bg-emerald-700"
+            onClick={draftReply}
+            disabled={drafting || agentPaused || (sendMode === 'auto' && alreadyReplied && !latestDraft)}
+          >
             {drafting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-            Draft a reply
+            {sendMode === 'auto' && alreadyReplied && !latestDraft ? 'Sent from Gmail' : 'Draft a reply'}
           </Button>
           <Button
             className="rounded-xl bg-emerald-700 hover:bg-emerald-800"
@@ -297,10 +339,23 @@ export default function ProspectDetail({
 
       {latestDraft ? (
         <div className="rounded-2xl border border-emerald-100 bg-white p-4 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">Draft to send</p>
-          <pre className="whitespace-pre-wrap font-sans text-sm text-gray-800 leading-relaxed">{latestDraft.body}</pre>
+          <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">Draft to approve</p>
+          <div className="space-y-1.5">
+            <Label>Subject</Label>
+            <Input value={draftSubject} onChange={(e) => setDraftSubject(e.target.value)} />
+          </div>
+          <Textarea rows={12} value={draftBody} onChange={(e) => setDraftBody(e.target.value)} />
           <div className="flex flex-wrap gap-2">
-            <Button type="button" className="rounded-xl bg-emerald-600 hover:bg-emerald-700" onClick={copyDraft}>
+            <Button
+              type="button"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700"
+              onClick={approveAndSend}
+              disabled={sending || agentPaused || !gmailConnected || !prospect.parent_email}
+            >
+              {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Approve and send from Gmail
+            </Button>
+            <Button type="button" variant="outline" className="rounded-xl" onClick={copyDraft}>
               Copy
             </Button>
             <Button
@@ -329,14 +384,41 @@ export default function ProspectDetail({
               </Button>
             ) : null}
           </div>
-          <p className="text-xs text-gray-400">Read it before you send. Dottie writes from Your answers — she does not send this herself yet.</p>
+          <p className="text-xs text-gray-400">
+            {gmailConnected
+              ? `Sends as ${gmailEmail} on the Gmail thread — not from a Dottie address.`
+              : 'Connect Gmail on the inbox so Dottie can send as you on the real thread.'}
+          </p>
         </div>
       ) : null}
 
-      {latestInbound ? (
-        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Their message</p>
-          <p className="text-sm text-gray-800 whitespace-pre-wrap">{latestInbound.body}</p>
+      {thread.length ? (
+        <div className="space-y-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Thread</p>
+          {thread.map((m) => (
+            <div
+              key={m.id}
+              className={`rounded-2xl p-4 ${
+                m.direction === 'in'
+                  ? 'border border-gray-100 bg-gray-50'
+                  : m.direction === 'draft'
+                    ? 'border border-emerald-100 bg-white'
+                    : 'border border-emerald-50 bg-emerald-50/60'
+              }`}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+                {m.direction === 'in'
+                  ? 'Parent'
+                  : m.direction === 'draft'
+                    ? 'Draft'
+                    : m.status === 'auto_sent'
+                      ? 'Sent as you · Gmail'
+                      : 'Sent as you · Gmail'}
+              </p>
+              {m.subject ? <p className="text-sm font-medium text-gray-700 mb-1">{m.subject}</p> : null}
+              <p className="text-sm text-gray-800 whitespace-pre-wrap">{m.body}</p>
+            </div>
+          ))}
         </div>
       ) : null}
 

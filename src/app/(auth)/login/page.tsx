@@ -26,6 +26,13 @@ export default function LoginPage() {
     if (msg) setError(msg)
   }, [])
 
+  useEffect(() => {
+    const error = new URLSearchParams(window.location.search).get('error')
+    if (error === 'auth_callback_failed') {
+      toast.error('Google sign-in did not complete. Try again, or use email and password.')
+    }
+  }, [])
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -40,6 +47,9 @@ export default function LoginPage() {
     } else {
       router.push('/dashboard')
       router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not sign in.')
+      setLoading(false)
     }
   }
 

@@ -37,6 +37,19 @@ export default async function ProspectPage({ params }: { params: Promise<{ id: s
       .eq('status', 'pending'),
   ])
 
+  const [{ data: settings }, { data: gmail }] = await Promise.all([
+    supabase
+      .from('enquiry_settings')
+      .select('agent_paused, send_mode')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('enquiry_gmail_accounts')
+      .select('email')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+  ])
+
   return (
     <ProspectDetail
       prospect={prospect as EnquiryProspect}

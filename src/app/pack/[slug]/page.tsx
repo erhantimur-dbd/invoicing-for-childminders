@@ -4,6 +4,8 @@ import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { marketing } from '@/lib/marketing.mjs'
 import { packFilePublicUrl } from '@/lib/enquiries/pack-email'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Starter pack',
   robots: { index: false, follow: false },

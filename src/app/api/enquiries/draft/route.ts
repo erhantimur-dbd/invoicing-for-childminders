@@ -10,18 +10,9 @@ import { persistLearningProposals } from '@/lib/enquiries/persist-learning'
 import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
-
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('enquiries_status')
-    .eq('user_id', user.id)
-    .maybeSingle()
-  if (!enquiriesActive(sub)) {
-    return NextResponse.json({ error: 'Turn on Enquiries first.' }, { status: 403 })
-  }
+  const auth = await requireEnquiriesUser()
+  if ('error' in auth) return auth.error
+  const { supabase, user } = auth
 
   const hourBurst = await rateLimit({
     bucket: 'enquiry-draft-hour',
@@ -54,16 +45,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
 
-  const [{ data: settings }, { data: vacancies }, { data: knowledge }, { data: prospect }] = await Promise.all([
-    supabase.from('enquiry_settings').select('*').eq('user_id', user.id).maybeSingle(),
-    supabase.from('enquiry_vacancies').select('*').eq('user_id', user.id),
-    supabase.from('enquiry_knowledge').select('*').eq('user_id', user.id),
-    supabase.from('enquiry_prospects').select('*').eq('id', prospectId).eq('user_id', user.id).maybeSingle(),
-  ])
+  const { data: settings } = await supabase
+    .from('enquiry_settings')
+    .select('agent_paused, send_mode')
+    .eq('user_id', user.id)
+    .maybeSingle()
 
-  if (!prospect) return NextResponse.json({ error: 'Parent not found.' }, { status: 404 })
-  if (!settings) {
-    return NextResponse.json({ error: 'Finish the short setup first.' }, { status: 400 })
+  if (isAgentPaused(settings)) {
+    return NextResponse.json({ error: AGENT_PAUSED_MESSAGE }, { status: 403 })
   }
 
   let usedIncludingThis = await incrementEnquiryDraftUsage(user.id)
@@ -119,9 +108,16 @@ export async function POST(request: Request) {
         model,
       })
       .select('*')
-      .single()
+      .eq('user_id', user.id)
+      .eq('prospect_id', prospectId)
+      .eq('direction', 'draft')
+      .order('created_at', { ascending: false })
+      .limit(5)
 
-    if (error) throw error
+    const leftover = (existingDrafts ?? []).find(isOpenDraft)
+    if (leftover) {
+      return NextResponse.json({ draft: leftover })
+    }
 
     await supabase
       .from('enquiry_prospects')
