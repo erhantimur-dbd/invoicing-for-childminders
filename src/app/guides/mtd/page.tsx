@@ -106,7 +106,7 @@ export default function Page() {
             <span className="font-bold text-gray-900 text-sm">Dottie</span>
           </Link>
           <Link href="/signup" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
-            Start free trial →
+            Get started →
           </Link>
         </div>
       </header>
@@ -234,10 +234,10 @@ export default function Page() {
         <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Get MTD-ready records from day one</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
-            Dottie keeps every invoice and expense as a digital record HMRC will accept under MTD. 7 days free, no credit card.
+            Dottie keeps every invoice and expense as a digital record HMRC will accept under MTD.
           </p>
           <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95">
-            Start free trial →
+            Get started →
           </Link>
         </div>
 

@@ -26,6 +26,8 @@ export type Profile = {
   xero_sales_account_code: string | null
   xero_default_expense_account_code: string | null
   xero_tax_type: string | null
+  onboarding_completed: boolean
+  role: 'user' | 'admin'
   created_at: string
   updated_at: string
 }
@@ -75,6 +77,19 @@ export type BankAccount = {
 
 export type SubscriptionTier = 'starter' | 'professional' | 'enterprise'
 
+export type Subscription = {
+  user_id: string
+  status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid' | string
+  plan: string | null
+  tier: SubscriptionTier
+  trial_end: string | null
+  current_period_end: string | null
+  stripe_customer_id: string | null
+  stripe_subscription_id: string | null
+  created_at?: string
+  updated_at?: string
+}
+
 export type InvoiceStatus = 'draft' | 'approved' | 'sent' | 'paid' | 'overdue'
 export type PaymentMethod = '' | 'stripe' | 'bank_transfer'
 
@@ -94,6 +109,8 @@ export type Invoice = {
   paid_at: string | null
   stripe_payment_link: string
   stripe_payment_intent_id: string
+  generated_by: 'manual' | 'cron' | 'bulk' | null
+  agent_notes: string | null
   created_at: string
   updated_at: string
   children?: Child

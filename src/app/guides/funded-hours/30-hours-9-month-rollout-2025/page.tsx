@@ -103,7 +103,7 @@ export default function Page() {
             <span className="font-bold text-gray-900 text-sm">Dottie</span>
           </Link>
           <Link href="/signup" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
-            Start free trial →
+            Get started →
           </Link>
         </div>
       </header>
@@ -221,7 +221,7 @@ export default function Page() {
             Dottie supports all six UK funded entitlements — universal, working-parents, disadvantaged, 9 months to school. Pick the scheme once per child, and invoices format themselves correctly.
           </p>
           <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95">
-            Start free trial →
+            Get started →
           </Link>
         </div>
 

@@ -7,6 +7,7 @@ const urls = [
   { loc: `${BASE_URL}/signup`,                                       changefreq: 'monthly', priority: '0.9' },
   { loc: `${BASE_URL}/login`,                                        changefreq: 'monthly', priority: '0.7' },
   { loc: `${BASE_URL}/subscribe`,                                    changefreq: 'weekly',  priority: '0.8' },
+  { loc: `${BASE_URL}/demo`,                                         changefreq: 'monthly', priority: '0.8' },
   { loc: `${BASE_URL}/support`,                                      changefreq: 'monthly', priority: '0.6' },
   { loc: `${BASE_URL}/faq`,                                          changefreq: 'monthly', priority: '0.7' },
   { loc: `${BASE_URL}/guides`,                                       changefreq: 'weekly',  priority: '0.9' },

@@ -43,7 +43,7 @@ const CATEGORIES = [
     questions: [
       {
         q: 'How do I get started?',
-        a: "Sign up for a free 7-day trial — no credit card required. You'll be guided through a quick setup: add your details, bank account, and the children you look after. Your first invoices will be ready automatically from there.",
+        a: "Sign up and choose a plan, or book a free demo if you'd like a walkthrough first. You'll be guided through a quick setup: add your details, bank account, and the children you look after. Your first invoices will be ready automatically from there.",
       },
       {
         q: 'How long does setup take?',
@@ -108,8 +108,8 @@ const CATEGORIES = [
         a: "Dottie has two plans: Starter (up to 5 children) at £9.99/month or £99/year, and Professional (up to 20 children) at £19.99/month or £199/year. For larger settings, contact us about our Unlimited plan. All plans include auto-invoicing, PDF invoices, expense tracking, and tax year reports.",
       },
       {
-        q: 'Is there a free trial?',
-        a: "Yes — every new account gets a 7-day free trial with full access to all features. No credit card required.",
+        q: 'Can I see it before I pay?',
+        a: "Yes — book a free demo and we'll walk you through Dottie with no obligation. We don't run a self-serve free trial as standard, though qualifying childminders may be offered one after a chat.",
       },
       {
         q: 'What happens when my trial ends?',
@@ -284,7 +284,7 @@ export default function FaqPage() {
               href="/signup"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-white/40 text-white font-semibold text-sm hover:bg-white/10 transition-colors"
             >
-              Start free trial
+              Sign up
             </Link>
           </div>
         </div>

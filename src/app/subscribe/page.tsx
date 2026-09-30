@@ -14,7 +14,7 @@ const FEATURES_COMMON = [
   'PDF invoices',
   'Expense tracking',
   'Tax year reports',
-  '7-day free trial',
+  'Cancel anytime',
 ]
 
 const PLANS = [
@@ -27,7 +27,7 @@ const PLANS = [
     annualMonthly: 8.25,
     features: ['Up to 5 children', ...FEATURES_COMMON],
     highlight: false,
-    cta: 'Start free trial',
+    cta: 'Subscribe',
   },
   {
     id: 'professional',
@@ -38,7 +38,7 @@ const PLANS = [
     annualMonthly: 16.58,
     features: ['Up to 20 children', ...FEATURES_COMMON],
     highlight: true,
-    cta: 'Start free trial',
+    cta: 'Subscribe',
   },
 ] as const
 
@@ -125,21 +125,22 @@ export default function SubscribePage() {
           <div className="flex items-center justify-center gap-2 mb-1">
             <span className="text-xl">🎉</span>
             <span className="font-extrabold text-lg">
-              {trialDaysLeft} day{trialDaysLeft === 1 ? '' : 's'} left on your free trial
+              {trialDaysLeft} day{trialDaysLeft === 1 ? '' : 's'} left on your complimentary access
             </span>
           </div>
           <p className="text-white/85 text-sm">
-            No card needed yet. Pick a plan whenever you&apos;re ready — we&apos;ll only charge after your trial ends.
+            Your complimentary access is active. Pick a plan before it ends to keep using Dottie.
           </p>
         </div>
       ) : (
         <div className="rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-400 p-5 text-white text-center shadow-lg shadow-emerald-200/40">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <span className="text-xl">🎉</span>
-            <span className="font-extrabold text-lg">Your 7-day free trial is active</span>
+            <span className="font-extrabold text-lg">Choose a plan to get started</span>
           </div>
           <p className="text-white/85 text-sm">
-            Use Dottie freely for 7 days. Pick a plan when you&apos;re ready — we&apos;ll only charge after the trial.
+            Subscribe to unlock invoicing, or{' '}
+            <a href="/demo" className="underline font-semibold text-white">book a free demo</a>
+            {' '}if you&apos;d like a walkthrough first.
           </p>
         </div>
       )}
@@ -149,7 +150,7 @@ export default function SubscribePage() {
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-center">
           <div className="text-amber-700 font-semibold mb-1">💳 Hold on — billing is briefly unavailable</div>
           <p className="text-amber-800/80 text-sm">
-            We couldn&apos;t reach Stripe just now. Your trial is unaffected; please try again in a moment.
+            We couldn&apos;t reach Stripe just now. Please try again in a moment.
           </p>
         </div>
       )}
@@ -250,7 +251,7 @@ export default function SubscribePage() {
       {/* Skip for now — only shown while a usable trial is active */}
       {sub?.status === 'trialing' && trialDaysLeft !== null && trialDaysLeft > 0 && (
         <div className="text-center space-y-1">
-          <p className="text-gray-500 text-sm">Not ready to choose yet? Carry on with your trial.</p>
+          <p className="text-gray-500 text-sm">Not ready to choose yet? Carry on while your access is active.</p>
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-1 text-emerald-600 font-semibold hover:text-emerald-700 transition-colors"

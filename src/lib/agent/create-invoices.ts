@@ -52,22 +52,27 @@ export async function persistInvoices(
       continue
     }
 
-    // Dedup: check if a draft/sent invoice already exists for this child + week
-    const { data: existing } = await supabase
+    // Dedup on childminder + child + issue date in this week, including drafts.
+    // A Vercel retry after timeout must not insert a second draft.
+    const { data: existing, error: existingError } = await supabase
       .from('invoices')
       .select('id')
       .eq('childminder_id', childminderUserId)
       .eq('child_id', decision.child_id)
       .gte('issue_date', weekStart)
       .lte('issue_date', weekEnd)
-      .not('status', 'eq', 'draft') // allow re-creation if previous was only a draft
-      .maybeSingle()
+      .limit(1)
 
-    if (existing) {
+    if (existingError || (existing && existing.length > 0)) {
+      if (existingError) {
+        console.error('Invoice dedup lookup failed for', childName, existingError)
+      }
       skipped.push({
         child_id: decision.child_id,
         child_name: childName,
-        reason: 'Invoice already exists for this week',
+        reason: existingError
+          ? 'Could not check for an existing invoice'
+          : 'Invoice already exists for this week',
       })
       continue
     }

@@ -93,7 +93,7 @@ export default function SubscribeSuccessPage() {
         </div>
         <h1 className="text-xl font-extrabold text-gray-900 mb-2">Almost there</h1>
         <p className="text-gray-500 text-sm leading-relaxed mb-6">
-          Stripe took a little longer than usual. Your payment went through — your subscription will appear shortly. Carry on to your dashboard, your trial is fully active in the meantime.
+          Stripe took a little longer than usual. Your payment went through — your subscription will appear shortly. You can carry on to your dashboard.
         </p>
         <Link
           href="/dashboard"
@@ -118,13 +118,13 @@ export default function SubscribeSuccessPage() {
 
       {isTrialing ? (
         <>
-          <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Card on file ✓</h1>
+          <h1 className="text-2xl font-extrabold text-gray-900 mb-2">You&apos;re all set ✓</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-1">
             <span className="font-semibold text-gray-700">{planLabel(sub?.plan ?? null)}</span> selected.
           </p>
           {trialEndLabel && (
             <p className="text-gray-500 text-sm leading-relaxed mb-6">
-              Your free trial continues until <strong className="text-gray-700">{trialEndLabel}</strong>. We&apos;ll charge you on that date — cancel any time before then.
+              Complimentary access continues until <strong className="text-gray-700">{trialEndLabel}</strong>. Add a plan before then to keep your account active.
             </p>
           )}
         </>

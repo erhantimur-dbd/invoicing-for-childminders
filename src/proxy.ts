@@ -11,6 +11,7 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
   '/reset-password',
   '/support',
+  '/demo',
   '/pricing',
   '/privacy',
   '/terms',

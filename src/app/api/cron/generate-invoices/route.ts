@@ -9,11 +9,35 @@ import {
 } from '@/lib/agent/invoice-agent'
 import { persistInvoices } from '@/lib/agent/create-invoices'
 
+// Fluid compute duration: 300s stays inside every Vercel plan and covers a few
+// sequential invoice-agent loops in one hourly run.
+export const maxDuration = 300
+
+const INVOICE_TIME_ZONE = 'Europe/London'
+
+/** Weekday and hour on the Europe/London wall clock, including BST. */
+function londonScheduleClock(now: Date): { weekday: string; hour: number } {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: INVOICE_TIME_ZONE,
+    weekday: 'long',
+    hour: 'numeric',
+    hourCycle: 'h23',
+  }).formatToParts(now)
+
+  const weekday = parts.find((part) => part.type === 'weekday')?.value.toLowerCase() ?? ''
+  let hour = Number(parts.find((part) => part.type === 'hour')?.value)
+  // Some ICU builds report midnight as 24 even with hourCycle h23.
+  if (hour === 24) hour = 0
+
+  return { weekday, hour }
+}
+
 export async function GET(request: NextRequest) {
-  // Verify cron secret — Vercel sends this automatically; also checked manually
+  // Proxy leaves /api/cron/ public, so this bearer check is the only gate.
+  // Fail closed when CRON_SECRET is unset or empty.
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -31,7 +55,6 @@ export async function GET(request: NextRequest) {
   const { dates: weekDates, start: weekStart, end: weekEnd } = getPreviousWeekDates()
   const bankHolidays = await fetchUKBankHolidays()
 
-  // Get all childminders with onboarding completed
   const { data: profiles, error: profileError } = await supabaseAdmin
     .from('profiles')
     .select('id, full_name, email, invoice_frequency, invoice_day, invoice_hour, invoice_last_generated_at')
@@ -41,37 +64,46 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'No eligible childminders', week: weekStart })
   }
 
-  // Determine today's day name and current hour (UTC)
+  // Profile "Time" is a clock hour with no timezone. Compare it to Europe/London
+  // so 7:00 AM means 07:00 UK (BST-aware).
   const now = new Date()
-  const todayDayName = now.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase()
-  const currentHour = now.getUTCHours()
+  const { weekday: todayDayName, hour: currentHour } = londonScheduleClock(now)
+  if (!todayDayName || !Number.isInteger(currentHour)) {
+    return NextResponse.json(
+      { error: 'Could not resolve Europe/London schedule clock' },
+      { status: 500 }
+    )
+  }
 
   const results = []
 
   for (const profile of profiles) {
-    // Check if today is this user's invoice generation day and hour
     const userDay = profile.invoice_day || 'sunday'
     const userFreq = profile.invoice_frequency || 'weekly'
     const userHour = profile.invoice_hour ?? 7
 
-    if (todayDayName !== userDay) continue // Not this user's day
-    if (currentHour !== userHour) continue // Not this user's hour
+    if (todayDayName !== userDay) continue
+    if (currentHour !== userHour) continue
 
-    // For fortnightly: skip if generated less than 12 days ago
     if (userFreq === 'fortnightly' && profile.invoice_last_generated_at) {
-      const daysSinceLast = Math.floor((Date.now() - new Date(profile.invoice_last_generated_at).getTime()) / (1000 * 60 * 60 * 24))
+      const daysSinceLast = Math.floor(
+        (Date.now() - new Date(profile.invoice_last_generated_at).getTime()) / (1000 * 60 * 60 * 24)
+      )
       if (daysSinceLast < 12) continue
     }
 
-    // For monthly: skip if generated less than 26 days ago
     if (userFreq === 'monthly' && profile.invoice_last_generated_at) {
-      const daysSinceLast = Math.floor((Date.now() - new Date(profile.invoice_last_generated_at).getTime()) / (1000 * 60 * 60 * 24))
+      const daysSinceLast = Math.floor(
+        (Date.now() - new Date(profile.invoice_last_generated_at).getTime()) / (1000 * 60 * 60 * 24)
+      )
       if (daysSinceLast < 26) continue
     }
-    // Get children with schedules for this childminder
+
     const { data: childRows } = await supabaseAdmin
       .from('children')
-      .select('id, first_name, last_name, parent_name, daily_rate, half_day_rate, hourly_rate, hours_per_day, schedule_days, schedule_note, funding_type, funded_hours_per_day, funded_days')
+      .select(
+        'id, first_name, last_name, parent_name, daily_rate, half_day_rate, hourly_rate, hours_per_day, schedule_days, schedule_note, funding_type, funded_hours_per_day, funded_days'
+      )
       .eq('childminder_id', profile.id)
       .eq('is_active', true)
       .is('archived_at', null)
@@ -80,7 +112,7 @@ export async function GET(request: NextRequest) {
 
     if (!childRows?.length) continue
 
-    const children: AgentChild[] = childRows.map(c => ({
+    const children: AgentChild[] = childRows.map((c) => ({
       id: c.id,
       first_name: c.first_name,
       last_name: c.last_name,
@@ -97,10 +129,9 @@ export async function GET(request: NextRequest) {
     }))
 
     const childNameMap = Object.fromEntries(
-      children.map(c => [c.id, `${c.first_name} ${c.last_name}`])
+      children.map((c) => [c.id, `${c.first_name} ${c.last_name}`])
     )
 
-    // Run agent
     let decisions
     if (process.env.ANTHROPIC_API_KEY) {
       try {
@@ -112,7 +143,6 @@ export async function GET(request: NextRequest) {
       decisions = buildFallbackDecisions(children, weekDates, bankHolidays)
     }
 
-    // Persist invoices
     const { created, skipped } = await persistInvoices(
       decisions,
       profile.id,
@@ -123,12 +153,10 @@ export async function GET(request: NextRequest) {
       serviceRoleKey
     )
 
-    // Send notification email if invoices were created
     if (created.length > 0 && process.env.RESEND_API_KEY) {
       await sendCronNotificationEmail(profile, created, skipped, weekStart, weekEnd)
     }
 
-    // Update last generated timestamp
     if (created.length > 0) {
       await supabaseAdmin
         .from('profiles')
@@ -136,7 +164,11 @@ export async function GET(request: NextRequest) {
         .eq('id', profile.id)
     }
 
-    results.push({ childminder: profile.full_name || profile.email, created: created.length, skipped: skipped.length })
+    results.push({
+      childminder: profile.full_name || profile.email,
+      created: created.length,
+      skipped: skipped.length,
+    })
   }
 
   return NextResponse.json({ success: true, week: weekStart, results })
@@ -151,22 +183,26 @@ async function sendCronNotificationEmail(
 ) {
   const { Resend } = await import('resend')
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://invoicing-for-childminders.vercel.app'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
 
   const weekLabel = `${new Date(weekStart + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(weekEnd + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
   const totalAmount = created.reduce((s, i) => s + i.total, 0)
   const firstName = profile.full_name?.split(' ')[0] || 'there'
 
-  const createdRows = created.map(c =>
-    `<tr><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${c.child_name}</td><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:#059669">£${c.total.toFixed(2)}</td>${c.agent_notes ? `<td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#6b7280;font-size:12px">${c.agent_notes}</td>` : '<td></td>'}</tr>`
-  ).join('')
+  const createdRows = created
+    .map(
+      (c) =>
+        `<tr><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${c.child_name}</td><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:#059669">£${c.total.toFixed(2)}</td>${c.agent_notes ? `<td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#6b7280;font-size:12px">${c.agent_notes}</td>` : '<td></td>'}</tr>`
+    )
+    .join('')
 
-  const skippedRows = skipped.length > 0
-    ? `<p style="margin:24px 0 8px;font-weight:600;color:#374151">Skipped (${skipped.length})</p>
+  const skippedRows =
+    skipped.length > 0
+      ? `<p style="margin:24px 0 8px;font-weight:600;color:#374151">Skipped (${skipped.length})</p>
        <ul style="margin:0;padding-left:20px;color:#6b7280">
-         ${skipped.map(s => `<li>${s.child_name} — ${s.reason}</li>`).join('')}
+         ${skipped.map((s) => `<li>${s.child_name} — ${s.reason}</li>`).join('')}
        </ul>`
-    : ''
+      : ''
 
   await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL || 'invoices@invoicing-for-childminders.vercel.app',
