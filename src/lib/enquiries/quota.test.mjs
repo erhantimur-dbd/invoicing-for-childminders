@@ -159,6 +159,6 @@ test('childminder-facing copy uses the same quota constants', () => {
   assert.match(paywall, /enquiriesQuotaCopy/)
   const pricing = readFileSync(join(root, 'components/marketing/Pricing.tsx'), 'utf8')
   assert.match(pricing, /enquiriesQuotaLine/)
-  const subscribe = readFileSync(join(root, 'app/subscribe/page.tsx'), 'utf8')
+  const subscribe = readFileSync(join(root, 'app/subscribe/subscribe-client.tsx'), 'utf8')
   assert.match(subscribe, /enquiriesQuotaCopy/)
 })

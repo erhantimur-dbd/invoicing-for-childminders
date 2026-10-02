@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
 
 export const metadata: Metadata = {
   title: 'Sign up',
@@ -7,6 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.godottie.cloud/signup' },
 }
 
-export default function SignupLayout({ children }: { children: React.ReactNode }) {
+export default async function SignupLayout({ children }: { children: React.ReactNode }) {
+  if (!(await isPaidSignupOpen())) redirect('/demo')
   return children
 }

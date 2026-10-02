@@ -5,6 +5,8 @@ import { PricingCards } from '@/components/marketing/Pricing'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import { marketing } from '@/lib/marketing.mjs'
 import { howMuchDoesDottieCost, freeTrialAnswer } from '@/lib/plans-copy.mjs'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { freeTrialAnswerParts } from '@/lib/enquiries-signup.mjs'
 
 export const metadata: Metadata = {
   title: 'FAQ',
@@ -186,19 +188,26 @@ const CATEGORIES = [
   },
 ]
 
-const faqJsonLd = {
+function faqJsonLdFor(trialText: string) {
+  return {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: CATEGORIES.flatMap((cat) =>
     cat.questions.map((q) => ({
       '@type': 'Question',
       name: q.q,
-      acceptedAnswer: { '@type': 'Answer', text: q.a },
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: q.q === 'Is there a free trial?' ? trialText : q.a,
+      },
     }))
   ),
+  }
 }
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const paymentsOpen = await isPaidSignupOpen()
+  const trial = freeTrialAnswerParts(paymentsOpen)
   return (
     <div
       className={`${marketing.pageClass} min-h-screen flex flex-col`}
@@ -207,7 +216,7 @@ export default function FaqPage() {
       <SiteHeader />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLdFor(trial.text)) }}
       />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-16 sm:px-6 w-full">
 
@@ -247,7 +256,7 @@ export default function FaqPage() {
               </div>
               {cat.id === 'pricing' ? (
                 <div className="mb-6">
-                  <PricingCards />
+                  <PricingCards paymentsOpen={paymentsOpen} />
                 </div>
               ) : null}
 
@@ -267,7 +276,15 @@ export default function FaqPage() {
                       </svg>
                     </summary>
                     <div className="px-5 pb-4 pt-1 text-sm text-gray-600 leading-relaxed border-t border-gray-100">
-                      {item.a}
+                      {item.q === 'Is there a free trial?' && trial.href ? (
+                        <>
+                          No.{' '}
+                          <Link href={trial.href} className="text-[#0b1220] underline underline-offset-2">
+                            {trial.linkLabel}
+                          </Link>
+                          {" and we'll show you how Go Dottie handles a parent enquiry."}
+                        </>
+                      ) : item.a}
                     </div>
                   </details>
                 ))}

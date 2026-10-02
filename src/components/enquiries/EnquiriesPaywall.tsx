@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
 import { enquiriesQuotaCopy } from '@/lib/enquiries/quota.mjs'
 
-export default function EnquiriesPaywall() {
+export default function EnquiriesPaywall({ paymentsOpen = true }: { paymentsOpen?: boolean }) {
   return (
     <div className="max-w-xl mx-auto">
       <div className="rounded-3xl border border-emerald-100 bg-white p-8 shadow-sm text-center">
@@ -18,10 +18,10 @@ export default function EnquiriesPaywall() {
         <p className="text-sm text-gray-500 mb-8">{enquiriesQuotaCopy()}</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            href="/subscribe?product=enquiries"
+            href={paymentsOpen ? '/subscribe?product=enquiries' : '/demo'}
             className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-200"
           >
-            Start with Enquiries
+            {paymentsOpen ? 'Start with Enquiries' : 'Book a demo'}
           </Link>
           <Link
             href="/demo"

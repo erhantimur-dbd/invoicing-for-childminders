@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides/funded-hours/30-hours-9-month-rollout-2025'
@@ -100,9 +101,8 @@ export default function Page() {
             <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
             <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link href="/signup" className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]">
-            Get started →
-          </Link>
+          <EnquiriesSignupLink label="Get started →" className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]">
+</EnquiriesSignupLink>
         </div>
       </header>
 
@@ -218,9 +218,8 @@ export default function Page() {
           <p className="text-white/85 mb-5 leading-relaxed">
             Go Dottie supports all six UK funded entitlements — universal, working-parents, disadvantaged, 9 months to school. Pick the scheme once per child, and invoices format themselves correctly.
           </p>
-          <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-[#0b1220] font-bold text-sm hover:bg-white transition-colors active:scale-95">
-            Get started →
-          </Link>
+          <EnquiriesSignupLink label="Get started →" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-[#0b1220] font-bold text-sm hover:bg-white transition-colors active:scale-95">
+</EnquiriesSignupLink>
         </div>
 
         <h2 id="faq" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-4">Frequently asked questions</h2>

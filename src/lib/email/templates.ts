@@ -79,7 +79,15 @@ function ctaButton(label: string, href: string): string {
 
 // ─── Template 1: Welcome email ────────────────────────────────────────────────
 
-export function welcomeEmail({ name }: { name: string }): {
+export function welcomeEmail({
+  name,
+  enquiriesHref = `${APP_URL}/subscribe?product=enquiries`,
+  enquiriesLabel = 'Start with Enquiries',
+}: {
+  name: string
+  enquiriesHref?: string
+  enquiriesLabel?: string
+}): {
   subject: string
   html: string
 } {
@@ -146,7 +154,7 @@ export function welcomeEmail({ name }: { name: string }): {
       </tr>
     </table>
 
-    ${ctaButton('Start with Enquiries', `${APP_URL}/subscribe?product=enquiries`)}
+    ${ctaButton(enquiriesLabel, enquiriesHref)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
       Any questions? Just reply — I'm always here to help.

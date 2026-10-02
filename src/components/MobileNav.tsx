@@ -4,7 +4,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mjs'
 
-export default function MobileNav() {
+export default function MobileNav({
+  signupHref,
+  signupLabel,
+}: {
+  signupHref: string
+  signupLabel: string
+}) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -65,12 +71,12 @@ export default function MobileNav() {
             {marketing.ctas.demo.label}
           </Link>
           <Link
-            href={marketing.ctas.signup.href}
+            href={signupHref}
             onClick={() => setOpen(false)}
             className={`${marketingCtaClass.primaryOnDark} mt-1 !px-4 !py-2.5 text-sm`}
             style={ctaRadiusStyle()}
           >
-            {marketing.ctas.signup.label}
+            {signupLabel}
           </Link>
         </div>
       </div>

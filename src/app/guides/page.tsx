@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides'
@@ -67,12 +68,10 @@ export default function GuidesIndex() {
             <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
             <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link
-            href="/signup"
+          <EnquiriesSignupLink
+            label="Get started →"
             className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]"
-          >
-            Get started →
-          </Link>
+ />
         </div>
       </header>
 

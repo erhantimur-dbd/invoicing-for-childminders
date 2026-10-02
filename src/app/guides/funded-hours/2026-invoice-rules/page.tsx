@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides/funded-hours/2026-invoice-rules'
@@ -111,12 +112,10 @@ export default function Page() {
             <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
             <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link
-            href="/signup"
+          <EnquiriesSignupLink
+            label="Get started →"
             className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]"
-          >
-            Get started →
-          </Link>
+ />
         </div>
       </header>
 
@@ -236,12 +235,10 @@ export default function Page() {
           <p className="text-white/85 mb-5 leading-relaxed">
             Compliant invoices, funded-hours tracking, expense capture, and tax-year reports — built for UK childminders. Cancel anytime.
           </p>
-          <Link
-            href="/signup"
+          <EnquiriesSignupLink
+            label="Get started →"
             className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-[#0b1220] font-bold text-sm hover:bg-white transition-colors active:scale-95"
-          >
-            Get started →
-          </Link>
+ />
         </div>
 
         {/* FAQ */}

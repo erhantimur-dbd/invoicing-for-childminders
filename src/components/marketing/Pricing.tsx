@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { marketing, ctaRadiusStyle } from '@/lib/marketing.mjs'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
 
 function Check({ on }: { on: boolean }) {
   if (!on) {
@@ -12,7 +13,13 @@ function Check({ on }: { on: boolean }) {
   )
 }
 
-export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: string }) {
+export function PricingCards({
+  enquiriesHref = '/signup',
+  paymentsOpen = true,
+}: {
+  enquiriesHref?: string
+  paymentsOpen?: boolean
+}) {
   return (
     <div
       className="grid sm:grid-cols-3 gap-px"
@@ -20,7 +27,10 @@ export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: st
       style={{ backgroundColor: marketing.hairline, border: `1px solid ${marketing.hairline}` }}
     >
       {marketing.pricingPlans.map((plan) => {
-        const href = plan.id === 'enquiries' ? enquiriesHref : plan.href
+        const href = plan.id === 'enquiries'
+          ? (paymentsOpen ? enquiriesHref : '/demo')
+          : plan.href
+        const cta = plan.id === 'enquiries' && !paymentsOpen ? 'Book a demo' : plan.cta
         return (
           <article key={plan.id} className="bg-white p-8 sm:p-10 flex flex-col h-full">
             <p className="text-[13px] font-semibold tracking-tight">{plan.name}</p>
@@ -41,7 +51,7 @@ export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: st
                 className="mt-10 inline-flex w-full min-h-[44px] items-center justify-center px-6 text-[15px] font-medium text-white bg-[#0b1220]"
                 style={ctaRadiusStyle()}
               >
-                {plan.cta}
+                {cta}
               </Link>
             ) : (
               <Link
@@ -49,7 +59,7 @@ export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: st
                 className="mt-10 inline-flex w-full min-h-[44px] items-center justify-center border border-[#0b1220] bg-white px-6 text-[15px] font-medium text-[#0b1220]"
                 style={ctaRadiusStyle()}
               >
-                {plan.cta}
+                {cta}
               </Link>
             )}
           </article>
@@ -59,7 +69,14 @@ export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: st
   )
 }
 
-export default function Pricing() {
+export default async function Pricing() {
+  const paymentsOpen = await isPaidSignupOpen()
+  return (
+    <PricingSection paymentsOpen={paymentsOpen} />
+  )
+}
+
+function PricingSection({ paymentsOpen }: { paymentsOpen: boolean }) {
   return (
     <section id="pricing" className="px-6 py-24 scroll-mt-16">
       <div className="max-w-[1120px] mx-auto">
@@ -73,7 +90,7 @@ export default function Pricing() {
           {marketing.enquiriesQuotaLine}
         </p>
         <div className="mt-10">
-          <PricingCards />
+          <PricingCards paymentsOpen={paymentsOpen} />
         </div>
 
         <div className="mt-16 overflow-x-auto" data-pricing-compare="true">

@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import { marketing } from '@/lib/marketing.mjs'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
+  const signup = enquiriesSignupCta(await isPaidSignupOpen())
   return (
     <footer style={{ backgroundColor: marketing.hero, color: '#f6f7f9', borderTop: `1px solid ${marketing.heroHairline}` }}>
       <div className="max-w-[1120px] mx-auto px-6 py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -20,8 +23,8 @@ export default function SiteFooter() {
             <Link href={marketing.ctas.demo.href} className="hover:text-white transition-colors">
               {marketing.ctas.demo.label}
             </Link>
-            <Link href={marketing.ctas.signup.href} className="hover:text-white transition-colors">
-              {marketing.ctas.signup.label}
+            <Link href={signup.href} className="hover:text-white transition-colors">
+              {signup.label}
             </Link>
           </nav>
         </div>

@@ -1,8 +1,11 @@
 import Link from 'next/link'
 import MobileNav from '@/components/MobileNav'
 import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mjs'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
-export default function SiteHeader() {
+export default async function SiteHeader() {
+  const signup = enquiriesSignupCta(await isPaidSignupOpen())
   return (
     <header
       className="sticky top-0 z-50 border-b"
@@ -37,15 +40,15 @@ export default function SiteHeader() {
             {marketing.ctas.demo.label}
           </Link>
           <Link
-            href={marketing.ctas.signup.href}
+            href={signup.href}
             className={`${marketingCtaClass.primaryOnDark} !px-4 !py-1.5 text-[13px]`}
             style={ctaRadiusStyle()}
           >
-            {marketing.ctas.signup.label}
+            {signup.label}
           </Link>
         </div>
 
-        <MobileNav />
+        <MobileNav signupHref={signup.href} signupLabel={signup.label} />
       </div>
     </header>
   )

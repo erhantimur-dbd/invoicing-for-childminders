@@ -65,7 +65,7 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
   assert.match(forgot, /authCallbackRedirect/)
   assert.match(forgot, /\/reset-password/)
 
-  const login = read('app/(auth)/login/page.tsx')
+  const login = read('app/(auth)/login/login-form.tsx')
   assert.match(login, /setError/)
   assert.match(login, /ssoError/)
   const sso = read('components/SSOButtons.tsx')
@@ -75,7 +75,7 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
 
   const checkout = read('app/api/stripe/create-checkout/route.ts')
   assert.match(checkout, /plan/)
-  const subscribe = read('app/subscribe/page.tsx')
+  const subscribe = read('app/subscribe/subscribe-client.tsx')
   assert.match(subscribe, /plan: 'annual'/)
   assert.doesNotMatch(subscribe, /setBilling\('monthly'\)/)
 })
@@ -83,7 +83,7 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
 test('login surfaces auth/callback SSO failures inline', () => {
   assert.equal(loginErrorFromQuery(null), null)
   assert.equal(loginErrorFromQuery('auth_callback_failed'), AUTH_CALLBACK_FAILED)
-  const login = read('app/(auth)/login/page.tsx')
+  const login = read('app/(auth)/login/login-form.tsx')
   assert.match(login, /loginErrorFromQuery/)
   const callback = read('app/auth/callback/route.ts')
   assert.match(callback, /login\?error=auth_callback_failed/)
@@ -119,7 +119,7 @@ test('signup is paid checkout, not a self-serve trial; demo stays on navy chrome
   assert.match(checkout, /resolveEnquiriesPriceId/)
   assert.match(checkout, /resolveInvoicingPriceId/)
 
-  const subscribe = read('app/subscribe/page.tsx')
+  const subscribe = read('app/subscribe/subscribe-client.tsx')
   assert.doesNotMatch(subscribe, /free trial/i)
   assert.doesNotMatch(subscribe, /No card needed/)
   assert.match(subscribe, /Book a demo/)
@@ -164,7 +164,7 @@ test('signup lands on Enquiries subscribe; proxy splits the two products', () =>
   assert.match(checkout, /resolveEnquiriesPriceId/)
   assert.match(checkout, /resolveInvoicingPriceId/)
 
-  const subscribe = read('app/subscribe/page.tsx')
+  const subscribe = read('app/subscribe/subscribe-client.tsx')
   assert.match(subscribe, /get\('product'\) !== 'invoicing'/)
   assert.match(subscribe, /Start Go Dottie/)
   assert.match(subscribe, /Add invoicing/)

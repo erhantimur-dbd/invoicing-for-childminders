@@ -7,6 +7,8 @@ import SiteFooter from '@/components/marketing/SiteFooter'
 import EmailFlow from '@/components/marketing/EmailFlow'
 import Pricing from '@/components/marketing/Pricing'
 import { marketing, marketingCtaClass, ctaRadiusStyle, pricingAmounts } from '@/lib/marketing.mjs'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 export const metadata: Metadata = {
   title: 'Go Dottie — AI assistant for UK childminders',
@@ -54,6 +56,7 @@ const jsonLd = {
 }
 
 export default async function RootPage() {
+  const signup = enquiriesSignupCta(await isPaidSignupOpen())
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')
@@ -87,8 +90,8 @@ export default async function RootPage() {
                 {marketing.subhead}
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <Link href={marketing.ctas.signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
-                  {marketing.ctas.signup.label}
+                <Link href={signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
+                  {signup.label}
                 </Link>
                 <Link href={marketing.ctas.demo.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
                   {marketing.ctas.demo.label}
@@ -211,8 +214,8 @@ export default async function RootPage() {
               {marketing.closing}
             </h2>
             <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Link href={marketing.ctas.signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
-                {marketing.ctas.signup.label}
+              <Link href={signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
+                {signup.label}
               </Link>
               <Link href={marketing.ctas.demo.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
                 {marketing.ctas.demo.label}

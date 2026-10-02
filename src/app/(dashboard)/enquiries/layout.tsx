@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { enquiriesActive } from '@/lib/enquiries/access'
 import EnquiriesPaywall from '@/components/enquiries/EnquiriesPaywall'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
 
 export default async function EnquiriesLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -14,7 +15,7 @@ export default async function EnquiriesLayout({ children }: { children: React.Re
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (!enquiriesActive(sub)) return <EnquiriesPaywall />
+  if (!enquiriesActive(sub)) return <EnquiriesPaywall paymentsOpen={await isPaidSignupOpen()} />
 
   return <>{children}</>
 }
