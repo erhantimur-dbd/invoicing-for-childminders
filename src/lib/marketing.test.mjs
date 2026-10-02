@@ -58,7 +58,7 @@ test('hero names the vacancy outcome, not an operating layer', () => {
 
 test('invoicing is quiet and funded hours are a payment method', () => {
   const blob = `${marketing.invoicing.name} ${marketing.invoicing.body} ${marketing.subhead} ${marketing.pricingLead}`.toLowerCase()
-  assert.match(blob, /add invoicing if you want dottie to handle this once the child is onboarded/)
+  assert.match(blob, /add invoicing if you want go dottie to handle this once the child is onboarded/)
   assert.match(marketing.invoicing.body.toLowerCase(), /payment method/)
   assert.match(blob, /approv/)
   assert.doesNotMatch(marketing.flow.map((s) => s.body).join(' ').toLowerCase(), /qualify/)
