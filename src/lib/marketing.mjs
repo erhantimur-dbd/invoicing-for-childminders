@@ -227,7 +227,7 @@ export const marketing = {
       { feature: 'Invoices generated for approval', enquiries: false, both: true },
       { feature: 'Funded and private hours', enquiries: false, both: true },
       { feature: 'Expenses and tax reports', enquiries: false, both: true },
-      { feature: 'Automatic send is off until you turn it on', enquiries: true, both: true },
+      { feature: 'Auto-send by default — switch to draft & approve any time', enquiries: true, both: true },
     ],
   },
   scene: {
