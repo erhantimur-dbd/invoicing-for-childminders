@@ -8,9 +8,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../../..')
 const read = (name: string) => readFileSync(join(root, 'supabase/migrations', name), 'utf8')
 
 describe('enquiry send_mode migrations', () => {
-  const gmail = read('20260909_enquiry_gmail.sql')
-  const backfill = read('20260910_enquiry_send_mode.sql')
-  const def = read('20260911_enquiry_send_mode_default_auto.sql')
+  const gmail = read('20260909000000_enquiry_gmail.sql')
+  const backfill = read('20260910000001_enquiry_send_mode.sql')
+  const def = read('20260911000000_enquiry_send_mode_default_auto.sql')
 
   it('does not stamp existing rows with default auto', () => {
     assert.match(backfill, /add column if not exists send_mode text\s*;/)
