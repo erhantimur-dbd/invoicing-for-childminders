@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
           const patch: Record<string, string> = {
             stripe_customer_id: customerId,
             enquiries_stripe_subscription_id: stripeSubId,
-            enquiries_plan: plan ?? 'monthly',
+            enquiries_plan: plan ?? 'annual',
             updated_at: now,
           }
           if (session.payment_status === 'paid' || session.payment_status === 'no_payment_required') {

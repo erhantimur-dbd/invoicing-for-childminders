@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { log } from '@/lib/log'
 import {
+  ENQUIRIES_CHECKOUT_UNAVAILABLE,
+  isPaidSignupOpen,
   resolveEnquiriesPriceId,
   resolveInvoicingPriceId,
   type BillingPlan,
@@ -37,6 +39,9 @@ export async function POST(request: NextRequest) {
     plan = body.plan
     if (body.product === 'enquiries') {
       product = 'enquiries'
+      // Signup is the locked annual price only. A monthly plan in the body
+      // must not select a different Stripe price.
+      plan = 'annual'
     } else {
       if (body.tier !== 'starter' && body.tier !== 'professional') {
         return NextResponse.json(
@@ -50,11 +55,30 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
+  if (product === 'enquiries' && !(await isPaidSignupOpen())) {
+    log.error('enquiries_checkout_refused', new Error('payments_closed'), {
+      reason: 'payments_closed',
+    })
+    return NextResponse.json(
+      { error: ENQUIRIES_CHECKOUT_UNAVAILABLE, code: 'enquiries_price_unavailable' },
+      { status: 503 },
+    )
+  }
+
   const priceId = product === 'enquiries'
-    ? resolveEnquiriesPriceId(plan)
+    ? resolveEnquiriesPriceId()
     : resolveInvoicingPriceId(tier!, plan)
 
   if (!priceId) {
+    if (product === 'enquiries') {
+      log.error('enquiries_checkout_refused', new Error('missing_price_env'), {
+        reason: 'missing_price_env',
+      })
+      return NextResponse.json(
+        { error: ENQUIRIES_CHECKOUT_UNAVAILABLE, code: 'enquiries_price_unavailable' },
+        { status: 503 },
+      )
+    }
     return NextResponse.json(
       { error: `Price ID for ${product} ${plan} is not configured`, code: 'stripe_not_configured' },
       { status: 503 },
@@ -90,6 +114,7 @@ export async function POST(request: NextRequest) {
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: {
+      // No trial days. Enquiries checkout charges the locked £160/year price.
       metadata,
     },
     ...(existing?.stripe_customer_id

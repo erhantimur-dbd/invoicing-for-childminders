@@ -86,7 +86,7 @@ export default function SubscribePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
           planId === 'enquiries'
-            ? { product: 'enquiries', plan: billing }
+            ? { product: 'enquiries', plan: 'annual' as const }
             : { plan: billing, tier: planId },
         ),
       })
@@ -140,11 +140,11 @@ export default function SubscribePage() {
         <div className="p-5 text-white text-center" style={{ backgroundColor: '#0b1220', borderRadius: 4 }}>
           <div className="flex items-center justify-center gap-2 mb-1">
             <span className="font-semibold text-lg">
-              {trialDaysLeft} day{trialDaysLeft === 1 ? '' : 's'} left on your free trial
+              {trialDaysLeft} day{trialDaysLeft === 1 ? '' : 's'} left on your complimentary access
             </span>
           </div>
           <p className="text-white/70 text-sm">
-            No card needed yet. Pick a plan whenever you&apos;re ready — we&apos;ll only charge after your trial ends.
+            Your complimentary access is active. Pick a plan before it ends to keep using Dottie.
           </p>
         </div>
       ) : (
@@ -154,6 +154,11 @@ export default function SubscribePage() {
           </div>
           <p className="text-white/70 text-sm">
             Start with Dottie. Add invoicing when a child is on roll. Same account. Cancel anytime.
+            {' '}
+            <Link href="/demo" className="underline font-semibold text-white">
+              Book a demo
+            </Link>
+            {' '}if you&apos;d like a walkthrough first.
           </p>
         </div>
       )}
@@ -209,13 +214,9 @@ export default function SubscribePage() {
             <div className="text-xs font-semibold uppercase tracking-widest text-[#123a4a] mb-2">Dottie</div>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-extrabold text-gray-900">
-                £{billing === 'annual' ? ENQUIRIES_PRICE.annual : ENQUIRIES_PRICE.monthly}
+                £{ENQUIRIES_PRICE.annual} a year
               </span>
-              <span className="text-gray-400 text-sm">/{billing === 'annual' ? 'year' : 'month'}</span>
             </div>
-            {billing === 'annual' && (
-              <p className="text-gray-400 text-sm mt-1">Equivalent to £{ENQUIRIES_PRICE.annualMonthly}/month</p>
-            )}
             <p className="text-gray-600 text-sm mt-3 max-w-md">
               Answer new parents, match a listed space, offer a visit in your hours. One extra child pays for years of this.
             </p>
@@ -311,7 +312,7 @@ export default function SubscribePage() {
       {/* Skip for now — only shown while a usable trial is active */}
       {sub?.status === 'trialing' && trialDaysLeft !== null && trialDaysLeft > 0 && (
         <div className="text-center space-y-1">
-          <p className="text-gray-500 text-sm">Not ready to choose yet? Carry on with your trial.</p>
+          <p className="text-gray-500 text-sm">Not ready to choose yet? Carry on while your access is active.</p>
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-1 text-[#123a4a] font-semibold hover:text-[#0c2c38] transition-colors"

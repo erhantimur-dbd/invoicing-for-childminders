@@ -153,8 +153,7 @@ export default function TermsPage() {
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries</p>
                   <p className="text-sm text-gray-500 mb-2">Parent emails, visits, onboarding</p>
-                  <p className="text-xl font-bold text-gray-900">{formatGbp(pricingAmounts.enquiries.monthly)}<span className="text-sm font-normal text-gray-400">/month</span></p>
-                  <p className="text-xs text-gray-500 mt-1">or {formatGbp(pricingAmounts.enquiries.annual)}/year · save {pricingAmounts.discountPct}%</p>
+                  <p className="text-xl font-bold text-gray-900">{formatGbp(pricingAmounts.enquiries.annual)} a year</p>
                 </div>
                 <div className="p-4 rounded-xl bg-white border-2 border-emerald-200">
                   <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries + invoicing</p>

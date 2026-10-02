@@ -13,6 +13,7 @@ import PasswordStrength from '@/components/PasswordStrength'
 import SSOButtons from '@/components/SSOButtons'
 import { passwordIsStrong, passwordRequirements } from '@/lib/password-policy.mjs'
 import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
+import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
 
 function nextAfterSignup() {
   // Confirm-email + session both land on /subscribe?product=enquiries
@@ -108,6 +109,9 @@ export default function SignupPage() {
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
       <div className="space-y-6">
+        <p className="text-sm text-center text-gray-600">
+          Dottie is £{ENQUIRIES_PRICE.annual} a year.
+        </p>
         <SSOButtons mode="signup" onError={setSsoError} />
         {ssoError && (
           <p className="text-sm text-red-600 text-center" role="alert">{ssoError}</p>

@@ -7,7 +7,7 @@ import { passwordIsStrong, passwordRequirements, passwordScore } from './passwor
 import { SIGN_UP_CTA } from './plans-copy.mjs'
 import { parseBilling, withBilling, authCallbackRedirect, subscribeNext } from './billing-query.mjs'
 import { AUTH_CALLBACK_FAILED, loginErrorFromQuery } from './auth-errors.mjs'
-import { checkoutLanded } from './enquiries/access.ts'
+import { checkoutLanded, destinationAfterAuth } from './enquiries/access.ts'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel) => readFileSync(join(root, rel), 'utf8')
@@ -88,6 +88,57 @@ test('login surfaces auth/callback SSO failures inline', () => {
   const callback = read('app/auth/callback/route.ts')
   assert.match(callback, /login\?error=auth_callback_failed/)
   assert.match(callback, /exchangeCodeForSession/)
+})
+
+test('signup is paid checkout, not a self-serve trial; demo stays on navy chrome', () => {
+  const future = new Date(Date.now() + 86_400_000).toISOString()
+  const past = new Date(Date.now() - 86_400_000).toISOString()
+  assert.equal(destinationAfterAuth('/dashboard', null), '/subscribe?product=enquiries')
+  assert.equal(destinationAfterAuth('/onboarding', { status: 'canceled' }), '/subscribe?product=enquiries')
+  assert.equal(destinationAfterAuth('/dashboard', { enquiries_status: 'active' }), '/dashboard')
+  assert.equal(
+    destinationAfterAuth('/dashboard', { status: 'trialing', trial_end: future }),
+    '/dashboard',
+  )
+  assert.equal(
+    destinationAfterAuth('/dashboard', { status: 'trialing', trial_end: past }),
+    '/subscribe?product=enquiries',
+  )
+  assert.equal(
+    destinationAfterAuth('/reset-password', null),
+    '/reset-password',
+  )
+  assert.equal(
+    destinationAfterAuth('/subscribe?product=enquiries&billing=annual', null),
+    '/subscribe?product=enquiries&billing=annual',
+  )
+
+  const checkout = read('app/api/stripe/create-checkout/route.ts')
+  assert.doesNotMatch(checkout, /trial_period_days/)
+  assert.doesNotMatch(checkout, /trial_end/)
+  assert.match(checkout, /resolveEnquiriesPriceId/)
+  assert.match(checkout, /resolveInvoicingPriceId/)
+
+  const subscribe = read('app/subscribe/page.tsx')
+  assert.doesNotMatch(subscribe, /free trial/i)
+  assert.doesNotMatch(subscribe, /No card needed/)
+  assert.match(subscribe, /Book a demo/)
+  assert.match(subscribe, /handleCheckout\('enquiries'\)/)
+
+  const success = read('app/subscribe/success/page.tsx')
+  assert.doesNotMatch(success, /free trial/i)
+  assert.doesNotMatch(success, /We'll charge you on that date/)
+
+  const demo = read('app/demo/page.tsx')
+  assert.match(demo, /SiteHeader/)
+  assert.match(demo, /calendar\.google\.com\/calendar\/appointments/)
+  assert.doesNotMatch(demo, /from-emerald-500/)
+
+  const home = read('app/page.tsx')
+  assert.match(home, /marketing\.ctas\.demo/)
+  assert.match(home, /marketing\.headline/)
+  assert.doesNotMatch(home, /free trial|Start free trial|7 days completely free/i)
+  assert.match(home, /marketing\.hero/)
 })
 
 test('signup lands on Enquiries subscribe; proxy splits the two products', () => {

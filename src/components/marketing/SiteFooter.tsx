@@ -17,6 +17,9 @@ export default function SiteFooter() {
             <a href="/#how-it-works" className="hover:text-white transition-colors">How it works</a>
             <a href="/#invoicing" className="hover:text-white transition-colors">Invoicing</a>
             <a href="/#pricing" className="hover:text-white transition-colors">Pricing</a>
+            <Link href={marketing.ctas.demo.href} className="hover:text-white transition-colors">
+              {marketing.ctas.demo.label}
+            </Link>
             <Link href={marketing.ctas.signup.href} className="hover:text-white transition-colors">
               {marketing.ctas.signup.label}
             </Link>

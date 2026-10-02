@@ -2,17 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mjs'
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false)
 
   return (
     <div className="md:hidden">
-      {/* Hamburger button */}
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="p-2 -mr-2 text-gray-500 hover:text-gray-700 transition-colors"
+        className="p-2 -mr-2 transition-colors"
+        style={{ color: '#f6f7f9' }}
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
       >
@@ -32,43 +33,44 @@ export default function MobileNav() {
         </svg>
       </button>
 
-      {/* Dropdown panel */}
       <div
-        className={`absolute top-16 left-0 right-0 bg-white border-b border-gray-100 shadow-lg transition-all duration-200 ease-out ${open ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
+        className={`absolute top-16 left-0 right-0 border-b shadow-lg transition-all duration-200 ease-out ${open ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
+        style={{ backgroundColor: marketing.hero, borderColor: marketing.heroHairline }}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-1">
-          <a href="#enquiries" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
-            Enquiries
-          </a>
-          <a href="#how-it-works" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+        <div className="max-w-[1120px] mx-auto px-6 py-4 flex flex-col gap-1">
+          <a href="/#how-it-works" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium hover:text-white transition-colors" style={{ color: marketing.heroMuted }}>
             How it works
           </a>
-          <a href="#invoicing" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+          <a href="/#invoicing" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium hover:text-white transition-colors" style={{ color: marketing.heroMuted }}>
             Invoicing
           </a>
-          <a href="#pricing" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+          <a href="/#pricing" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium hover:text-white transition-colors" style={{ color: marketing.heroMuted }}>
             Pricing
           </a>
-          <Link href="/support" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+          <Link href="/guides" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium hover:text-white transition-colors" style={{ color: marketing.heroMuted }}>
+            Guides
+          </Link>
+          <Link href="/support" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium hover:text-white transition-colors" style={{ color: marketing.heroMuted }}>
             Support
           </Link>
-          <div className="h-px bg-gray-100 my-2" />
-          <Link href="/login" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+          <Link href="/login" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium hover:text-white transition-colors" style={{ color: marketing.heroMuted }}>
             Sign in
           </Link>
           <Link
-            href="/demo"
+            href={marketing.ctas.demo.href}
             onClick={() => setOpen(false)}
-            className="mt-1 py-3 px-3 text-sm font-semibold text-center text-emerald-700 border border-emerald-200 hover:bg-emerald-50 rounded-xl transition-colors"
+            className={`${marketingCtaClass.secondaryOnDark} mt-2 !px-4 !py-2.5 text-sm`}
+            style={ctaRadiusStyle()}
           >
-            Book a demo
+            {marketing.ctas.demo.label}
           </Link>
           <Link
-            href="/signup"
+            href={marketing.ctas.signup.href}
             onClick={() => setOpen(false)}
-            className="mt-1 py-3 px-3 text-sm font-semibold text-center text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors"
+            className={`${marketingCtaClass.primaryOnDark} mt-1 !px-4 !py-2.5 text-sm`}
+            style={ctaRadiusStyle()}
           >
-            Sign up
+            {marketing.ctas.signup.label}
           </Link>
         </div>
       </div>

@@ -9,6 +9,7 @@ import {
   yearlyFromMonthly,
   formatGbp,
 } from '@/lib/marketing.mjs'
+import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
 
 type Billing = 'monthly' | 'annual'
 
@@ -83,10 +84,15 @@ export default function Pricing() {
           {marketing.pricingPlans.map((plan) => {
             const primary = plan.featured || plan.id === 'enquiries'
             const annual = billing === 'annual'
-            const price = annual ? formatGbp(yearlyFromMonthly(plan.monthlyAmount)) : formatGbp(plan.monthlyAmount)
-            const period = annual ? '/year' : '/month'
-            const note = annual ? plan.annualNote : plan.monthlyNote
-            const href = `${plan.href}?billing=${billing}`
+            const lockedEnquiries = plan.id === 'enquiries'
+            const price = lockedEnquiries
+              ? formatGbp(ENQUIRIES_PRICE.annual)
+              : annual
+                ? formatGbp(yearlyFromMonthly(plan.monthlyAmount))
+                : formatGbp(plan.monthlyAmount)
+            const period = lockedEnquiries ? ' a year' : annual ? '/year' : '/month'
+            const note = lockedEnquiries ? 'Billed once a year.' : annual ? plan.annualNote : plan.monthlyNote
+            const href = lockedEnquiries ? `${plan.href}?billing=annual` : `${plan.href}?billing=${billing}`
             return (
               <article
                 key={plan.id}
