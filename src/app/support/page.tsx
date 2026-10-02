@@ -18,7 +18,7 @@ const FAQ_ITEMS = [
   {
     question: 'Can I see it before I pay?',
     answer:
-      "Yes — book a free demo and we'll give you a full walkthrough and answer your questions, with no obligation. We don't run a self-serve free trial as standard, though qualifying childminders may be offered one after a chat.",
+      "Yes — book a free demo and we'll give you a full walkthrough and answer your questions, with no obligation.",
   },
   {
     question: 'How much does it cost?',
