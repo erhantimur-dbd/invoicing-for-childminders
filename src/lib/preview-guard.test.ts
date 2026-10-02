@@ -172,6 +172,7 @@ describe('Resend stays behind the chokepoint', () => {
     /from\s+['"]resend['"]/,
     /import\(\s*['"]resend['"]\s*\)/,
     /require\(\s*['"]resend['"]\s*\)/,
+    /api\.resend\.com/,
   ]
 
   function sourceFiles(dir: string): string[] {
