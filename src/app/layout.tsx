@@ -28,26 +28,26 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dottie — AI assistant for UK childminders",
-    template: "%s | Dottie",
+    default: "Go Dottie — AI assistant for UK childminders",
+    template: "%s | Go Dottie",
   },
-  description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
+  description: "Childminding has never been easier to manage. Go Dottie handles the business end with AI so you stay with the children.",
   manifest: "/manifest.json",
   metadataBase: new URL("https://www.godottie.cloud"),
   verification: {
     google: "NdRl-7hEzWp8asSyK2YBfiiYKwcVhbXDbFHm-foNlBU",
   },
   openGraph: {
-    siteName: "Dottie",
-    title: "Dottie — AI for UK childminders",
-    description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
+    siteName: "Go Dottie",
+    title: "Go Dottie — AI for UK childminders",
+    description: "Childminding has never been easier to manage. Go Dottie handles the business end with AI so you stay with the children.",
     url: "https://www.godottie.cloud",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dottie — AI for UK childminders",
-    description: "Childminding has never been easier to manage. Dottie handles the business end with AI so you stay with the children.",
+    title: "Go Dottie — AI for UK childminders",
+    description: "Childminding has never been easier to manage. Go Dottie handles the business end with AI so you stay with the children.",
   },
 };
 

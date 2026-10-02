@@ -153,7 +153,7 @@ export default function InvoicePage() {
     const child = (invoice as any).children
     const publicLink = `${window.location.origin}/invoice/${invoice.id}`
     const message = encodeURIComponent(
-      `Hi ${child?.parent_name || ''},\n\nPlease find your invoice ${invoice.invoice_number} for ${child ? `${child.first_name}'s` : ''} childcare.\n\nAmount due: ${formatGBP(Number(invoice.total))}\n${invoice.due_date ? `Due by: ${format(new Date(invoice.due_date), 'd MMM yyyy')}\n` : ''}\nView invoice: ${publicLink}\n\nPay by bank transfer using the details on the invoice. You do not pay through Dottie.\n\nKind regards,\n${profile.full_name}`
+      `Hi ${child?.parent_name || ''},\n\nPlease find your invoice ${invoice.invoice_number} for ${child ? `${child.first_name}'s` : ''} childcare.\n\nAmount due: ${formatGBP(Number(invoice.total))}\n${invoice.due_date ? `Due by: ${format(new Date(invoice.due_date), 'd MMM yyyy')}\n` : ''}\nView invoice: ${publicLink}\n\nPay by bank transfer using the details on the invoice. You do not pay through Go Dottie.\n\nKind regards,\n${profile.full_name}`
     )
     window.open(`https://wa.me/?text=${message}`, '_blank')
     // Update status to sent if draft or approved
@@ -178,7 +178,7 @@ export default function InvoicePage() {
     if (!invoice) return
     const url = `${window.location.origin}/invoice/${invoice.id}`
     await navigator.clipboard.writeText(url)
-    toast.success('Parent link copied. They confirm with the child’s date of birth. Pay by bank transfer — not through Dottie.')
+    toast.success('Parent link copied. They confirm with the child’s date of birth. Pay by bank transfer — not through Go Dottie.')
   }
 
   async function handleDelete() {

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Support for UK Childminders',
   description:
-    'Get help with Dottie — automated invoicing for UK childminders. Contact our support team or browse common questions.',
+    'Get help with Go Dottie — automated invoicing for UK childminders. Contact our support team or browse common questions.',
   alternates: { canonical: 'https://www.godottie.cloud/support' },
 }
 

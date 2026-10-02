@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides/funded-hours/2026-invoice-rules'
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     'From January 2026, every funded-hours invoice must itemise free hours, paid hours, food, consumables, and activities separately. Here\'s exactly what changes — and a free compliant template.',
   alternates: { canonical: URL },
   openGraph: {
-    title: 'The 2026 Childminder Invoice Rules — Dottie',
+    title: 'The 2026 Childminder Invoice Rules — Go Dottie',
     description:
       'What UK childminders must itemise on every invoice from January 2026 (and why the top-up fee ban from April 2025 still trips people up).',
     url: URL,
@@ -41,8 +42,8 @@ const FAQS: { q: string; a: string }[] = [
     a: 'No. The default is 38 weeks (term-time only) but funding can be stretched across up to 52 weeks, which reduces the number of funded hours per week. You agree the pattern with the parent and the local authority funding portal at the start of the term.',
   },
   {
-    q: 'Does Dottie support the 2026 invoice rules?',
-    a: 'Yes. Dottie generates invoices that itemise funded hours, additional paid hours, food, non-consumables, and activities as separate line items by default. The invoice is compliant out of the box — you do not need to build a custom template.',
+    q: 'Does Go Dottie support the 2026 invoice rules?',
+    a: 'Yes. Go Dottie generates invoices that itemise funded hours, additional paid hours, food, non-consumables, and activities as separate line items by default. The invoice is compliant out of the box — you do not need to build a custom template.',
   },
   {
     q: 'What about the September 2025 expansion to 30 funded hours from 9 months old?',
@@ -57,12 +58,12 @@ const articleJsonLd = {
   description: metadata.description,
   datePublished: '2026-05-06',
   dateModified: '2026-05-06',
-  author: { '@type': 'Organization', name: 'Dottie', url: 'https://www.godottie.cloud' },
+  author: { '@type': 'Organization', name: 'Go Dottie', url: 'https://www.godottie.cloud' },
   publisher: {
     '@type': 'Organization',
-    name: 'Dottie',
+    name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
-    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
+    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon.png' },
   },
   mainEntityOfPage: { '@type': 'WebPage', '@id': URL },
 }
@@ -81,7 +82,7 @@ const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Dottie', item: 'https://www.godottie.cloud' },
+    { '@type': 'ListItem', position: 1, name: 'Go Dottie', item: 'https://www.godottie.cloud' },
     { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://www.godottie.cloud/guides' },
     { '@type': 'ListItem', position: 3, name: 'Funded hours', item: 'https://www.godottie.cloud/guides/funded-hours' },
     { '@type': 'ListItem', position: 4, name: '2026 invoice rules', item: URL },
@@ -108,17 +109,13 @@ export default function Page() {
       <header className="border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
-              <span className="text-white text-xs font-extrabold">D.</span>
-            </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link
-            href="/signup"
-            className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-          >
-            Get started →
-          </Link>
+          <EnquiriesSignupLink
+            label="Get started →"
+            className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]"
+ />
         </div>
       </header>
 
@@ -126,7 +123,7 @@ export default function Page() {
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-emerald-700">Home</Link></li>
+            <li><Link href="/" className="hover:text-[#0b1220]">Home</Link></li>
             <li aria-hidden>/</li>
             <li><span className="text-gray-700">Guides</span></li>
             <li aria-hidden>/</li>
@@ -137,7 +134,7 @@ export default function Page() {
         </nav>
 
         {/* Title block */}
-        <p className="text-emerald-700 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p className="text-[#0b1220] text-xs font-semibold uppercase tracking-widest mb-3">
           UK childminder compliance
         </p>
         <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight text-gray-900 mb-4">
@@ -151,8 +148,8 @@ export default function Page() {
         </p>
 
         {/* TL;DR card */}
-        <aside className="mb-10 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-6">
-          <p className="text-emerald-900 text-xs font-bold uppercase tracking-widest mb-2">
+        <aside className="mb-10 rounded-2xl border border-[#e5e7eb] bg-[#f6f7f9] p-6">
+          <p className="text-[#0b1220] text-xs font-bold uppercase tracking-widest mb-2">
             In one paragraph
           </p>
           <p className="text-gray-800 leading-relaxed">
@@ -176,7 +173,7 @@ export default function Page() {
             { k: 'Activities & trips', v: 'Each itemised: outings, classes, special projects. Optional.' },
           ].map((it) => (
             <li key={it.k} className="flex gap-3">
-              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
               <span><strong className="text-gray-900">{it.k}.</strong> <span className="text-gray-600">{it.v}</span></span>
             </li>
           ))}
@@ -203,7 +200,7 @@ export default function Page() {
               <tr><td className="py-2.5 px-4">Additional paid hours</td><td className="py-2.5 px-4 text-gray-500">10h × £6.00</td><td className="py-2.5 px-4 text-right">£60.00</td></tr>
               <tr><td className="py-2.5 px-4">Food</td><td className="py-2.5 px-4 text-gray-500">Lunch × 5 days × £3.50</td><td className="py-2.5 px-4 text-right">£17.50</td></tr>
               <tr><td className="py-2.5 px-4">Activity</td><td className="py-2.5 px-4 text-gray-500">Soft-play outing, Wed 6 May</td><td className="py-2.5 px-4 text-right">£8.00</td></tr>
-              <tr className="bg-emerald-50/50 font-semibold"><td className="py-2.5 px-4">Total</td><td className="py-2.5 px-4"></td><td className="py-2.5 px-4 text-right text-emerald-700">£85.50</td></tr>
+              <tr className="bg-[#f6f7f9] font-semibold"><td className="py-2.5 px-4">Total</td><td className="py-2.5 px-4"></td><td className="py-2.5 px-4 text-right text-[#0b1220]">£85.50</td></tr>
             </tbody>
           </table>
         </div>
@@ -224,26 +221,24 @@ export default function Page() {
 
         {/* Section 4 — pivot to product */}
         <h2 id="how-dottie-handles-it" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-4">
-          4. How Dottie handles this for you
+          4. How Go Dottie handles this for you
         </h2>
         <p className="text-gray-700 leading-relaxed mb-4">
-          Dottie is the only UK childminder invoicing tool built around these rules from day one. Set each child&apos;s funded hours, paid hours, and any extras once. Every invoice is generated with the five line-item categories already separated — funded shown at £0.00, paid hours at your rate, food itemised by day, non-consumables and activities each on their own line.
+          Go Dottie is the only UK childminder invoicing tool built around these rules from day one. Set each child&apos;s funded hours, paid hours, and any extras once. Every invoice is generated with the five line-item categories already separated — funded shown at £0.00, paid hours at your rate, food itemised by day, non-consumables and activities each on their own line.
         </p>
         <p className="text-gray-700 leading-relaxed mb-6">
           You review the draft, approve it, and send it to the parent in a single tap. The parent verifies their child&apos;s date of birth before they can see anything sensitive (your bank details). HMRC-ready records are kept automatically — useful when MTD for Income Tax kicks in for £50k+ childminders in April 2026.
         </p>
 
-        <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
+        <div className="rounded-2xl bg-[#0b1220] p-6 sm:p-8 text-white my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Put your invoicing on autopilot</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
             Compliant invoices, funded-hours tracking, expense capture, and tax-year reports — built for UK childminders. Cancel anytime.
           </p>
-          <Link
-            href="/signup"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95"
-          >
-            Get started →
-          </Link>
+          <EnquiriesSignupLink
+            label="Get started →"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-[#0b1220] font-bold text-sm hover:bg-white transition-colors active:scale-95"
+ />
         </div>
 
         {/* FAQ */}
@@ -278,22 +273,22 @@ export default function Page() {
         </h2>
         <ul className="space-y-2 text-sm text-gray-600 mb-12">
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://assets.publishing.service.gov.uk/media/683981d4c99c4f37ab4e86e3/September_2025_early_education_and_childcare_entitlements_expansion_-_local_authority_system_guidance_May_2025.pdf" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://assets.publishing.service.gov.uk/media/683981d4c99c4f37ab4e86e3/September_2025_early_education_and_childcare_entitlements_expansion_-_local_authority_system_guidance_May_2025.pdf" rel="nofollow noopener" target="_blank">
               DfE — September 2025 early education and childcare entitlements expansion (PDF)
             </a>
           </li>
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.childcare.co.uk/funding-fees-policy" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.childcare.co.uk/funding-fees-policy" rel="nofollow noopener" target="_blank">
               Funding Fees Policy Guidance — Childcare.co.uk
             </a>
           </li>
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">
               BIM52751 — HMRC manual: childminders&apos; expenses
             </a>
           </li>
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.pacey.org.uk/working-in-childcare/spotlight-on/tax-return-survival-guide/" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.pacey.org.uk/working-in-childcare/spotlight-on/tax-return-survival-guide/" rel="nofollow noopener" target="_blank">
               Coram PACEY — Tax return survival guide
             </a>
           </li>

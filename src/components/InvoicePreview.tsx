@@ -45,13 +45,13 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
     <div className="invoice-print-content bg-white font-sans text-gray-900" style={{ fontFamily: 'Georgia, serif' }}>
 
       {/* Top accent bar */}
-      <div style={{ height: '6px', background: '#059669', marginBottom: '40px' }} />
+      <div style={{ height: '6px', background: '#0b1220', marginBottom: '40px' }} />
 
       {/* Header: INVOICE + childminder details */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', padding: '0 40px' }}>
         <div>
           <div style={{ fontSize: '32px', fontWeight: '800', letterSpacing: '4px', color: '#111827', fontFamily: 'Arial, sans-serif' }}>INVOICE</div>
-          <div style={{ fontSize: '16px', color: '#059669', fontWeight: '600', marginTop: '4px', fontFamily: 'Arial, sans-serif' }}>{invoice.invoice_number}</div>
+          <div style={{ fontSize: '16px', color: '#0b1220', fontWeight: '600', marginTop: '4px', fontFamily: 'Arial, sans-serif' }}>{invoice.invoice_number}</div>
         </div>
         <div style={{ textAlign: 'right', fontSize: '13px', color: '#4B5563', lineHeight: '1.7', fontFamily: 'Arial, sans-serif' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginBottom: '2px' }}>{profile.full_name}</div>
@@ -59,7 +59,7 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
           {profile.address_line2 && <div>{profile.address_line2}</div>}
           {(profile.city || profile.postcode) && <div>{[profile.city, profile.postcode].filter(Boolean).join(', ')}</div>}
           {profile.phone && <div>{profile.phone}</div>}
-          {profile.email && <div style={{ color: '#059669' }}>{profile.email}</div>}
+          {profile.email && <div style={{ color: '#0b1220' }}>{profile.email}</div>}
           {profile.show_ofsted_on_invoice && profile.ofsted_number && (
             <div style={{ marginTop: '6px', fontSize: '11px', color: '#9CA3AF' }}>
               Ofsted Reg: <span style={{ fontWeight: '600', color: '#6B7280' }}>{profile.ofsted_number}</span>
@@ -143,13 +143,13 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
                       <td style={{ padding: '12px 16px', color: '#374151' }}>
                         {item.description}
                       </td>
-                      <td style={{ padding: '12px 16px', textAlign: 'center', color: funded ? '#059669' : '#6B7280' }}>
+                      <td style={{ padding: '12px 16px', textAlign: 'center', color: funded ? '#0b1220' : '#6B7280' }}>
                         {funded ? `${item.quantity} hrs` : item.quantity}
                       </td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: funded ? '#059669' : '#6B7280' }}>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: funded ? '#0b1220' : '#6B7280' }}>
                         {funded ? 'FUNDED' : formatGBP(Number(item.unit_price))}
                       </td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: funded ? '#059669' : '#111827' }}>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '600', color: funded ? '#0b1220' : '#111827' }}>
                         {formatGBP(Number(item.amount))}
                       </td>
                     </tr>
@@ -172,14 +172,14 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
 
         {/* Funded hours notice — Jan 2026 compliance footer */}
         {items.some(i => categoryFor(i) === 'funded') && (
-          <div style={{ margin: '12px 0', padding: '10px 16px', background: '#F0FDF4', borderLeft: '3px solid #059669', borderRadius: '4px', fontSize: '11px', color: '#065F46', fontFamily: 'Arial, sans-serif' }}>
+          <div style={{ margin: '12px 0', padding: '10px 16px', background: '#F0FDF4', borderLeft: '3px solid #0b1220', borderRadius: '4px', fontSize: '11px', color: '#065F46', fontFamily: 'Arial, sans-serif' }}>
             Government-funded hours shown explicitly at £0 per DfE invoicing guidance (effective January 2026). Additional paid hours, food, consumables, and activities are itemised separately and are voluntary — not a condition of the funded place.
           </div>
         )}
 
         {/* Total */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-          <div style={{ background: '#059669', color: 'white', padding: '12px 24px', borderRadius: '8px', display: 'flex', gap: '32px', alignItems: 'center', minWidth: '200px', justifyContent: 'space-between' }}>
+          <div style={{ background: '#0b1220', color: 'white', padding: '12px 24px', borderRadius: '8px', display: 'flex', gap: '32px', alignItems: 'center', minWidth: '200px', justifyContent: 'space-between' }}>
             <span style={{ fontWeight: '600', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>Total</span>
             <span style={{ fontWeight: '800', fontSize: '20px', fontFamily: 'Arial, sans-serif' }}>{formatGBP(Number(invoice.total))}</span>
           </div>
@@ -197,7 +197,7 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
       {/* Payment details */}
       {bankToShow && (bankToShow.account_number || bankToShow.sort_code) && (
         <div style={{ margin: '0 40px 32px', padding: '18px 20px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', fontFamily: 'Arial, sans-serif' }}>
-          <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#059669', textTransform: 'uppercase', marginBottom: '12px' }}>Payment details</div>
+          <div style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '2px', color: '#0b1220', textTransform: 'uppercase', marginBottom: '12px' }}>Payment details</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 32px', fontSize: '13px' }}>
             {bankToShow.bank_name && (
               <div><span style={{ color: '#9CA3AF' }}>Bank  </span><span style={{ fontWeight: '600' }}>{bankToShow.bank_name}</span></div>
@@ -238,15 +238,15 @@ export default function InvoicePreview({ invoice, profile, primaryBankAccount }:
       <div style={{ borderTop: '1px solid #E5E7EB', margin: '0 40px', paddingTop: '16px', paddingBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'Arial, sans-serif' }}>
         <div style={{ fontSize: '11px', color: '#9CA3AF' }}>Thank you for your business</div>
         {invoice.status === 'paid' && (
-          <div style={{ border: '3px solid #059669', borderRadius: '6px', padding: '4px 14px', transform: 'rotate(-4deg)', opacity: 0.6 }}>
-            <span style={{ color: '#059669', fontSize: '18px', fontWeight: '900', letterSpacing: '4px' }}>PAID</span>
+          <div style={{ border: '3px solid #0b1220', borderRadius: '6px', padding: '4px 14px', transform: 'rotate(-4deg)', opacity: 0.6 }}>
+            <span style={{ color: '#0b1220', fontSize: '18px', fontWeight: '900', letterSpacing: '4px' }}>PAID</span>
           </div>
         )}
         <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{invoice.invoice_number}</div>
       </div>
 
       {/* Bottom accent bar */}
-      <div style={{ height: '4px', background: '#059669' }} />
+      <div style={{ height: '4px', background: '#0b1220' }} />
     </div>
   )
 }

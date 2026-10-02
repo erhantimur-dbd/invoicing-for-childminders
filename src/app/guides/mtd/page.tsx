@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides/mtd'
@@ -6,10 +7,10 @@ const URL = 'https://www.godottie.cloud/guides/mtd'
 export const metadata: Metadata = {
   title: 'Making Tax Digital for childminders — the 2026 guide',
   description:
-    'MTD for Income Tax kicks in for £50k+ UK sole traders from April 2026, then £30k from April 2027 and £20k from April 2028. What it means for childminders — what to do, when, and how Dottie helps.',
+    'MTD for Income Tax kicks in for £50k+ UK sole traders from April 2026, then £30k from April 2027 and £20k from April 2028. What it means for childminders — what to do, when, and how Go Dottie helps.',
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Making Tax Digital for childminders — Dottie',
+    title: 'Making Tax Digital for childminders — Go Dottie',
     description:
       'Everything UK childminders need to know about MTD for Income Tax (April 2026 onward). Thresholds, quarterly updates, what software has to do.',
     url: URL,
@@ -45,11 +46,11 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Do I have to use software, or can I keep doing my spreadsheet?',
-    a: 'Once you are within MTD you must use software that connects to HMRC — a "spreadsheet plus bridging software" approach is allowed. A standalone spreadsheet is not. Dottie handles the digital-records and quarterly-summary side; for the actual HMRC filing we integrate with HMRC-recognised filing tools (FreeAgent, QuickBooks, Xero) so you do not need to learn a separate package.',
+    a: 'Once you are within MTD you must use software that connects to HMRC — a "spreadsheet plus bridging software" approach is allowed. A standalone spreadsheet is not. Go Dottie handles the digital-records and quarterly-summary side; for the actual HMRC filing we integrate with HMRC-recognised filing tools (FreeAgent, QuickBooks, Xero) so you do not need to learn a separate package.',
   },
   {
     q: 'What if I am under the £20k threshold?',
-    a: 'You stay on the existing Self Assessment process — one return a year, due 31 January. There has been no announcement of MTD applying below £20k. You can still benefit from digital record-keeping (and Dottie still helps), but it is not yet mandatory.',
+    a: 'You stay on the existing Self Assessment process — one return a year, due 31 January. There has been no announcement of MTD applying below £20k. You can still benefit from digital record-keeping (and Go Dottie still helps), but it is not yet mandatory.',
   },
 ]
 
@@ -60,12 +61,12 @@ const articleJsonLd = {
   description: metadata.description,
   datePublished: '2026-05-06',
   dateModified: '2026-05-06',
-  author: { '@type': 'Organization', name: 'Dottie', url: 'https://www.godottie.cloud' },
+  author: { '@type': 'Organization', name: 'Go Dottie', url: 'https://www.godottie.cloud' },
   publisher: {
     '@type': 'Organization',
-    name: 'Dottie',
+    name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
-    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
+    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon.png' },
   },
   mainEntityOfPage: { '@type': 'WebPage', '@id': URL },
 }
@@ -84,7 +85,7 @@ const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Dottie', item: 'https://www.godottie.cloud' },
+    { '@type': 'ListItem', position: 1, name: 'Go Dottie', item: 'https://www.godottie.cloud' },
     { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://www.godottie.cloud/guides' },
     { '@type': 'ListItem', position: 3, name: 'MTD for childminders', item: URL },
   ],
@@ -100,29 +101,26 @@ export default function Page() {
       <header className="border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
-              <span className="text-white text-xs font-extrabold">D.</span>
-            </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link href="/signup" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
-            Get started →
-          </Link>
+          <EnquiriesSignupLink label="Get started →" className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]">
+</EnquiriesSignupLink>
         </div>
       </header>
 
       <article className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-emerald-700">Home</Link></li>
+            <li><Link href="/" className="hover:text-[#0b1220]">Home</Link></li>
             <li aria-hidden>/</li>
-            <li><Link href="/guides" className="hover:text-emerald-700">Guides</Link></li>
+            <li><Link href="/guides" className="hover:text-[#0b1220]">Guides</Link></li>
             <li aria-hidden>/</li>
             <li><span className="text-gray-900 font-medium">MTD</span></li>
           </ol>
         </nav>
 
-        <p className="text-emerald-700 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p className="text-[#0b1220] text-xs font-semibold uppercase tracking-widest mb-3">
           UK childminder compliance
         </p>
         <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight text-gray-900 mb-4">
@@ -134,8 +132,8 @@ export default function Page() {
         <p className="text-gray-500 text-sm mb-10">Last updated 6 May 2026 · 7 min read</p>
 
         {/* TL;DR */}
-        <aside className="mb-10 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-6">
-          <p className="text-emerald-900 text-xs font-bold uppercase tracking-widest mb-2">In one paragraph</p>
+        <aside className="mb-10 rounded-2xl border border-[#e5e7eb] bg-[#f6f7f9] p-6">
+          <p className="text-[#0b1220] text-xs font-bold uppercase tracking-widest mb-2">In one paragraph</p>
           <p className="text-gray-800 leading-relaxed">
             MTD for Income Tax applies to UK sole traders (which most childminders are) above a gross-income threshold: <strong>£50k from 6 April 2026</strong>, <strong>£30k from 6 April 2027</strong>, <strong>£20k from 6 April 2028</strong>. Once in, you keep digital records and submit quarterly summaries to HMRC via approved software, plus a final declaration once a year. Childminders no longer use the PACEY simplified-expenses concession under MTD.
           </p>
@@ -188,7 +186,7 @@ export default function Page() {
               <tr><td className="py-2.5 px-4">6 July – 5 October</td><td className="py-2.5 px-4">7 November</td></tr>
               <tr><td className="py-2.5 px-4">6 October – 5 January</td><td className="py-2.5 px-4">7 February</td></tr>
               <tr><td className="py-2.5 px-4">6 January – 5 April</td><td className="py-2.5 px-4">7 May</td></tr>
-              <tr className="bg-amber-50/50"><td className="py-2.5 px-4 font-semibold">Final declaration</td><td className="py-2.5 px-4 font-semibold">31 January after tax-year end</td></tr>
+              <tr className="bg-[#f6f7f9] text-[#0b1220]"><td className="py-2.5 px-4 font-semibold text-[#0b1220]">Final declaration</td><td className="py-2.5 px-4 font-semibold text-[#0b1220]">31 January after tax-year end</td></tr>
             </tbody>
           </table>
         </div>
@@ -198,7 +196,7 @@ export default function Page() {
           3. What changes specifically for childminders
         </h2>
         <p className="text-gray-700 leading-relaxed mb-4">
-          On 18 March 2026, HMRC updated <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">BIM52751</a> to clarify that childminders within MTD must use the <strong>standard approach</strong> for calculating taxable profits. In practice, three things change:
+          On 18 March 2026, HMRC updated <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">BIM52751</a> to clarify that childminders within MTD must use the <strong>standard approach</strong> for calculating taxable profits. In practice, three things change:
         </p>
         <ul className="space-y-2 mb-6 text-gray-700">
           {[
@@ -207,7 +205,7 @@ export default function Page() {
             { k: 'Digital records, not just totals', v: 'You log each transaction (date, amount, category) digitally. Spreadsheets are allowed only with bridging software that submits to HMRC.' },
           ].map(it => (
             <li key={it.k} className="flex gap-3">
-              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
               <span><strong className="text-gray-900">{it.k}.</strong> <span className="text-gray-600">{it.v}</span></span>
             </li>
           ))}
@@ -215,30 +213,29 @@ export default function Page() {
 
         {/* Dottie pivot */}
         <h2 id="how-dottie-helps" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-4">
-          4. How Dottie fits in
+          4. How Go Dottie fits in
         </h2>
         <p className="text-gray-700 leading-relaxed mb-4">
-          Dottie keeps digital records the way MTD requires: every invoice you send and every expense you log is captured as a categorised, dated, digital entry — not a row on a paper book. From there, two paths to HMRC:
+          Go Dottie keeps digital records the way MTD requires: every invoice you send and every expense you log is captured as a categorised, dated, digital entry — not a row on a paper book. From there, two paths to HMRC:
         </p>
         <ul className="space-y-2 mb-6 text-gray-700">
           <li className="flex gap-3">
-            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-            <span><strong className="text-gray-900">Bridge to FreeAgent / Xero / QuickBooks.</strong> <span className="text-gray-600">Export an MTD-shaped CSV from Dottie&apos;s reports into your existing bookkeeping software. We are working on a one-click sync to FreeAgent (free for FreeAgent customers of NatWest/RBS/Mettle).</span></span>
+            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
+            <span><strong className="text-gray-900">Bridge to FreeAgent / Xero / QuickBooks.</strong> <span className="text-gray-600">Export an MTD-shaped CSV from Go Dottie&apos;s reports into your existing bookkeeping software. We are working on a one-click sync to FreeAgent (free for FreeAgent customers of NatWest/RBS/Mettle).</span></span>
           </li>
           <li className="flex gap-3">
-            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-            <span><strong className="text-gray-900">Direct quarterly submission (roadmap).</strong> <span className="text-gray-600">A native Dottie + HMRC connection so you never leave the app. Targeted for the 2027 threshold drop.</span></span>
+            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
+            <span><strong className="text-gray-900">Direct quarterly submission (roadmap).</strong> <span className="text-gray-600">A native Go Dottie + HMRC connection so you never leave the app. Targeted for the 2027 threshold drop.</span></span>
           </li>
         </ul>
 
-        <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
+        <div className="rounded-2xl bg-[#0b1220] p-6 sm:p-8 text-white my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Get MTD-ready records from day one</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
-            Dottie keeps every invoice and expense as a digital record HMRC will accept under MTD.
+            Go Dottie keeps every invoice and expense as a digital record HMRC will accept under MTD.
           </p>
-          <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95">
-            Get started →
-          </Link>
+          <EnquiriesSignupLink label="Get started →" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-[#0b1220] font-bold text-sm hover:bg-white transition-colors active:scale-95">
+</EnquiriesSignupLink>
         </div>
 
         {/* FAQ */}
@@ -262,10 +259,10 @@ export default function Page() {
         {/* Sources */}
         <h2 id="sources" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-3">Sources & further reading</h2>
         <ul className="space-y-2 text-sm text-gray-600 mb-12">
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.icaew.com/insights/tax-news/2026/mar-2026/hmrc-updates-its-guidance-for-childminders" rel="nofollow noopener" target="_blank">HMRC updates its guidance for childminders — ICAEW (March 2026)</a></li>
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">BIM52751 — HMRC manual: childminders&apos; expenses</a></li>
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/guidance/find-software-thats-compatible-with-making-tax-digital-for-income-tax" rel="nofollow noopener" target="_blank">Find MTD-compatible software — GOV.UK</a></li>
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.fsb.org.uk/resources/article/making-tax-digital-2026-deadlines-rules-and-more-MCQVRXUNIJC5EQRAZBQ7DFJNGYMA" rel="nofollow noopener" target="_blank">Making Tax Digital 2026: deadlines & rules — FSB</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.icaew.com/insights/tax-news/2026/mar-2026/hmrc-updates-its-guidance-for-childminders" rel="nofollow noopener" target="_blank">HMRC updates its guidance for childminders — ICAEW (March 2026)</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">BIM52751 — HMRC manual: childminders&apos; expenses</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/guidance/find-software-thats-compatible-with-making-tax-digital-for-income-tax" rel="nofollow noopener" target="_blank">Find MTD-compatible software — GOV.UK</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.fsb.org.uk/resources/article/making-tax-digital-2026-deadlines-rules-and-more-MCQVRXUNIJC5EQRAZBQ7DFJNGYMA" rel="nofollow noopener" target="_blank">Making Tax Digital 2026: deadlines & rules — FSB</a></li>
         </ul>
 
         <p className="text-xs text-gray-400 leading-relaxed">

@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/marketing/SiteHeader'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mjs'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 
 const URL = 'https://www.godottie.cloud/demo'
 
@@ -15,14 +15,14 @@ export const metadata: Metadata = {
   description: marketing.demoSubhead,
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Book a demo — Dottie',
+    title: 'Book a demo — Go Dottie',
     description: marketing.demoSubhead,
     url: URL,
     type: 'website',
   },
 }
 
-export default function DemoPage() {
+export default async function DemoPage() {
   return (
     <div
       className={`${marketing.pageClass} min-h-screen flex flex-col`}
@@ -45,7 +45,7 @@ export default function DemoPage() {
         <div className="overflow-hidden border" style={{ borderRadius: 18, borderColor: marketing.hairline }}>
           <iframe
             src={EMBED_URL}
-            title="Book a demo with Dottie"
+            title="Book a demo with Go Dottie"
             className="w-full"
             style={{ height: '700px', border: 0 }}
             loading="lazy"
@@ -67,13 +67,11 @@ export default function DemoPage() {
 
         <p className="text-[13px] mt-10" style={{ color: marketing.muted }}>
           Prefer to start now?{' '}
-          <Link
-            href={marketing.ctas.signup.href}
+          <EnquiriesSignupLink
+            label={marketing.ctas.signup.label}
             className={`${marketingCtaClass.primary} !px-4 !py-1.5 text-[13px] align-middle`}
             style={ctaRadiusStyle()}
-          >
-            {marketing.ctas.signup.label}
-          </Link>
+          />
         </p>
       </main>
       <SiteFooter />

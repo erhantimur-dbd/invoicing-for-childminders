@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email/resend'
 import { welcomeEmail } from '@/lib/email/templates'
+import { isPaidSignupOpen } from '@/lib/stripe/prices'
 
 export async function POST(request: NextRequest) {
   // ── Auth: accept either a valid session cookie OR a shared internal secret ──
@@ -92,7 +93,13 @@ export async function POST(request: NextRequest) {
   }
 
   // ── Send the welcome email ────────────────────────────────────────────────
-  const { subject, html } = welcomeEmail({ name: name ?? email })
+  const paymentsOpen = await isPaidSignupOpen()
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
+  const { subject, html } = welcomeEmail({
+    name: name ?? email,
+    enquiriesHref: paymentsOpen ? `${appUrl}/subscribe?product=enquiries` : `${appUrl}/demo`,
+    enquiriesLabel: paymentsOpen ? 'Start with Enquiries' : 'Book a demo',
+  })
 
   const result = await sendEmail({ to: email, subject, html })
 

@@ -91,19 +91,64 @@ async function retrieveEnquiriesPrice(secretKey: string, priceId: string): Promi
   return { livemode: price.livemode, active: price.active }
 }
 
+/** Query value, cookie value, and the request header the proxy copies from `?paid=`. */
+export const PAID_SIGNUP_CLOSED = 'closed'
+export const PAID_SIGNUP_COOKIE = 'gd_paid'
+export const PAID_SIGNUP_QUERY_HEADER = 'x-gd-paid'
+
+export type PaidSignupSignals = {
+  /** `paid` query param. `closed` forces the closed state outside Production. */
+  paidQuery?: string | null
+  /** `gd_paid` cookie. `closed` forces the closed state outside Production. */
+  paidCookie?: string | null
+}
+
+/**
+ * Preview and development QA override.
+ * Production always returns false here, so a query or cookie cannot open or close checkout.
+ */
+export function paidSignupQaClosed(env: EnquiriesPriceEnv, signals: PaidSignupSignals): boolean {
+  if (env.VERCEL_ENV === 'production') return false
+  return signals.paidQuery === PAID_SIGNUP_CLOSED || signals.paidCookie === PAID_SIGNUP_CLOSED
+}
+
+async function readNonProductionSignals(): Promise<PaidSignupSignals> {
+  try {
+    const { cookies, headers } = await import('next/headers')
+    const jar = await cookies()
+    const h = await headers()
+    const marked = h.get(PAID_SIGNUP_QUERY_HEADER)
+    return {
+      paidCookie: jar.get(PAID_SIGNUP_COOKIE)?.value ?? null,
+      paidQuery: marked === PAID_SIGNUP_CLOSED ? PAID_SIGNUP_CLOSED : null,
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : ''
+    if (message.includes('outside a request scope')) return {}
+    throw err
+  }
+}
+
 /**
  * Enquiries checkout is open unless this is Production and the annual price is not live.
  * Live means `STRIPE_ENQUIRIES_ANNUAL_PRICE_ID` is set, the secret is `sk_live`,
  * and the retrieved price is livemode and active.
- * Preview, development, and an unset VERCEL_ENV return true and do not call Stripe.
+ * Preview, development, and an unset VERCEL_ENV return true and do not call Stripe,
+ * unless `?paid=closed` is on the request or the `gd_paid=closed` cookie is set.
+ * Visiting `?paid=closed` once sets that cookie. Production ignores both.
  * Production fails closed: a missing env var, a non-live key, an inactive or test
  * price, or a lookup error all return false. The Stripe lookup is cached.
  */
 export async function isPaidSignupOpen(
   env: EnquiriesPriceEnv = process.env,
   lookup?: PaidSignupLookup,
+  signals?: PaidSignupSignals,
 ): Promise<boolean> {
-  if (env.VERCEL_ENV !== 'production') return true
+  if (env.VERCEL_ENV !== 'production') {
+    const read = signals ?? (env === process.env ? await readNonProductionSignals() : {})
+    if (paidSignupQaClosed(env, read)) return false
+    return true
+  }
 
   const priceId = resolveEnquiriesPriceId(env)
   const secretKey = env.STRIPE_SECRET_KEY

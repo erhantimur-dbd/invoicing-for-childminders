@@ -138,55 +138,6 @@ export async function POST(request: NextRequest) {
         break
       }
 
-      case 'customer.subscription.trial_will_end': {
-        // Stripe fires this 3 days before the trial converts to a paid sub.
-        // We use it for the retention reminder email.
-        const subscription = event.data.object as unknown as {
-          customer: string
-          trial_end: number | null
-          metadata?: Record<string, string>
-        }
-        if (subscription.metadata?.product === 'enquiries') break
-        const trialEndIso = typeof subscription.trial_end === 'number'
-          ? new Date(subscription.trial_end * 1000).toISOString()
-          : null
-        if (!trialEndIso) break
-
-        // Find the user from the customer id.
-        const { data: sub } = await supabase
-          .from('subscriptions')
-          .select('user_id')
-          .eq('stripe_customer_id', subscription.customer)
-          .maybeSingle()
-        if (!sub?.user_id) break
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, email')
-          .eq('id', sub.user_id)
-          .single()
-        if (!profile?.email) break
-
-        const trialEndDate = new Date(trialEndIso)
-        const daysLeft = Math.max(1, Math.ceil((trialEndDate.getTime() - Date.now()) / 86_400_000))
-        const trialEndLabel = trialEndDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-
-        try {
-          const { trialExpiringEmail } = await import('@/lib/email/templates')
-          const { sendEmail } = await import('@/lib/email/resend')
-          const { subject, html } = trialExpiringEmail({
-            name: profile.full_name || profile.email,
-            daysLeft,
-            trialEnd: trialEndLabel,
-          })
-          await sendEmail({ to: profile.email, subject, html })
-          log.info('trial_ending_email_sent', { user_id: sub.user_id, days_left: daysLeft })
-        } catch (err) {
-          log.error('trial_ending_email_failed', err, { user_id: sub.user_id })
-        }
-        break
-      }
-
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         // Source of truth for status. A customer can have invoicing AND

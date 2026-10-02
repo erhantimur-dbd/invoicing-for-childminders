@@ -59,13 +59,13 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
   assert.match(signup, /subscribeNext/)
   assert.match(signup, /data\.session/)
   assert.match(signup, /Check your inbox/)
-  assert.ok(signup.indexOf('I agree to Dottie') < signup.indexOf('Create account'))
+  assert.ok(signup.indexOf('I agree to Go Dottie') < signup.indexOf('Create account'))
 
   const forgot = read('app/(auth)/forgot-password/page.tsx')
   assert.match(forgot, /authCallbackRedirect/)
   assert.match(forgot, /\/reset-password/)
 
-  const login = read('app/(auth)/login/page.tsx')
+  const login = read('app/(auth)/login/login-form.tsx')
   assert.match(login, /setError/)
   assert.match(login, /ssoError/)
   const sso = read('components/SSOButtons.tsx')
@@ -75,15 +75,15 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
 
   const checkout = read('app/api/stripe/create-checkout/route.ts')
   assert.match(checkout, /plan/)
-  const subscribe = read('app/subscribe/page.tsx')
-  assert.match(subscribe, /searchParams\.get\('billing'\)/)
-  assert.match(subscribe, /plan: billing/)
+  const subscribe = read('app/subscribe/subscribe-client.tsx')
+  assert.match(subscribe, /plan: 'annual'/)
+  assert.doesNotMatch(subscribe, /setBilling\('monthly'\)/)
 })
 
 test('login surfaces auth/callback SSO failures inline', () => {
   assert.equal(loginErrorFromQuery(null), null)
   assert.equal(loginErrorFromQuery('auth_callback_failed'), AUTH_CALLBACK_FAILED)
-  const login = read('app/(auth)/login/page.tsx')
+  const login = read('app/(auth)/login/login-form.tsx')
   assert.match(login, /loginErrorFromQuery/)
   const callback = read('app/auth/callback/route.ts')
   assert.match(callback, /login\?error=auth_callback_failed/)
@@ -119,7 +119,7 @@ test('signup is paid checkout, not a self-serve trial; demo stays on navy chrome
   assert.match(checkout, /resolveEnquiriesPriceId/)
   assert.match(checkout, /resolveInvoicingPriceId/)
 
-  const subscribe = read('app/subscribe/page.tsx')
+  const subscribe = read('app/subscribe/subscribe-client.tsx')
   assert.doesNotMatch(subscribe, /free trial/i)
   assert.doesNotMatch(subscribe, /No card needed/)
   assert.match(subscribe, /Book a demo/)
@@ -135,7 +135,8 @@ test('signup is paid checkout, not a self-serve trial; demo stays on navy chrome
   assert.doesNotMatch(demo, /from-emerald-500/)
 
   const home = read('app/page.tsx')
-  assert.match(home, /marketing\.ctas\.demo/)
+  assert.match(home, /companionCta/)
+  assert.match(home, /companion\.href/)
   assert.match(home, /marketing\.headline/)
   assert.doesNotMatch(home, /free trial|Start free trial|7 days completely free/i)
   assert.match(home, /marketing\.hero/)
@@ -146,7 +147,7 @@ test('signup lands on Enquiries subscribe; proxy splits the two products', () =>
   assert.match(signup, /subscribeNext/)
   assert.match(signup, /product=enquiries/)
   assert.match(signup, /Create account/)
-  assert.ok(signup.indexOf('I agree to Dottie') < signup.indexOf('Create account'))
+  assert.ok(signup.indexOf('I agree to Go Dottie') < signup.indexOf('Create account'))
 
   const proxy = read('proxy.ts')
   assert.match(proxy, /\/children/)
@@ -164,9 +165,9 @@ test('signup lands on Enquiries subscribe; proxy splits the two products', () =>
   assert.match(checkout, /resolveEnquiriesPriceId/)
   assert.match(checkout, /resolveInvoicingPriceId/)
 
-  const subscribe = read('app/subscribe/page.tsx')
+  const subscribe = read('app/subscribe/subscribe-client.tsx')
   assert.match(subscribe, /get\('product'\) !== 'invoicing'/)
-  assert.match(subscribe, /Start Dottie/)
+  assert.match(subscribe, /Start Go Dottie/)
   assert.match(subscribe, /Add invoicing/)
 })
 
@@ -179,7 +180,7 @@ test('paid Enquiries checkout sets enquiries_status; success polls status not St
   const webhook = read('app/api/stripe/webhook/route.ts')
   const checkoutCase = webhook.slice(
     webhook.indexOf("checkout.session.completed"),
-    webhook.indexOf("customer.subscription.trial_will_end"),
+    webhook.indexOf("case 'customer.subscription.created'"),
   )
   assert.match(checkoutCase, /enquiries_status/)
   assert.match(checkoutCase, /payment_status/)

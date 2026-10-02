@@ -7,9 +7,11 @@ import SiteFooter from '@/components/marketing/SiteFooter'
 import EmailFlow from '@/components/marketing/EmailFlow'
 import Pricing from '@/components/marketing/Pricing'
 import { marketing, marketingCtaClass, ctaRadiusStyle, pricingAmounts } from '@/lib/marketing.mjs'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
+import { companionCta, enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 export const metadata: Metadata = {
-  title: 'Dottie — AI assistant for UK childminders',
+  title: 'Go Dottie — AI assistant for UK childminders',
   description: marketing.subhead,
   alternates: { canonical: 'https://www.godottie.cloud' },
   openGraph: {
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'Dottie',
+  name: 'Go Dottie',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: 'https://www.godottie.cloud',
@@ -38,8 +40,15 @@ const jsonLd = {
     },
     {
       '@type': 'Offer',
-      name: 'Enquiries + invoicing',
-      price: String(pricingAmounts.bothFrom.annual),
+      name: 'Limited',
+      price: '208',
+      priceCurrency: 'GBP',
+      billingIncrement: 'P1Y',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Full',
+      price: '280',
       priceCurrency: 'GBP',
       billingIncrement: 'P1Y',
     },
@@ -47,6 +56,9 @@ const jsonLd = {
 }
 
 export default async function RootPage() {
+  const paymentsOpen = await readPaidSignupOpen()
+  const signup = enquiriesSignupCta(paymentsOpen)
+  const companion = companionCta(paymentsOpen)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')
@@ -80,11 +92,11 @@ export default async function RootPage() {
                 {marketing.subhead}
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <Link href={marketing.ctas.signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
-                  {marketing.ctas.signup.label}
+                <Link href={signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
+                  {signup.label}
                 </Link>
-                <Link href={marketing.ctas.demo.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
-                  {marketing.ctas.demo.label}
+                <Link href={companion.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
+                  {companion.label}
                 </Link>
               </div>
             </div>
@@ -107,7 +119,7 @@ export default async function RootPage() {
 
         <section className="px-6 py-24">
           <div className="max-w-[1120px] mx-auto">
-            <p className="marketing-kicker mb-4" style={{ color: marketing.muted }}>What Dottie runs</p>
+            <p className="marketing-kicker mb-4" style={{ color: marketing.muted }}>What Go Dottie runs</p>
             <h2 className="text-[34px] sm:text-[44px] tracking-[-0.03em] font-semibold mb-12 max-w-[18ch]">
               One assistant. The whole business end.
             </h2>
@@ -204,11 +216,11 @@ export default async function RootPage() {
               {marketing.closing}
             </h2>
             <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Link href={marketing.ctas.signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
-                {marketing.ctas.signup.label}
+              <Link href={signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
+                {signup.label}
               </Link>
-              <Link href={marketing.ctas.demo.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
-                {marketing.ctas.demo.label}
+              <Link href={companion.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
+                {companion.label}
               </Link>
             </div>
           </div>

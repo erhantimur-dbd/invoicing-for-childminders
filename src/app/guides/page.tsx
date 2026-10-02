@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides'
@@ -6,10 +7,10 @@ const URL = 'https://www.godottie.cloud/guides'
 export const metadata: Metadata = {
   title: 'Guides for UK childminders',
   description:
-    'Plain-English guides on funded hours, invoice rules, HMRC and Making Tax Digital — written for UK childminders, by Dottie.',
+    'Plain-English guides on funded hours, invoice rules, HMRC and Making Tax Digital — written for UK childminders, by Go Dottie.',
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Guides for UK childminders — Dottie',
+    title: 'Guides for UK childminders — Go Dottie',
     description:
       'Funded hours, invoice rules, HMRC and MTD — practical guides for UK childminders.',
     url: URL,
@@ -64,22 +65,18 @@ export default function GuidesIndex() {
       <header className="border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
-              <span className="text-white text-xs font-extrabold">D.</span>
-            </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link
-            href="/signup"
-            className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-          >
-            Get started →
-          </Link>
+          <EnquiriesSignupLink
+            label="Get started →"
+            className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]"
+ />
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-        <p className="text-emerald-700 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p className="text-[#0b1220] text-xs font-semibold uppercase tracking-widest mb-3">
           Guides
         </p>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
@@ -100,7 +97,7 @@ export default function GuidesIndex() {
                     <li key={it.href}>
                       <Link
                         href={it.href}
-                        className="block rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-sm p-4 transition-colors"
+                        className="block rounded-xl border border-gray-200 hover:border-[#0b1220] hover:shadow-sm p-4 transition-colors"
                       >
                         <p className="font-semibold text-gray-900">{it.title}</p>
                         <p className="text-gray-500 text-sm leading-relaxed">{it.desc}</p>

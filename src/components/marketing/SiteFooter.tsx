@@ -1,7 +1,12 @@
 import Link from 'next/link'
 import { marketing } from '@/lib/marketing.mjs'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
+import { companionCta, enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
+  const paymentsOpen = await readPaidSignupOpen()
+  const signup = enquiriesSignupCta(paymentsOpen)
+  const companion = companionCta(paymentsOpen)
   return (
     <footer style={{ backgroundColor: marketing.hero, color: '#f6f7f9', borderTop: `1px solid ${marketing.heroHairline}` }}>
       <div className="max-w-[1120px] mx-auto px-6 py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -17,11 +22,11 @@ export default function SiteFooter() {
             <a href="/#how-it-works" className="hover:text-white transition-colors">How it works</a>
             <a href="/#invoicing" className="hover:text-white transition-colors">Invoicing</a>
             <a href="/#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <Link href={marketing.ctas.demo.href} className="hover:text-white transition-colors">
-              {marketing.ctas.demo.label}
+            <Link href={companion.href} className="hover:text-white transition-colors">
+              {companion.label}
             </Link>
-            <Link href={marketing.ctas.signup.href} className="hover:text-white transition-colors">
-              {marketing.ctas.signup.label}
+            <Link href={signup.href} className="hover:text-white transition-colors">
+              {signup.label}
             </Link>
           </nav>
         </div>
@@ -46,7 +51,7 @@ export default function SiteFooter() {
         className="max-w-[1120px] mx-auto px-6 pb-10 pt-2 text-[12px]"
         style={{ color: marketing.heroMuted, borderTop: `1px solid ${marketing.heroHairline}` }}
       >
-        <p className="pt-6">© {new Date().getFullYear()} Dottie. All rights reserved.</p>
+        <p className="pt-6">© {new Date().getFullYear()} Go Dottie. All rights reserved.</p>
       </div>
     </footer>
   )

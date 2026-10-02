@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides/funded-hours/30-hours-9-month-rollout-2025'
@@ -56,12 +57,12 @@ const articleJsonLd = {
   description: metadata.description,
   datePublished: '2026-05-06',
   dateModified: '2026-05-06',
-  author: { '@type': 'Organization', name: 'Dottie', url: 'https://www.godottie.cloud' },
+  author: { '@type': 'Organization', name: 'Go Dottie', url: 'https://www.godottie.cloud' },
   publisher: {
     '@type': 'Organization',
-    name: 'Dottie',
+    name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
-    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
+    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon.png' },
   },
   mainEntityOfPage: { '@type': 'WebPage', '@id': URL },
 }
@@ -80,7 +81,7 @@ const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Dottie', item: 'https://www.godottie.cloud' },
+    { '@type': 'ListItem', position: 1, name: 'Go Dottie', item: 'https://www.godottie.cloud' },
     { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://www.godottie.cloud/guides' },
     { '@type': 'ListItem', position: 3, name: 'Funded hours', item: 'https://www.godottie.cloud/guides/funded-hours' },
     { '@type': 'ListItem', position: 4, name: '30 hours from 9 months (Sept 2025)', item: URL },
@@ -97,31 +98,28 @@ export default function Page() {
       <header className="border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
-              <span className="text-white text-xs font-extrabold">D.</span>
-            </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link href="/signup" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
-            Get started →
-          </Link>
+          <EnquiriesSignupLink label="Get started →" className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]">
+</EnquiriesSignupLink>
         </div>
       </header>
 
       <article className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-emerald-700">Home</Link></li>
+            <li><Link href="/" className="hover:text-[#0b1220]">Home</Link></li>
             <li aria-hidden>/</li>
-            <li><Link href="/guides" className="hover:text-emerald-700">Guides</Link></li>
+            <li><Link href="/guides" className="hover:text-[#0b1220]">Guides</Link></li>
             <li aria-hidden>/</li>
-            <li><Link href="/guides/funded-hours" className="hover:text-emerald-700">Funded hours</Link></li>
+            <li><Link href="/guides/funded-hours" className="hover:text-[#0b1220]">Funded hours</Link></li>
             <li aria-hidden>/</li>
             <li><span className="text-gray-900 font-medium">30 hours from 9 months</span></li>
           </ol>
         </nav>
 
-        <p className="text-emerald-700 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p className="text-[#0b1220] text-xs font-semibold uppercase tracking-widest mb-3">
           UK funded childcare entitlements
         </p>
         <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight tracking-tight text-gray-900 mb-4">
@@ -132,8 +130,8 @@ export default function Page() {
         </p>
         <p className="text-gray-500 text-sm mb-10">Last updated 6 May 2026 · 5 min read</p>
 
-        <aside className="mb-10 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-6">
-          <p className="text-emerald-900 text-xs font-bold uppercase tracking-widest mb-2">In one paragraph</p>
+        <aside className="mb-10 rounded-2xl border border-[#e5e7eb] bg-[#f6f7f9] p-6">
+          <p className="text-[#0b1220] text-xs font-bold uppercase tracking-widest mb-2">In one paragraph</p>
           <p className="text-gray-800 leading-relaxed">
             From <strong>September 2025</strong>, eligible working parents in England can claim <strong>30 funded hours a week</strong> for their child from <strong>9 months old</strong> until they start school. The funded hours run over 38 weeks (term-time) or up to 52 weeks if stretched. Childminders cannot charge top-up fees, but can itemise paid hours, food, consumables, and activities separately — which is exactly what the January 2026 invoice rules require.
           </p>
@@ -158,7 +156,7 @@ export default function Page() {
             <tbody className="divide-y divide-gray-100 text-gray-800">
               <tr><td className="py-2.5 px-4">April 2024</td><td className="py-2.5 px-4">Working parents of 2-year-olds</td><td className="py-2.5 px-4">15h</td></tr>
               <tr><td className="py-2.5 px-4">September 2024</td><td className="py-2.5 px-4">Working parents of 9 months – 2 years</td><td className="py-2.5 px-4">15h</td></tr>
-              <tr className="bg-emerald-50/50"><td className="py-2.5 px-4 font-semibold">September 2025</td><td className="py-2.5 px-4 font-semibold">Working parents of 9 months → school start</td><td className="py-2.5 px-4 font-semibold">30h</td></tr>
+              <tr className="bg-[#f6f7f9]"><td className="py-2.5 px-4 font-semibold">September 2025</td><td className="py-2.5 px-4 font-semibold">Working parents of 9 months → school start</td><td className="py-2.5 px-4 font-semibold">30h</td></tr>
               <tr><td className="py-2.5 px-4">Pre-existing</td><td className="py-2.5 px-4">All 3–4 year olds (universal)</td><td className="py-2.5 px-4">15h</td></tr>
               <tr><td className="py-2.5 px-4">Pre-existing</td><td className="py-2.5 px-4">Working parents of 3–4 year olds</td><td className="py-2.5 px-4">30h</td></tr>
               <tr><td className="py-2.5 px-4">Pre-existing</td><td className="py-2.5 px-4">Disadvantaged 2-year-olds</td><td className="py-2.5 px-4">15h</td></tr>
@@ -175,15 +173,15 @@ export default function Page() {
         </p>
         <ul className="space-y-2 mb-6 text-gray-700">
           <li className="flex gap-3">
-            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
             <span>Earn at least the equivalent of <strong>16 hours a week at National Living Wage</strong> over the next 3 months.</span>
           </li>
           <li className="flex gap-3">
-            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
             <span>Earn under <strong>£100,000 individually</strong> (it&apos;s an income cap, not a household one).</span>
           </li>
           <li className="flex gap-3">
-            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
             <span>Reconfirm eligibility every 3 months on the GOV.UK Childcare Service.</span>
           </li>
         </ul>
@@ -205,24 +203,23 @@ export default function Page() {
             { k: 'Top-up fees still banned', v: 'Since April 2025 you cannot charge the gap between your hourly rate and the funding rate. You absorb that gap on funded hours, and recover other costs (food, consumables, activities) as voluntary, itemised extras.' },
           ].map(it => (
             <li key={it.k} className="flex gap-3">
-              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
               <span><strong className="text-gray-900">{it.k}.</strong> <span className="text-gray-600">{it.v}</span></span>
             </li>
           ))}
         </ul>
 
         <p className="text-gray-700 leading-relaxed mb-6">
-          The mechanics of invoicing under the new entitlement are governed by the <Link href="/guides/funded-hours/2026-invoice-rules" className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800">January 2026 invoice rules</Link> — read that next.
+          The mechanics of invoicing under the new entitlement are governed by the <Link href="/guides/funded-hours/2026-invoice-rules" className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]">January 2026 invoice rules</Link> — read that next.
         </p>
 
-        <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
+        <div className="rounded-2xl bg-[#0b1220] p-6 sm:p-8 text-white my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Track every funded entitlement on every child</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
-            Dottie supports all six UK funded entitlements — universal, working-parents, disadvantaged, 9 months to school. Pick the scheme once per child, and invoices format themselves correctly.
+            Go Dottie supports all six UK funded entitlements — universal, working-parents, disadvantaged, 9 months to school. Pick the scheme once per child, and invoices format themselves correctly.
           </p>
-          <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95">
-            Get started →
-          </Link>
+          <EnquiriesSignupLink label="Get started →" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-[#0b1220] font-bold text-sm hover:bg-white transition-colors active:scale-95">
+</EnquiriesSignupLink>
         </div>
 
         <h2 id="faq" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-4">Frequently asked questions</h2>
@@ -244,9 +241,9 @@ export default function Page() {
 
         <h2 id="sources" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-3">Sources & further reading</h2>
         <ul className="space-y-2 text-sm text-gray-600 mb-12">
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://educationhub.blog.gov.uk/2025/09/how-to-apply-for-30-hours-free-childcare-and-find-out-if-youre-eligible/" rel="nofollow noopener" target="_blank">How to apply for 30 hours free childcare — GOV.UK Education Hub (Sep 2025)</a></li>
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://commonslibrary.parliament.uk/research-briefings/cbp-10288/" rel="nofollow noopener" target="_blank">Expanding government-funded childcare in England — House of Commons Library</a></li>
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://assets.publishing.service.gov.uk/media/683981d4c99c4f37ab4e86e3/September_2025_early_education_and_childcare_entitlements_expansion_-_local_authority_system_guidance_May_2025.pdf" rel="nofollow noopener" target="_blank">DfE — September 2025 expansion: local authority system guidance (PDF)</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://educationhub.blog.gov.uk/2025/09/how-to-apply-for-30-hours-free-childcare-and-find-out-if-youre-eligible/" rel="nofollow noopener" target="_blank">How to apply for 30 hours free childcare — GOV.UK Education Hub (Sep 2025)</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://commonslibrary.parliament.uk/research-briefings/cbp-10288/" rel="nofollow noopener" target="_blank">Expanding government-funded childcare in England — House of Commons Library</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://assets.publishing.service.gov.uk/media/683981d4c99c4f37ab4e86e3/September_2025_early_education_and_childcare_entitlements_expansion_-_local_authority_system_guidance_May_2025.pdf" rel="nofollow noopener" target="_blank">DfE — September 2025 expansion: local authority system guidance (PDF)</a></li>
         </ul>
 
         <p className="text-xs text-gray-400 leading-relaxed">

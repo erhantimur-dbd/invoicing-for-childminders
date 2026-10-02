@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { EnquiriesSignupLink } from '@/components/marketing/EnquiriesSignupLink'
 import type { Metadata } from 'next'
 
 const URL = 'https://www.godottie.cloud/guides/funded-hours'
@@ -38,32 +39,28 @@ export default function FundedHoursIndex() {
       <header className="border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
-              <span className="text-white text-xs font-extrabold">D.</span>
-            </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
-          <Link
-            href="/signup"
-            className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
-          >
-            Get started →
-          </Link>
+          <EnquiriesSignupLink
+            label="Get started →"
+            className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]"
+ />
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-emerald-700">Home</Link></li>
+            <li><Link href="/" className="hover:text-[#0b1220]">Home</Link></li>
             <li aria-hidden>/</li>
-            <li><Link href="/guides" className="hover:text-emerald-700">Guides</Link></li>
+            <li><Link href="/guides" className="hover:text-[#0b1220]">Guides</Link></li>
             <li aria-hidden>/</li>
             <li><span className="text-gray-900 font-medium">Funded hours</span></li>
           </ol>
         </nav>
 
-        <p className="text-emerald-700 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p className="text-[#0b1220] text-xs font-semibold uppercase tracking-widest mb-3">
           Funded hours
         </p>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
@@ -78,10 +75,10 @@ export default function FundedHoursIndex() {
             <li key={it.href}>
               <Link
                 href={it.href}
-                className="block rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-sm p-5 transition-colors"
+                className="block rounded-xl border border-gray-200 hover:border-[#0b1220] hover:shadow-sm p-5 transition-colors"
               >
                 {it.badge && (
-                  <span className="inline-block mb-2 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">
+                  <span className="inline-block mb-2 text-xs font-bold uppercase tracking-wider text-[#0b1220] bg-[#f6f7f9] border border-[#e5e7eb] rounded-full px-2 py-0.5">
                     {it.badge}
                   </span>
                 )}

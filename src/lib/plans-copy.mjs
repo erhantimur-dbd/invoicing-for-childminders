@@ -3,8 +3,8 @@ import { ENQUIRIES_QUOTA, enquiriesQuotaCopy } from './enquiries/quota.mjs'
 
 export const SIGN_UP_CTA = 'Sign up'
 
-export const noSelfServeTrial =
-  "We don't offer a self-serve free trial. Sign up and choose a plan to get started, or book a demo. Qualifying childminders may be offered a trial after a chat."
+export const freeTrialAnswer =
+  "No. Book a demo and we'll show you how Go Dottie handles a parent enquiry, or sign up for Enquiries at £160 a year."
 
 export function enquiriesPriceSentence() {
   const p = pricingAmounts.enquiries
@@ -12,13 +12,11 @@ export function enquiriesPriceSentence() {
 }
 
 export function invoicingFromSentence() {
-  const p = pricingAmounts.invoicingFrom
-  return `Invoicing is an add-on from ${formatGbp(p.monthly)}/month or ${formatGbp(p.annual)}/year (${pricingAmounts.discountPct}% off annual).`
+  return 'Limited is £208 a year. Full is £280 a year. Book a demo to talk those through.'
 }
 
 export function bothFromSentence() {
-  const p = pricingAmounts.bothFrom
-  return `Enquiries + invoicing is from ${formatGbp(p.monthly)}/month or ${formatGbp(p.annual)}/year.`
+  return 'Limited is £208 a year. Full is £280 a year.'
 }
 
 export function howMuchDoesDottieCost() {

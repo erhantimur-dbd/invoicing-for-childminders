@@ -5,12 +5,12 @@ import { marketing } from '@/lib/marketing.mjs'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'How Dottie collects, uses, and protects your personal data in line with UK GDPR and the Data Protection Act 2018.',
+  description: 'How Go Dottie collects, uses, and protects your personal data in line with UK GDPR and the Data Protection Act 2018.',
   alternates: { canonical: 'https://www.godottie.cloud/privacy' },
   robots: { index: true, follow: false },
 }
 
-const LAST_UPDATED = '10 September 2026'
+const LAST_UPDATED = '2 October 2026'
 const CONTACT_EMAIL = 'support@godottie.cloud'
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
 
             <Section id="who-we-are" title="1. Who we are">
               <P>
-                Dottie (&quot;Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is an invoicing and business management tool built specifically for UK childminders and childcare professionals. Our service is available at <strong>www.godottie.cloud</strong>.
+                Go Dottie (&quot;Go Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is an invoicing and business management tool built specifically for UK childminders and childcare professionals. Our service is available at <strong>www.godottie.cloud</strong>.
               </P>
               <P>
                 We are the data controller for the personal data you provide to us. If you have any questions about this policy or how we handle your data, please contact us at{' '}
@@ -156,7 +156,7 @@ export default function PrivacyPage() {
                 'To display your bank details on invoices you send to parents',
                 'To allow parents to securely access their child\'s invoices (using DOB as verification)',
                 'To process subscription payments via Stripe',
-                'To send transactional emails (welcome, trial reminders, payment confirmations) via Resend',
+                'To send service emails about your account and payments, via Resend',
                 'To generate draft invoices and parent-enquiry replies using AI assistance (xAI Grok) — see Third-party Processors',
                 'To provide expense tracking and tax-year reports',
                 'To respond to support requests',
@@ -166,52 +166,8 @@ export default function PrivacyPage() {
 
             <Section id="gmail-enquiries" title="4. Parent enquiries">
               <P>
-                Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so new parent emails are ingested. Automatic send is off unless you turn it on. Dottie does not sync your whole personal mailbox as a product — she looks for new parent enquiry mail.
+                When you connect Gmail, Go Dottie reads new enquiries in your inbox and, by default, replies to them automatically from your Gmail. The replies are written by AI in your voice. You can switch to draft &amp; approve, so nothing is sent until you approve it, or pause Go Dottie, at any time in Settings. Each automatic reply includes a short line saying it was written with Go Dottie&apos;s AI assistant. Go Dottie doesn&apos;t send automatic replies about safeguarding, a child&apos;s health or medical needs, complaints, or payment disputes. It saves those as drafts for you to handle. You&apos;re responsible for the messages sent from your account, so please check your settings and your sent replies.
               </P>
-
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">What we store</p>
-                  <Ul items={[
-                    <>We store the parent facts and messages you enter (name, email, child age, days needed, and any extra-needs notes you type).</>,
-                    <>We store AI drafts so you can read them before anything is sent.</>,
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">How sending works</p>
-                  <Ul items={[
-                    <>Dottie drafts a visit letter in your voice. <strong>Automatic send is off until you turn it on</strong> in Your answers. With it off, you copy the draft into Gmail yourself.</>,
-                    <>If you connect Gmail, you can disconnect it at any time. Connecting Calendar lets Dottie write the visit you confirm onto your Google Calendar.</>,
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">How long we keep enquiry data</p>
-                  <Ul items={[
-                    <>Enquiry threads we store are kept for <strong>365 days by default</strong>.</>,
-                    <>Retention is <strong>configurable</strong> (you or we can set a different period where the product allows).</>,
-                    'After retention ends, we delete or anonymise that enquiry data as described in this Privacy notice.',
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">AI processing (xAI, Anthropic failover)</p>
-                  <Ul items={[
-                    <>Drafting enquiry replies uses AI services from <strong>xAI (Grok)</strong>. If xAI is unavailable, drafting may fall back to <strong>Anthropic (Claude)</strong>. You send the reply yourself (copy, mailto, or an explicit send tick). Extra-needs / SEN notes are stored for you and are not sent to those AI processors.</>,
-                    <>Drafting may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI or Anthropic process data). We only send what is needed to draft the reply for that enquiry thread.</>,
-                    <>See the <a href="#third-party-processors" className="text-emerald-600 underline">subprocessors / international transfers</a> section for more detail.</>,
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">What we do not claim / do not do via Gmail</p>
-                  <Ul items={[
-                    <>We do <strong>not</strong> run a full mailbox sync for unrelated personal or business mail.</>,
-                    <>Soft Launch Gmail Enquiries is <strong>not</strong> WhatsApp, medical records access, or DfE systems via Gmail.</>,
-                  ]} />
-                </div>
-              </div>
             </Section>
 
             <Section id="lawful-basis" title="5. Lawful basis for processing">
@@ -235,7 +191,7 @@ export default function PrivacyPage() {
                     ].map(([activity, basis]) => (
                       <tr key={activity} className="border-b border-gray-100">
                         <td className="px-4 py-2 border border-gray-200">{activity}</td>
-                        <td className="px-4 py-2 border border-gray-200 text-emerald-700 font-medium">{basis}</td>
+                        <td className="px-4 py-2 border border-[#e5e7eb] text-[#0b1220] font-medium" style={{ borderWidth: 1 }}>{basis}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -266,7 +222,7 @@ export default function PrivacyPage() {
                   },
                   {
                     name: 'Resend',
-                    role: 'Transactional email delivery, and inbound forwarding of parent emails to your unique Dottie address when you use that backup.',
+                    role: 'Transactional email delivery, and inbound forwarding of parent emails to your unique Go Dottie address when you use that backup.',
                     location: 'EU',
                     link: 'https://resend.com/legal/privacy-policy',
                   },
@@ -308,7 +264,7 @@ export default function PrivacyPage() {
                 As a childminder, you enter data about the children in your care. This data belongs to you and is used solely to provide the invoicing service. We act as your data processor for this information — you are the data controller for the children&apos;s data.
               </P>
               <P>
-                By using Dottie, you confirm that you have appropriate consent or another lawful basis (such as the performance of a contract with the child&apos;s parent/guardian) to enter and process this data within the app.
+                By using Go Dottie, you confirm that you have appropriate consent or another lawful basis (such as the performance of a contract with the child&apos;s parent/guardian) to enter and process this data within the app.
               </P>
               <P>
                 We store children&apos;s dates of birth for the sole purpose of verifying parent identity when they access an invoice. This verification step protects your bank details from unauthorised access.
@@ -367,8 +323,8 @@ export default function PrivacyPage() {
                   { right: 'Right to object', desc: 'Object to processing based on legitimate interests.' },
                   { right: 'Right to withdraw consent', desc: 'Where we rely on consent, you can withdraw it at any time.' },
                 ].map(item => (
-                  <div key={item.right} className="flex gap-3 p-4 rounded-xl bg-white border border-gray-200">
-                    <span className="text-emerald-500 mt-0.5 flex-shrink-0">✓</span>
+                  <div key={item.right} className="flex gap-3 p-4 rounded-xl bg-white border border-[#e5e7eb]" style={{ borderWidth: 1 }}>
+                    <span className="text-[#0b1220] mt-0.5 flex-shrink-0">✓</span>
                     <div>
                       <span className="font-semibold text-gray-800">{item.right}: </span>
                       <span className="text-gray-600">{item.desc}</span>
@@ -411,7 +367,7 @@ export default function PrivacyPage() {
                 We may update this Privacy Policy from time to time. We will notify you of significant changes by email or by displaying a notice in the app. The &quot;Last updated&quot; date at the top of this page reflects the most recent revision.
               </P>
               <P>
-                Continued use of Dottie after a change is posted constitutes your acceptance of the updated policy.
+                Continued use of Go Dottie after a change is posted constitutes your acceptance of the updated policy.
               </P>
             </Section>
 
@@ -420,7 +376,7 @@ export default function PrivacyPage() {
                 For any questions, requests to exercise your rights, or data concerns, please contact us:
               </P>
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1">
-                <p className="font-semibold text-gray-900">Dottie</p>
+                <p className="font-semibold text-gray-900">Go Dottie</p>
                 <p>
                   <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>
                 </p>

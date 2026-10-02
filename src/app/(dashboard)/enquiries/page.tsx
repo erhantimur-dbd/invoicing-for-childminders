@@ -39,8 +39,8 @@ export default async function EnquiriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">New parents</h1>
           <p className="text-gray-500 text-sm mt-1">
             {settings.agent_paused
-              ? 'Dottie is paused — she will not draft replies until you turn her back on.'
-              : 'New parent emails from Gmail show up here. Dottie drafts a visit letter from Your answers.'}
+              ? 'Go Dottie is paused — she will not draft replies until you turn her back on.'
+              : 'New parent emails from Gmail show up here. Go Dottie drafts a visit letter from Your answers.'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -67,7 +67,7 @@ export default async function EnquiriesPage() {
         <div className="rounded-3xl border border-dashed border-emerald-200 bg-white p-10 text-center">
           <p className="font-semibold text-gray-900 mb-2">No one waiting</p>
           <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
-            Connect Gmail above, or tap Add a parent and paste a message. Dottie drafts a polite visit letter. Automatic send stays off until you turn it on in Your answers.
+            Connect Gmail above, or tap Add a parent and paste a message. Go Dottie drafts a polite visit letter. Auto-send by default — switch to draft & approve any time.
           </p>
           <Link href="/enquiries/new" className="text-emerald-700 font-semibold">
             Add the first parent →

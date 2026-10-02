@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
 
-export const alt = 'Dottie — Automated invoicing for UK childminders'
+export const alt = 'Go Dottie — Automated invoicing for UK childminders'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -36,7 +36,7 @@ export default function Image() {
           >
             D.
           </div>
-          <div style={{ fontSize: 44, fontWeight: 700 }}>Dottie</div>
+          <div style={{ fontSize: 44, fontWeight: 700 }}>Go Dottie</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>

@@ -109,21 +109,21 @@ export async function POST(request: NextRequest) {
   const viewUrl = `${origin.replace(/\/$/, '')}/invoice/${invoice.id}`
   const bankHtml = payee.account_number ? `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:20px;">
-      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Dottie</p>
+      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Go Dottie</p>
       ${payee.bank_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Bank:</strong> ${esc(payee.bank_name)}</p>` : ''}
       ${payee.account_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Account name:</strong> ${esc(payee.account_name)}</p>` : ''}
       ${payee.sort_code ? `<p style="margin:2px 0;font-size:14px;"><strong>Sort code:</strong> ${esc(payee.sort_code)}</p>` : ''}
       ${payee.account_number ? `<p style="margin:2px 0;font-size:14px;"><strong>Account number:</strong> ${esc(payee.account_number)}</p>` : ''}
       <p style="margin:8px 0 0;font-size:14px;color:#6b7280;"><strong>Reference:</strong> ${esc(invoice.invoice_number)}</p>
     </div>
-  ` : `<p style="margin-top:16px;font-size:14px;color:#6b7280;">Pay by bank transfer using the details your childminder has given you. You do not pay through Dottie.</p>`
+  ` : `<p style="margin-top:16px;font-size:14px;color:#6b7280;">Pay by bank transfer using the details your childminder has given you. You do not pay through Go Dottie.</p>`
 
   const html = `
     <!DOCTYPE html>
     <html>
     <head><meta charset="utf-8"><title>Invoice ${esc(invoice.invoice_number)}</title></head>
     <body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#111;">
-      <div style="background:#059669;color:white;padding:24px;border-radius:12px;margin-bottom:24px;">
+      <div style="background:#0b1220;color:white;padding:24px;border-radius:12px;margin-bottom:24px;">
         <h1 style="margin:0;font-size:24px;">Invoice ${esc(invoice.invoice_number)}</h1>
         <p style="margin:4px 0 0;opacity:0.9;">${esc(profile.full_name)}</p>
       </div>
@@ -141,14 +141,14 @@ export async function POST(request: NextRequest) {
         <tbody>${itemsHtml}</tbody>
       </table>
       <div style="text-align:right;margin:16px 0;">
-        <div style="display:inline-block;background:#059669;color:white;padding:12px 24px;border-radius:8px;">
+        <div style="display:inline-block;background:#0b1220;color:white;padding:12px 24px;border-radius:8px;">
           <strong style="font-size:18px;">Total: ${formatGBP(Number(invoice.total))}</strong>
         </div>
       </div>
       ${invoice.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
       ${bankHtml}
       <div style="margin-top:20px;text-align:center;">
-        <a href="${esc(viewUrl)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
+        <a href="${esc(viewUrl)}" style="background:#0b1220;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
           View invoice
         </a>
       </div>

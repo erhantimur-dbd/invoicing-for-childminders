@@ -42,7 +42,7 @@ export default function GmailConnect({ inboundSlug }: { inboundSlug?: string | n
         </p>
       ) : (
         <p className="text-sm text-gray-600">
-          Connect Gmail so Dottie can read new parent emails and put agreed visits on your calendar. She still only sends a reply if you turn automatic send on.
+          Connect Gmail so Go Dottie can read new parent emails and put agreed visits on your calendar. Auto-send by default — switch to draft & approve any time.
         </p>
       )}
       <div className="flex flex-wrap gap-2">

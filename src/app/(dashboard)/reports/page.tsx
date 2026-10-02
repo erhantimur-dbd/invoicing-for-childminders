@@ -46,7 +46,7 @@ function getMonthKey(date: Date, taxYearStart: number): number {
 
 // Palette for pie slices
 const PIE_COLOURS = [
-  '#059669', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6',
+  '#0b1220', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6',
   '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
   '#06b6d4', '#d946ef', '#78716c', '#64748b',
 ]

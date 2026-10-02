@@ -47,7 +47,7 @@ export default function SideNav({
             <span className="text-white font-bold text-base">D.</span>
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm leading-tight">Dottie</p>
+            <p className="font-bold text-gray-900 text-sm leading-tight">Go Dottie</p>
             <p className="text-xs text-gray-400 leading-tight">Answers new parents</p>
           </div>
         </div>

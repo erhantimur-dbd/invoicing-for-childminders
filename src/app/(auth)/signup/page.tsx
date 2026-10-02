@@ -14,6 +14,7 @@ import SSOButtons from '@/components/SSOButtons'
 import { passwordIsStrong, passwordRequirements } from '@/lib/password-policy.mjs'
 import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
 import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
+import { PricingCards } from '@/components/marketing/Pricing'
 
 function nextAfterSignup() {
   // Confirm-email + session both land on /subscribe?product=enquiries
@@ -88,8 +89,8 @@ export default function SignupPage() {
   if (checkInbox) {
     return (
       <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-          <Mail className="w-6 h-6 text-emerald-600" />
+        <div className="w-12 h-12 rounded-full bg-[#f6f7f9] flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-6 h-6 text-[#0b1220]" />
         </div>
         <h2 className="text-lg font-bold text-gray-900 mb-2">Check your inbox</h2>
         <p className="text-gray-500 text-sm mb-6">
@@ -98,7 +99,7 @@ export default function SignupPage() {
         </p>
         <Link
           href="/login"
-          className="text-emerald-600 font-semibold text-sm hover:text-emerald-700"
+          className="text-[#0b1220] font-semibold text-sm underline underline-offset-2"
         >
           Back to sign in
         </Link>
@@ -107,10 +108,11 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
+    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 w-[min(960px,calc(100vw-3rem))] relative left-1/2 -translate-x-1/2">
       <div className="space-y-6">
+        <PricingCards enquiriesHref="#signup-form" />
         <p className="text-sm text-center text-gray-600">
-          Dottie is £{ENQUIRIES_PRICE.annual} a year.
+          Go Dottie is £{ENQUIRIES_PRICE.annual} a year.
         </p>
         <SSOButtons mode="signup" onError={setSsoError} />
         {ssoError && (
@@ -123,7 +125,7 @@ export default function SignupPage() {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-5">
+        <form id="signup-form" onSubmit={handleSignup} className="space-y-5">
           <div className="space-y-1.5">
             <Label htmlFor="fullName" className="text-sm font-semibold text-gray-700">Full name</Label>
             <div className="relative">
@@ -135,7 +137,7 @@ export default function SignupPage() {
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
                 autoComplete="name"
               />
             </div>
@@ -152,7 +154,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
                 autoComplete="email"
               />
             </div>
@@ -171,7 +173,7 @@ export default function SignupPage() {
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
                 autoComplete="new-password"
               />
             </div>
@@ -186,10 +188,10 @@ export default function SignupPage() {
                 {requirements.map((req) => (
                   <li key={req.id} className="flex items-center gap-1.5 text-xs">
                     {req.met
-                      ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                      ? <CheckCircle2 className="h-3.5 w-3.5 text-[#0b1220] shrink-0" />
                       : <XCircle className="h-3.5 w-3.5 text-gray-300 shrink-0" />
                     }
-                    <span className={req.met ? 'text-emerald-700' : 'text-gray-400'}>{req.label}</span>
+                    <span className={req.met ? 'text-[#0b1220]' : 'text-gray-400'}>{req.label}</span>
                   </li>
                 ))}
               </ul>
@@ -202,15 +204,15 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={termsAccepted}
                 onChange={e => { setTermsAccepted(e.target.checked); setTermsError(false) }}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 flex-shrink-0"
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#0b1220] focus:ring-[#0b1220] focus-visible:ring-[#0b1220] flex-shrink-0"
               />
               <span className="text-xs text-gray-500 leading-relaxed">
-                I agree to Dottie&apos;s{' '}
-                <Link href="/terms" target="_blank" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
+                I agree to Go Dottie&apos;s{' '}
+                <Link href="/terms" target="_blank" className="text-[#0b1220] underline underline-offset-2">
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" target="_blank" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
+                <Link href="/privacy" target="_blank" className="text-[#0b1220] underline underline-offset-2">
                   Privacy Policy
                 </Link>
               </span>
@@ -224,7 +226,7 @@ export default function SignupPage() {
 
           <Button
             type="submit"
-            className="w-full h-12 text-base bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-sm shadow-emerald-200"
+            className="w-full min-h-[44px] h-12 text-base bg-[#0b1220] text-white hover:bg-[#0b1220] rounded-xl font-semibold"
             disabled={loading}
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create account'}
@@ -232,13 +234,13 @@ export default function SignupPage() {
 
           <p className="text-sm text-gray-400 text-center pt-1">
             Already have an account?{' '}
-            <Link href="/login" className="text-emerald-600 font-semibold hover:text-emerald-700">
+            <Link href="/login" className="text-[#0b1220] font-semibold underline underline-offset-2">
               Sign in
             </Link>
           </p>
           <p className="text-xs text-gray-400 text-center">
             Questions?{' '}
-            <a href="mailto:support@godottie.cloud" className="text-emerald-600 font-medium hover:text-emerald-700">
+            <a href="mailto:support@godottie.cloud" className="text-[#0b1220] font-medium underline underline-offset-2">
               support@godottie.cloud
             </a>
           </p>

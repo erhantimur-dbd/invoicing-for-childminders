@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import StatusBadge from '@/components/StatusBadge'
 import { Plus, TrendingUp, Clock, AlertCircle, CheckCircle, Sparkles, Zap, ChevronRight, Receipt, Baby } from 'lucide-react'
 import { enquiriesActive, invoicingActive } from '@/lib/enquiries/access'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
+import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 import type { Invoice } from '@/lib/types'
 import { format } from 'date-fns'
 
@@ -26,6 +28,7 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+  const enquiriesEntry = enquiriesSignupCta(await readPaidSignupOpen())
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -103,7 +106,7 @@ export default async function DashboardPage() {
         </Link>
       )}
 
-      <Link href={hasEnquiries ? '/enquiries' : '/subscribe?product=enquiries'}>
+      <Link href={hasEnquiries ? '/enquiries' : enquiriesEntry.href}>
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-amber-400 p-5 shadow-md shadow-emerald-200/40 hover:shadow-lg transition-all">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 ring-1 ring-white/30">
@@ -111,7 +114,7 @@ export default async function DashboardPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-white">
-                {hasEnquiries ? 'New parents' : 'Start with Enquiries'}
+                {hasEnquiries ? 'New parents' : (enquiriesEntry.href === '/demo' ? 'Book a demo' : 'Start with Enquiries')}
               </p>
               <p className="text-xs text-white/80 mt-0.5">
                 {hasEnquiries
@@ -133,7 +136,7 @@ export default async function DashboardPage() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900">A child starting? Add invoicing</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Same login. Funded vs paid hours, PDFs, Sunday invoices — from £9.99/month.
+                Same login. Funded vs paid hours, PDFs, Sunday invoices. Billed once a year.
               </p>
             </div>
             <ChevronRight className="h-4 w-4 text-amber-500 flex-shrink-0" />
@@ -174,9 +177,9 @@ export default async function DashboardPage() {
           </>
           )}
           {!hasEnquiries && !hasInvoicing && (
-            <Link href="/subscribe?product=enquiries">
+            <Link href={enquiriesEntry.href}>
               <Button className="bg-emerald-600 hover:bg-emerald-700 h-10 px-4 rounded-xl gap-2 text-sm font-medium shadow-sm">
-                Start with Enquiries
+                {enquiriesEntry.href === '/demo' ? 'Book a demo' : 'Start with Enquiries'}
               </Button>
             </Link>
           )}

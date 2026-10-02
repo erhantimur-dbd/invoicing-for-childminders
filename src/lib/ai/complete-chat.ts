@@ -178,7 +178,7 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
         trigger: 'xai_missing',
       })
     }
-    throw new Error('Dottie is not connected to Grok yet. Add XAI_API_KEY.')
+    throw new Error('Go Dottie is not connected to Grok yet. Add XAI_API_KEY.')
   }
 
   if (xai) {
@@ -212,7 +212,7 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
             status: statusFromUnknown(err),
           })
         }
-        throw err instanceof Error ? err : new Error('Dottie could not reach Grok. Try again in a moment.')
+        throw err instanceof Error ? err : new Error('Go Dottie could not reach Grok. Try again in a moment.')
       }
     }
   } else {
@@ -224,7 +224,7 @@ export async function completeChat(input: CompleteChatInput): Promise<CompleteCh
   }
 
   if (!anthropic) {
-    throw new Error('Dottie could not reach Grok. Try again in a moment.')
+    throw new Error('Go Dottie could not reach Grok. Try again in a moment.')
   }
 
   const turn = await completeWithAnthropic(anthropic, input)
