@@ -136,7 +136,9 @@ test('addToInvoicingHref goes to ChildForm when invoicing is on, else subscribe 
 test('Add to invoicing is wired through prospect, ChildForm and invoices child picker', () => {
   const detail = read('app/(dashboard)/enquiries/[id]/ProspectDetail.tsx')
   assert.match(detail, /addToInvoicingHref/)
-  assert.match(detail, /Already on roll/)
+  assert.match(detail, /Already started/)
+  assert.match(detail, /if they've already started with you/)
+  assert.doesNotMatch(detail, /on roll/)
   assert.doesNotMatch(detail, /invoicing can take it from there/)
 
   const newChild = read('app/(dashboard)/children/new/page.tsx')

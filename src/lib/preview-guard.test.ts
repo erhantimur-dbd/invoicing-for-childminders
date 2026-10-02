@@ -225,7 +225,7 @@ describe('Resend stays behind the chokepoint', () => {
     assert.match(webhook, /skipped: 'allowlist empty'/)
     assert.ok(webhook.indexOf('accountAllowlistGate') < webhook.indexOf("from('stripe_events')"))
     assert.match(webhook, /stripeEventProfileId/)
-    assert.match(webhook, /sendEmail/)
+    assert.doesNotMatch(webhook, /sendEmail/)
     assert.doesNotMatch(webhook, /from ['"]resend['"]/)
   })
 })

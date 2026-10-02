@@ -28,8 +28,8 @@ export async function sendApprovedEnquiry(opts: {
   if (!account) {
     throw new Error(
       opts.via === 'auto'
-        ? 'Connect Gmail first so Dottie can send as you on the real thread.'
-        : 'Connect Gmail first so Dottie can send as you on the real thread after you approve.',
+        ? 'Connect Gmail first so Go Dottie can send as you on the real thread.'
+        : 'Connect Gmail first so Go Dottie can send as you on the real thread after you approve.',
     )
   }
 

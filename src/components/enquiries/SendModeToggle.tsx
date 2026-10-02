@@ -37,7 +37,7 @@ export default function SendModeToggle({
             {value === 'auto' ? 'Auto-send: on' : 'Auto-send'}
             <span className="ml-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700">Default</span>
           </p>
-          <p className="text-xs text-gray-500 mt-1">After a parent enquiry passes the filters, Dottie drafts and sends from your Gmail.</p>
+          <p className="text-xs text-gray-500 mt-1">After a parent enquiry passes the filters, Go Dottie drafts and sends from your Gmail.</p>
         </button>
         <button
           type="button"
@@ -55,7 +55,7 @@ export default function SendModeToggle({
           <p className="font-semibold text-gray-900">
             {value === 'approve' ? 'Draft & approve: on' : 'Draft & approve'}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Dottie writes the reply. You tap send. Nothing goes out until you approve.</p>
+          <p className="text-xs text-gray-500 mt-1">Go Dottie writes the reply. You tap send. Nothing goes out until you approve.</p>
         </button>
       </div>
       {value === 'auto' ? (

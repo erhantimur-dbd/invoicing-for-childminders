@@ -1,62 +1,12 @@
-const BRAND_COLOR = '#059669'
-const BRAND_COLOR_DARK = '#047857'
+import { buttonGroup, filledButton, outlineButton, renderEmail } from '@/lib/email/layout'
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.godottie.cloud'
-const SUPPORT_EMAIL = 'hello@godottie.cloud'
 
-function baseLayout(content: string): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Dottie</title>
-</head>
-<body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;padding:40px 16px;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+const H = 'margin:0 0 12px;font-size:24px;font-weight:700;line-height:1.3;color:#0b1220;'
+const P = 'margin:0 0 16px;font-size:15px;line-height:1.6;color:#0b1220;'
+const MUTED = 'margin:0 0 16px;font-size:14px;line-height:1.6;color:#5b6573;'
+const SIGN = 'margin:20px 0 0;font-size:14px;line-height:1.6;color:#0b1220;'
 
-          <!-- Header -->
-          <tr>
-            <td style="background-color:${BRAND_COLOR};border-radius:12px 12px 0 0;padding:28px 32px;">
-              <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Dottie</p>
-              <p style="margin:4px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Invoicing simplified.</p>
-            </td>
-          </tr>
-
-          <!-- Body -->
-          <tr>
-            <td style="background-color:#ffffff;padding:36px 32px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
-              ${content}
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background-color:#f3f4f6;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:20px 32px;">
-              <p style="margin:0;font-size:12px;color:#6b7280;text-align:center;">
-                Need help? Email us at
-                <a href="mailto:${SUPPORT_EMAIL}" style="color:${BRAND_COLOR};text-decoration:none;">${SUPPORT_EMAIL}</a>
-              </p>
-              <p style="margin:8px 0 0;font-size:11px;color:#9ca3af;text-align:center;">
-                &copy; ${new Date().getFullYear()} Dottie. All rights reserved.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`
-}
-
-// Parent-facing templates interpolate user-supplied names (parent, child,
-// childminder) — always escape them. Same rules as esc() in the invoice
-// send route.
 function esc(str: string | null | undefined): string {
   if (!str) return ''
   return String(str)
@@ -67,14 +17,12 @@ function esc(str: string | null | undefined): string {
     .replace(/'/g, '&#39;')
 }
 
-function ctaButton(label: string, href: string): string {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0;">
-    <tr>
-      <td style="border-radius:8px;background-color:${BRAND_COLOR};">
-        <a href="${href}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;background-color:${BRAND_COLOR};">${label}</a>
-      </td>
-    </tr>
-  </table>`
+function firstName(name: string) {
+  return name.trim().split(/\s+/)[0] || name
+}
+
+function accountSignoff(): string {
+  return `<p class="ink" style="${SIGN}">Talk soon,<br><strong>Go Dottie</strong></p>`
 }
 
 // ─── Template 1: Welcome email ────────────────────────────────────────────────
@@ -83,211 +31,76 @@ export function welcomeEmail({ name }: { name: string }): {
   subject: string
   html: string
 } {
-  const firstName = name.split(' ')[0]
+  const rawFirst = name.split(' ')[0]
+  const first = esc(rawFirst)
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Hi ${firstName}, I'm Dottie! 👋</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">I'll be handling your invoicing from here on in.</p>
-
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      You're one step away — <strong>choose your plan</strong> and I'll take invoicing off your plate.
-      You didn't become a childminder to spend Sunday nights writing invoices — that's my job now.
+    <h1 class="ink" style="${H}">Welcome to Go Dottie, ${first}</h1>
+    <p class="ink" style="${P}">Go Dottie, your enquiries assistant.</p>
+    <p class="ink" style="${P}">
+      Parent enquiries can land in your Gmail. Go Dottie helps you reply, offer a visit, and send a signup form when you are ready to offer a place.
     </p>
-
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:4px;margin:24px 0;">
+    <table role="presentation" class="panel" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin:8px 0 0;">
       <tr>
-        <td style="padding:20px 24px;">
-          <p style="margin:0 0 14px;font-size:14px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;">What's included</p>
-          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-            <tr>
-              <td style="padding:5px 0;">
-                <table role="presentation" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td style="width:22px;vertical-align:top;padding-top:1px;">
-                      <span style="display:inline-block;width:18px;height:18px;background-color:${BRAND_COLOR};border-radius:50%;text-align:center;line-height:18px;font-size:11px;color:#fff;font-weight:700;">✓</span>
-                    </td>
-                    <td style="padding-left:10px;font-size:14px;color:#374151;line-height:1.5;">
-                      <strong>Auto-invoices</strong> — generate professional invoices in seconds
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:5px 0;">
-                <table role="presentation" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td style="width:22px;vertical-align:top;padding-top:1px;">
-                      <span style="display:inline-block;width:18px;height:18px;background-color:${BRAND_COLOR};border-radius:50%;text-align:center;line-height:18px;font-size:11px;color:#fff;font-weight:700;">✓</span>
-                    </td>
-                    <td style="padding-left:10px;font-size:14px;color:#374151;line-height:1.5;">
-                      <strong>PDF-ready invoices</strong> — download and share with parents instantly
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:5px 0;">
-                <table role="presentation" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td style="width:22px;vertical-align:top;padding-top:1px;">
-                      <span style="display:inline-block;width:18px;height:18px;background-color:${BRAND_COLOR};border-radius:50%;text-align:center;line-height:18px;font-size:11px;color:#fff;font-weight:700;">✓</span>
-                    </td>
-                    <td style="padding-left:10px;font-size:14px;color:#374151;line-height:1.5;">
-                      <strong>Expense tracking</strong> — log costs and stay on top of your finances
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
+        <td style="padding:16px 20px;">
+          <p class="ink" style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#0b1220;">What you can do</p>
+          <ul style="margin:0;padding-left:18px;">
+            <li class="ink" style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#0b1220;">Answer parent enquiries from your Gmail, in your voice</li>
+            <li class="ink" style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#0b1220;">Offer visits in hours you set</li>
+            <li class="ink" style="margin:0;font-size:14px;line-height:1.5;color:#0b1220;">Send a signup form when you offer a place</li>
+          </ul>
         </td>
       </tr>
     </table>
-
-    ${ctaButton('Start with Enquiries', `${APP_URL}/subscribe?product=enquiries`)}
-
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      Any questions? Just reply — I'm always here to help.
-    </p>
-
-    <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Talk soon,<br>
-      <strong style="color:#111827;">Dottie 💚</strong>
-    </p>
+    ${buttonGroup([filledButton('Connect your Gmail', `${APP_URL}/enquiries`)])}
+    <p class="muted" style="${MUTED}">Any questions? Just reply to this email.</p>
+    ${accountSignoff()}
   `
 
   return {
-    subject: `Hi ${firstName} — I'm Dottie, and I'm here to help! 👋`,
-    html: baseLayout(content),
+    subject: `Welcome to Go Dottie, ${rawFirst}`,
+    html: renderEmail(content, 'account'),
   }
 }
 
-// ─── Template 2: Trial expiring email ─────────────────────────────────────────
-
-export function trialExpiringEmail({
-  name,
-  daysLeft,
-  trialEnd,
-}: {
-  name: string
-  daysLeft: number
-  trialEnd: string
-}): { subject: string; html: string } {
-  const firstName = name.split(' ')[0]
-  const dayWord = daysLeft === 1 ? 'day' : 'days'
-
-  const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Just a heads-up, ${firstName} ⏰</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Your free trial ends in ${daysLeft} ${dayWord}.</p>
-
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      I've been keeping your invoicing running smoothly — I'd love to keep doing that after your trial ends on <strong>${trialEnd}</strong>. Pick a plan and I'll carry on exactly as I have been.
-    </p>
-
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fffbeb;border:1px solid #fde68a;border-radius:10px;margin:24px 0;">
-      <tr>
-        <td style="padding:20px 24px;">
-          <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#92400e;">What you'll lose access to</p>
-          <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
-            <tr><td style="padding:4px 0;font-size:14px;color:#374151;">&#8226;&nbsp; Invoice creation and sending</td></tr>
-            <tr><td style="padding:4px 0;font-size:14px;color:#374151;">&#8226;&nbsp; PDF invoice downloads</td></tr>
-            <tr><td style="padding:4px 0;font-size:14px;color:#374151;">&#8226;&nbsp; Expense tracking and reports</td></tr>
-            <tr><td style="padding:4px 0;font-size:14px;color:#374151;">&#8226;&nbsp; Your children and payment records</td></tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-
-    <p style="margin:0 0 6px;font-size:15px;line-height:1.6;color:#374151;">
-      Keep everything going for just:
-    </p>
-    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:12px 0 24px;">
-      <tr>
-        <td style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 20px;text-align:center;">
-          <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#065f46;">Starter (up to 5 children)</p>
-          <p style="margin:0;font-size:18px;font-weight:700;color:${BRAND_COLOR};">£9.99<span style="font-size:13px;font-weight:400;color:#6b7280;">/mo</span> or <strong style="color:${BRAND_COLOR};">£99/yr</strong></p>
-          <p style="margin:8px 0 4px;font-size:13px;font-weight:600;color:#065f46;">Professional (up to 20 children)</p>
-          <p style="margin:0;font-size:18px;font-weight:700;color:${BRAND_COLOR};">£19.99<span style="font-size:13px;font-weight:400;color:#6b7280;">/mo</span> or <strong style="color:${BRAND_COLOR};">£199/yr</strong></p>
-        </td>
-      </tr>
-    </table>
-
-    ${ctaButton('Start with Enquiries', `${APP_URL}/subscribe?product=enquiries`)}
-
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      Questions about which plan is right for you? Just reply — I'll point you in the right direction.
-    </p>
-
-    <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      See you on the other side,<br>
-      <strong style="color:#111827;">Dottie 💚</strong>
-    </p>
-  `
-
-  return {
-    subject: `Your Dottie trial ends in ${daysLeft} ${dayWord}`,
-    html: baseLayout(content),
+function planStartLabel(startDate?: string): string {
+  const raw = startDate?.trim()
+  const parsed = raw ? new Date(raw) : new Date()
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   }
+  return raw || ''
 }
-
-// ─── Template 3: Subscription confirmation email ──────────────────────────────
 
 export function subscriptionConfirmEmail({
   name,
   plan,
+  startDate,
 }: {
   name: string
   plan: string
+  startDate?: string
 }): { subject: string; html: string } {
-  const firstName = name.split(' ')[0]
-  const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1)
+  const rawFirst = name.split(' ')[0]
+  const started = planStartLabel(startDate)
+  void plan
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">We're official, ${firstName}! 🎉</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Your subscription is confirmed — I'm not going anywhere.</p>
-
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      From now on, I'll keep your invoices running like clockwork. No more Sunday admin sessions — that's my job.
-    </p>
-
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin:24px 0;">
-      <tr>
-        <td style="padding:20px 24px;">
-          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;">Your plan</p>
-          <p style="margin:0;font-size:20px;font-weight:700;color:${BRAND_COLOR};">${planLabel}</p>
-        </td>
-      </tr>
-    </table>
-
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Everything is already set up and running. Head to your dashboard whenever you're ready — I'll have things ticking along in the background.
-    </p>
-
-    ${ctaButton('Go to my dashboard', `${APP_URL}/dashboard`)}
-
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      Any questions? Just reply to this email — I'm always here.
-    </p>
-
-    <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Here to help,<br>
-      <strong style="color:#111827;">Dottie 💚</strong>
-    </p>
+    <h1 class="ink" style="${H}">Hi ${esc(rawFirst)}</h1>
+    <p class="ink" style="${P}">You're on Go Dottie Enquiries, £160 a year.</p>
+    <p class="ink" style="${P}">Your plan started on ${esc(started)}.</p>
+    <p class="ink" style="${P}">You can manage or cancel any time in Settings.</p>
+    ${buttonGroup([filledButton('Open Settings', `${APP_URL}/profile`)])}
+    ${accountSignoff()}
   `
 
   return {
-    subject: "You're all set! Dottie subscription confirmed",
-    html: baseLayout(content),
+    subject: 'Your Go Dottie plan is confirmed',
+    html: renderEmail(content, 'account'),
   }
 }
 
-// ─── Template 4: Payment reminder (parent-facing) ─────────────────────────────
-//
-// Sent by the reminders cron to a parent when an invoice is unpaid past its
-// due date. Framed on behalf of the childminder — the parent has no Dottie
-// account, so keep it transactional and business-like.
+// ─── Payment reminder (parent-facing) ─────────────────────────────────────────
 
 export function paymentReminderEmail({
   parentName,
@@ -310,55 +123,46 @@ export function paymentReminderEmail({
   overdue: boolean
   childminderName: string
 }): { subject: string; html: string } {
-  const firstName = esc(parentName.split(' ')[0] || parentName)
+  const first = esc(parentName.split(' ')[0] || parentName)
   const amount = `£${total.toFixed(2)}`
   const dueLine = dueDate
     ? `was due on <strong>${esc(dueDate)}</strong>`
     : 'is awaiting payment'
+  const who = esc(childminderName)
+  const buttons = payUrl
+    ? buttonGroup([
+        filledButton('Pay now', payUrl),
+        outlineButton('View invoice', publicUrl),
+      ])
+    : buttonGroup([outlineButton('View invoice', publicUrl)])
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#111827;">${overdue ? 'Payment overdue' : 'Payment reminder'}</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Invoice ${esc(invoiceNumber)} from ${esc(childminderName)}</p>
-
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Hi ${firstName}, this is a friendly reminder on behalf of <strong>${esc(childminderName)}</strong> that
-      invoice <strong>${esc(invoiceNumber)}</strong> for ${esc(childFirstName)}'s childcare ${dueLine}.
+    <h1 class="ink" style="${H}">${overdue ? 'Payment overdue' : 'Payment reminder'}</h1>
+    <p class="muted" style="${MUTED}">Invoice ${esc(invoiceNumber)} from ${who}</p>
+    <p class="ink" style="${P}">
+      Hi ${first}, this is a note from <strong>${who}</strong>.
+      Invoice <strong>${esc(invoiceNumber)}</strong> for ${esc(childFirstName)}'s childcare ${dueLine}.
     </p>
-
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${overdue ? '#fef2f2' : '#fffbeb'};border:1px solid ${overdue ? '#fecaca' : '#fde68a'};border-radius:10px;margin:24px 0;">
+    <table role="presentation" class="panel ${overdue ? 'panel-alert' : ''}" width="100%" cellpadding="0" cellspacing="0" style="background-color:${overdue ? '#fef2f2' : '#f9fafb'};border:1px solid ${overdue ? '#fecaca' : '#e5e7eb'};border-radius:8px;margin:8px 0 0;">
       <tr>
-        <td style="padding:20px 24px;">
-          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:${overdue ? '#991b1b' : '#92400e'};text-transform:uppercase;letter-spacing:0.5px;">Amount due</p>
-          <p style="margin:0;font-size:24px;font-weight:700;color:#111827;">${amount}</p>
+        <td style="padding:16px 20px;">
+          <p class="muted" style="margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#5b6573;">Amount due</p>
+          <p class="ink" style="margin:0;font-size:24px;font-weight:700;color:#0b1220;">${amount}</p>
         </td>
       </tr>
     </table>
-
-    ${payUrl ? ctaButton('Pay now', payUrl) : ''}
-    ${payUrl ? `<p style="margin:0 0 16px;font-size:12px;color:#6b7280;">Your childminder uses their own Stripe or PayPal. Dottie doesn't handle payments, refunds or disputes.</p>` : ''}
-    ${ctaButton('View invoice', publicUrl)}
-
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      Bank transfer details are shown on the invoice. If you've already paid, you can safely ignore this email.
-    </p>
-
-    <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Dottie
-    </p>
+    ${buttons}
+    ${payUrl ? `<p class="muted" style="${MUTED}">Payments go straight to ${who}, not to Go Dottie.</p>` : `<p class="muted" style="${MUTED}">Bank transfer details are on the invoice.</p>`}
+    <p class="muted" style="${MUTED}">If you have already paid, you can ignore this email.</p>
   `
 
   return {
     subject: overdue
       ? `Overdue: invoice ${invoiceNumber} from ${childminderName}`
       : `Reminder: invoice ${invoiceNumber} from ${childminderName}`,
-    html: baseLayout(content),
+    html: renderEmail(content, 'parent'),
   }
 }
-
-// ─── Template 5: Payment received (parent-facing) ─────────────────────────────
-//
-// Sent when the childminder marks an invoice as paid — acts as the parent's
-// receipt/confirmation.
 
 export function paymentReceivedEmail({
   parentName,
@@ -375,51 +179,42 @@ export function paymentReceivedEmail({
   paidDate: string
   childminderName: string
 }): { subject: string; html: string } {
-  const firstName = esc(parentName.split(' ')[0] || parentName)
+  const first = esc(parentName.split(' ')[0] || parentName)
   const amount = `£${total.toFixed(2)}`
+  const who = esc(childminderName)
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#111827;">Payment received — thank you! 💚</h1>
-    <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Invoice ${esc(invoiceNumber)} from ${esc(childminderName)}</p>
-
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Hi ${firstName}, ${esc(childminderName)} has confirmed your payment for
-      ${esc(childFirstName)}'s childcare. This email is your receipt.
+    <h1 class="ink" style="${H}">Payment received</h1>
+    <p class="muted" style="${MUTED}">Invoice ${esc(invoiceNumber)} from ${who}</p>
+    <p class="ink" style="${P}">
+      Hi ${first}, <strong>${who}</strong> has confirmed your payment for ${esc(childFirstName)}'s childcare.
     </p>
-
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin:24px 0;">
+    <table role="presentation" class="panel" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin:8px 0 16px;">
       <tr>
-        <td style="padding:20px 24px;">
+        <td style="padding:16px 20px;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
-              <td style="padding:2px 0;font-size:14px;color:#6b7280;">Invoice</td>
-              <td style="padding:2px 0;font-size:14px;color:#111827;font-weight:600;text-align:right;">${esc(invoiceNumber)}</td>
+              <td class="muted" style="padding:2px 0;font-size:14px;color:#5b6573;">Invoice</td>
+              <td class="ink" style="padding:2px 0;font-size:14px;color:#0b1220;font-weight:600;text-align:right;">${esc(invoiceNumber)}</td>
             </tr>
             <tr>
-              <td style="padding:2px 0;font-size:14px;color:#6b7280;">Amount paid</td>
-              <td style="padding:2px 0;font-size:14px;color:#111827;font-weight:600;text-align:right;">${amount}</td>
+              <td class="muted" style="padding:2px 0;font-size:14px;color:#5b6573;">Amount paid</td>
+              <td class="ink" style="padding:2px 0;font-size:14px;color:#0b1220;font-weight:600;text-align:right;">${amount}</td>
             </tr>
             <tr>
-              <td style="padding:2px 0;font-size:14px;color:#6b7280;">Date</td>
-              <td style="padding:2px 0;font-size:14px;color:#111827;font-weight:600;text-align:right;">${esc(paidDate)}</td>
+              <td class="muted" style="padding:2px 0;font-size:14px;color:#5b6573;">Date</td>
+              <td class="ink" style="padding:2px 0;font-size:14px;color:#0b1220;font-weight:600;text-align:right;">${esc(paidDate)}</td>
             </tr>
           </table>
         </td>
       </tr>
     </table>
-
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
-      No action needed — this is just a confirmation for your records.
-    </p>
-
-    <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Dottie
-    </p>
+    <p class="muted" style="${MUTED}">No action needed. This confirmation is for your records.</p>
   `
 
   return {
     subject: `Payment received for invoice ${invoiceNumber}`,
-    html: baseLayout(content),
+    html: renderEmail(content, 'parent'),
   }
 }
 
@@ -434,27 +229,20 @@ export function escalationEmail(input: {
     .filter(Boolean)
     .join(' ')
   const href = `${APP_URL}/enquiries/${encodeURIComponent(input.prospectId)}`
-  const items = (input.reasons.length ? input.reasons : ['Dottie was not sure enough to reply.'])
-    .map((r) => `<li style="margin:0 0 6px;font-size:14px;color:#374151;line-height:1.5;">${esc(r)}</li>`)
-    .join('')
+  const categories = (input.reasons.length ? input.reasons : ['something it could not answer'])
+    .map((reason) => reason.replace(/\s*\(safeguarding word list\)/gi, '').replace(/^message mentions\s+/i, '').replace(/[.]+$/, '').trim())
   const hi = input.displayName ? `Hi ${esc(firstName(input.displayName))},` : 'Hi,'
   const content = `
-    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">Dottie needs you</h1>
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      ${hi} ${esc(who)} emailed about a place. Dottie could not answer with full confidence, so she did not send a reply.
-    </p>
-    <ul style="margin:0 0 8px;padding-left:20px;">${items}</ul>
-    ${ctaButton('Review this enquiry', href)}
-    <p style="margin:0;font-size:13px;color:#6b7280;">Nothing was sent to the parent.</p>
+    <h1 class="ink" style="${H}">Go Dottie needs you</h1>
+    <p class="ink" style="${P}">${hi} ${esc(who)} emailed about a place.</p>
+    ${categories.map((category) => `<p class="ink" style="${P}">It mentions ${esc(category)}, so Go Dottie didn't reply. Please answer this one yourself.</p>`).join('')}
+    ${buttonGroup([filledButton('Review this enquiry', href)])}
+    <p class="muted" style="${MUTED}">Nothing was sent to the parent.</p>
   `
   return {
     subject: `Needs you: ${who}`.slice(0, 120),
-    html: baseLayout(content),
+    html: renderEmail(content, 'account'),
   }
-}
-
-function firstName(name: string) {
-  return name.trim().split(/\s+/)[0] || name
 }
 
 export function placeOfferEmail(input: {
@@ -468,20 +256,20 @@ export function placeOfferEmail(input: {
   const cm = input.childminderName || 'your childminder'
   const child = input.childName ? ` for ${input.childName}` : ''
   const extra = input.comprehensive
-    ? 'You will also see policies and how invoices are paid (bank transfer).'
+    ? 'You will also see policies and how invoices are paid.'
     : 'It only asks for your details and your child’s details.'
   const content = `
-    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">You have been offered a place${esc(child)}</h1>
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form so they can get you on roll.
+    <h1 class="ink" style="${H}">You have been offered a place${esc(child)}</h1>
+    <p class="ink" style="${P}">
+      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form to confirm the place.
       ${esc(extra)}
     </p>
-    ${ctaButton('Complete signup', input.formUrl)}
-    <p style="margin:0;font-size:13px;color:#6b7280;">This link expires in 7 days. You do not pay through Dottie — invoices will show bank transfer details.</p>
+    ${buttonGroup([filledButton('Complete signup', input.formUrl)])}
+    <p class="muted" style="${MUTED}">This link expires in 7 days.</p>
   `
   return {
     subject: `Place offered${child ? child : ''} — complete signup`,
-    html: baseLayout(content),
+    html: renderEmail(content, 'parent'),
   }
 }
 
@@ -495,14 +283,15 @@ export function childOnboardedEmail(input: {
   const child = input.childName || 'The child'
   const href = `${APP_URL}/invoices/new?child=${encodeURIComponent(input.childId)}`
   const content = `
-    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">${esc(child)} is onboarded</h1>
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
+    <h1 class="ink" style="${H}">${esc(child)} is onboarded</h1>
+    <p class="ink" style="${P}">
       ${hi} ${esc(input.parentName || 'The parent')} completed the signup form. You can raise the first invoice when you are ready.
     </p>
-    ${ctaButton('Create first invoice', href)}
+    ${buttonGroup([filledButton('Create first invoice', href)])}
+    ${accountSignoff()}
   `
   return {
     subject: `${child} is onboarded`,
-    html: baseLayout(content),
+    html: renderEmail(content, 'account'),
   }
 }

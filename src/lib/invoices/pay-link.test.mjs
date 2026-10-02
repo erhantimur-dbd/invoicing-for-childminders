@@ -22,7 +22,10 @@ test('Pay href is the childminder link when the toggle is on', () => {
   const html = invoicePayButtonHtml(href)
   assert.match(html, /Pay this invoice/)
   assert.match(html, /paypalme\/mary/)
-  assert.match(html, /Dottie doesn't handle payments, refunds or disputes/)
+  assert.match(html, /#0b1220/)
+  assert.match(html, /btn-fill/)
+  assert.doesNotMatch(html, /#059669/)
+  assert.doesNotMatch(html, /Dottie/)
   assert.equal(invoicePayButtonHtml(null), '')
 })
 

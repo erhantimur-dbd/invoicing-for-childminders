@@ -77,7 +77,7 @@ export default function NewProspectPage() {
       <div>
         <Link href="/enquiries" className="text-sm text-emerald-700 font-medium">← Parents</Link>
         <h1 className="text-2xl font-extrabold text-gray-900 mt-3">Add a parent</h1>
-        <p className="text-gray-500 text-sm mt-1">Copy what you know from their email. Blank is fine — Dottie will ask.</p>
+        <p className="text-gray-500 text-sm mt-1">Copy what you know from their email. Blank is fine — Go Dottie will ask.</p>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">

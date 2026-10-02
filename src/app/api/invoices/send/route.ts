@@ -4,22 +4,9 @@ import { format } from 'date-fns'
 import { sendEmail } from '@/lib/email/resend'
 import { isProductionEnv } from '@/lib/preview-guard'
 import { decryptField } from '@/lib/crypto'
-import { invoicePayButtonHtml, invoicePayHref } from '@/lib/invoices/pay-link.mjs'
+import { invoicePayHref } from '@/lib/invoices/pay-link.mjs'
 import { createInvoicePaySig } from '@/lib/invoices/pay-sig.mjs'
-
-function formatGBP(amount: number) {
-  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
-}
-
-function esc(str: string | null | undefined): string {
-  if (!str) return ''
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
+import { invoiceSendEmail } from '@/lib/email/transactional'
 
 export async function POST(request: NextRequest) {
   const { invoiceId } = await request.json()
@@ -97,94 +84,55 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'invoices@resend.dev'
-
-  const itemsHtml = items.map((item: any) => `
-    <tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;">${esc(item.description)}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:center;">${esc(String(item.quantity))}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right;">${formatGBP(Number(item.unit_price))}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:600;">${formatGBP(Number(item.amount))}</td>
-    </tr>
-  `).join('')
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Go Dottie <hello@godottie.cloud>'
 
   const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
   const viewUrl = `${origin.replace(/\/$/, '')}/invoice/${invoice.id}`
-  const bankHtml = payee.account_number ? `
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:20px;">
-      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Dottie</p>
-      ${payee.bank_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Bank:</strong> ${esc(payee.bank_name)}</p>` : ''}
-      ${payee.account_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Account name:</strong> ${esc(payee.account_name)}</p>` : ''}
-      ${payee.sort_code ? `<p style="margin:2px 0;font-size:14px;"><strong>Sort code:</strong> ${esc(payee.sort_code)}</p>` : ''}
-      ${payee.account_number ? `<p style="margin:2px 0;font-size:14px;"><strong>Account number:</strong> ${esc(payee.account_number)}</p>` : ''}
-      <p style="margin:8px 0 0;font-size:14px;color:#6b7280;"><strong>Reference:</strong> ${esc(invoice.invoice_number)}</p>
-    </div>
-  ` : `<p style="margin-top:16px;font-size:14px;color:#6b7280;">Pay by bank transfer using the details your childminder has given you. You do not pay through Dottie.</p>`
-
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8"><title>Invoice ${esc(invoice.invoice_number)}</title></head>
-    <body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#111;">
-      <div style="background:#059669;color:white;padding:24px;border-radius:12px;margin-bottom:24px;">
-        <h1 style="margin:0;font-size:24px;">Invoice ${esc(invoice.invoice_number)}</h1>
-        <p style="margin:4px 0 0;opacity:0.9;">${esc(profile.full_name)}</p>
-      </div>
-      <p>Dear ${esc(child.parent_name)},</p>
-      <p>Please find your invoice for ${esc(child.first_name)}'s childcare below.</p>
-      <table style="width:100%;border-collapse:collapse;margin:20px 0;">
-        <thead>
-          <tr style="background:#1f2937;color:white;">
-            <th style="padding:10px 12px;text-align:left;border-radius:8px 0 0 0;">Description</th>
-            <th style="padding:10px 12px;text-align:center;">Days</th>
-            <th style="padding:10px 12px;text-align:right;">Rate</th>
-            <th style="padding:10px 12px;text-align:right;border-radius:0 8px 0 0;">Amount</th>
-          </tr>
-        </thead>
-        <tbody>${itemsHtml}</tbody>
-      </table>
-      <div style="text-align:right;margin:16px 0;">
-        <div style="display:inline-block;background:#059669;color:white;padding:12px 24px;border-radius:8px;">
-          <strong style="font-size:18px;">Total: ${formatGBP(Number(invoice.total))}</strong>
-        </div>
-      </div>
-      ${invoice.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
-      ${bankHtml}
-      <div style="margin-top:20px;text-align:center;">
-        <a href="${esc(viewUrl)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
-          View invoice
-        </a>
-      </div>
-      ${invoicePayButtonHtml((() => {
-        const connectReady = Boolean(profile.stripe_connect_charges_enabled && profile.stripe_connect_account_id)
-        let sig: string | undefined
-        if (connectReady) {
-          try { sig = createInvoicePaySig(invoice.id) } catch { sig = undefined }
-        }
-        return invoicePayHref({
-          acceptOnlinePayments: Boolean(profile.accept_online_payments),
-          payUrl: invoice.stripe_payment_link,
-          status: invoice.status,
-          connectReady: Boolean(connectReady && sig),
-          invoiceId: invoice.id,
-          origin,
-          sig,
-        })
-      })())}
-      ${invoice.notes ? `<p style="margin-top:20px;padding:12px;background:#fffbeb;border-radius:8px;font-size:14px;">${esc(invoice.notes)}</p>` : ''}
-      <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;">
-      <p style="font-size:12px;color:#9ca3af;text-align:center;">
-        ${esc(profile.full_name)} · ${esc(profile.email)} · ${esc(profile.phone || '')}
-      </p>
-    </body>
-    </html>
-  `
+  const connectReady = Boolean(profile.stripe_connect_charges_enabled && profile.stripe_connect_account_id)
+  let sig: string | undefined
+  if (connectReady) {
+    try { sig = createInvoicePaySig(invoice.id) } catch { sig = undefined }
+  }
+  const payUrl = invoicePayHref({
+    acceptOnlinePayments: Boolean(profile.accept_online_payments),
+    payUrl: invoice.stripe_payment_link,
+    status: invoice.status,
+    connectReady: Boolean(connectReady && sig),
+    invoiceId: invoice.id,
+    origin,
+    sig,
+  })
+  const mail = invoiceSendEmail({
+    invoiceNumber: invoice.invoice_number,
+    total: Number(invoice.total),
+    dueLabel: invoice.due_date ? format(new Date(invoice.due_date), 'd MMMM yyyy') : null,
+    parentName: child.parent_name || '',
+    childFirstName: child.first_name || '',
+    childminderName: profile.full_name || '',
+    childminderEmail: profile.email || '',
+    childminderPhone: profile.phone || '',
+    items: items.map((item: { description?: string; quantity?: string | number; unit_price?: number; amount?: number }) => ({
+      description: item.description || '',
+      quantity: item.quantity ?? '',
+      unitPrice: Number(item.unit_price),
+      amount: Number(item.amount),
+    })),
+    bank: payee.account_number ? {
+      bankName: payee.bank_name,
+      accountName: payee.account_name,
+      sortCode: payee.sort_code,
+      accountNumber: payee.account_number,
+    } : null,
+    viewUrl,
+    payUrl,
+    notes: invoice.notes || null,
+  })
 
   const sent = await sendEmail({
     from: fromEmail,
     to: child.parent_email,
-    subject: `Invoice ${invoice.invoice_number} from ${profile.full_name} — ${formatGBP(Number(invoice.total))}`,
-    html,
+    subject: mail.subject,
+    html: mail.html,
   })
 
   if (!sent.success) {
