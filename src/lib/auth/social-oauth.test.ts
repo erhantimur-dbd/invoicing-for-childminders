@@ -124,7 +124,7 @@ describe('Soft Launch Preview login Google Continue', () => {
   })
 
   it('login surfaces a failed OAuth callback instead of a silent return', () => {
-    const login = readFileSync(join(here, '../../app/(auth)/login/page.tsx'), 'utf8')
+    const login = readFileSync(join(here, '../../app/(auth)/login-form.tsx'), 'utf8')
     assert.match(login, /auth_callback_failed/)
     assert.match(login, /toast\.error/)
   })

@@ -14,7 +14,7 @@ const read = (rel) => readFileSync(join(root, rel), 'utf8')
 
 test('honesty copy: Sign up CTA is not "Sign up free"', () => {
   assert.equal(SIGN_UP_CTA, 'Sign up')
-  const login = read('app/(auth)/login/page.tsx')
+  const login = read('app/(auth)/login-form.tsx')
   assert.match(login, /SIGN_UP_CTA/)
   assert.doesNotMatch(login, /Sign up free/)
 })
@@ -65,7 +65,7 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
   assert.match(forgot, /authCallbackRedirect/)
   assert.match(forgot, /\/reset-password/)
 
-  const login = read('app/(auth)/login/page.tsx')
+  const login = read('app/(auth)/login-form.tsx')
   assert.match(login, /setError/)
   assert.match(login, /ssoError/)
   const sso = read('components/SSOButtons.tsx')
@@ -83,7 +83,7 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
 test('login surfaces auth/callback SSO failures inline', () => {
   assert.equal(loginErrorFromQuery(null), null)
   assert.equal(loginErrorFromQuery('auth_callback_failed'), AUTH_CALLBACK_FAILED)
-  const login = read('app/(auth)/login/page.tsx')
+  const login = read('app/(auth)/login-form.tsx')
   assert.match(login, /loginErrorFromQuery/)
   const callback = read('app/auth/callback/route.ts')
   assert.match(callback, /login\?error=auth_callback_failed/)
