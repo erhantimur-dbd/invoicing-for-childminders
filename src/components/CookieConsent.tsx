@@ -60,7 +60,7 @@ export default function CookieConsent({ gaId }: { gaId: string }) {
             <p className="text-sm text-gray-600 leading-relaxed flex-1">
               We use essential cookies to run Go Dottie. With your consent we also
               use Google Analytics to understand how the site is used. See our{' '}
-              <Link href="/privacy" className="text-emerald-600 font-medium underline underline-offset-2 hover:text-emerald-700">
+              <Link href="/privacy" className="text-[#0b1220] font-medium underline underline-offset-2 hover:text-[#0b1220]">
                 privacy policy
               </Link>
               .
