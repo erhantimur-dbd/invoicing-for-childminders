@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
       subject: "Got your message — I'll be in touch soon 👋",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
-          <div style="background: linear-gradient(135deg, #10b981, #0ea5e9); padding: 24px 32px; border-radius: 12px 12px 0 0;">
+          <div style="background: #0b1220; padding: 24px 32px; border-radius: 12px 12px 0 0;">
             <p style="margin: 0; font-size: 20px; font-weight: 700; color: #fff;">Go Dottie</p>
             <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.8);">Invoicing simplified.</p>
           </div>

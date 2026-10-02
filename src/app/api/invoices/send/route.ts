@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
   const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
   const viewUrl = `${origin.replace(/\/$/, '')}/invoice/${invoice.id}`
   const bankHtml = payee.account_number ? `
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:20px;">
-      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Go Dottie</p>
+    <div style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-top:20px;">
+      <p style="color:#0b1220;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Go Dottie</p>
       ${payee.bank_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Bank:</strong> ${esc(payee.bank_name)}</p>` : ''}
       ${payee.account_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Account name:</strong> ${esc(payee.account_name)}</p>` : ''}
       ${payee.sort_code ? `<p style="margin:2px 0;font-size:14px;"><strong>Sort code:</strong> ${esc(payee.sort_code)}</p>` : ''}
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
           <strong style="font-size:18px;">Total: ${formatGBP(Number(invoice.total))}</strong>
         </div>
       </div>
-      ${invoice.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
+      ${invoice.due_date ? `<p style="color:#0b1220;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
       ${bankHtml}
       <div style="margin-top:20px;text-align:center;">
         <a href="${esc(viewUrl)}" style="background:#0b1220;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
           sig,
         })
       })())}
-      ${invoice.notes ? `<p style="margin-top:20px;padding:12px;background:#fffbeb;border-radius:8px;font-size:14px;">${esc(invoice.notes)}</p>` : ''}
+      ${invoice.notes ? `<p style="margin-top:20px;padding:12px;background:#f3f4f6;border-radius:8px;font-size:14px;">${esc(invoice.notes)}</p>` : ''}
       <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;">
       <p style="font-size:12px;color:#9ca3af;text-align:center;">
         ${esc(profile.full_name)} · ${esc(profile.email)} · ${esc(profile.phone || '')}
