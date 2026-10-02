@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>Go Dottie</title>
+  <style>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    .email-card a { color:#0b1220; text-decoration:underline; }
+    a.btn-fill-link { color:#ffffff !important; text-decoration:none !important; }
+    a.btn-outline-link { color:#0b1220 !important; text-decoration:none !important; }
+    @media (prefers-color-scheme: dark) { 
+  .email-body, .email-canvas { background-color:#111827 !important; }
+  .email-card { background-color:#1f2937 !important; }
+  .header { background-color:#0b1220 !important; }
+  .header-text { color:#ffffff !important; }
+  .mark { background-color:#0b1220 !important; outline:1px solid rgba(255,255,255,0.65) !important; }
+  .email-card h1, .email-card p, .email-card li, .email-card td, .email-card th, .email-card strong {
+    color:#f9fafb !important;
+  }
+  .email-card .muted, .footer, .footer p, .footer .muted { color:#d1d5db !important; }
+  .footer { background-color:#1f2937 !important; border-top:1px solid #e5e7eb !important; }
+  .email-card a, .footer a { color:#ffffff !important; text-decoration:underline !important; }
+  .btn-fill { background-color:#0b1220 !important; border:1px solid rgba(255,255,255,0.7) !important; }
+  a.btn-fill-link { color:#ffffff !important; background-color:#0b1220 !important; text-decoration:none !important; }
+  .btn-outline { background-color:transparent !important; border:1px solid #ffffff !important; }
+  a.btn-outline-link { color:#ffffff !important; background-color:transparent !important; text-decoration:none !important; }
+  .panel { background-color:#111827 !important; border-color:#374151 !important; }
+  .panel-alert { background-color:#3f1d1d !important; border-color:#fecaca !important; }
+  .sheet, .sheet td, .sheet th { background-color:#111827 !important; color:#f9fafb !important; border-color:#374151 !important; }
+ }
+    [data-ogsc] .email-body, [data-ogsc].email-body, [data-ogsb] .email-body, [data-ogsb].email-body, [data-ogsc] .email-canvas, [data-ogsc].email-canvas, [data-ogsb] .email-canvas, [data-ogsb].email-canvas { background-color:#111827 !important; }[data-ogsc] .email-card, [data-ogsc].email-card, [data-ogsb] .email-card, [data-ogsb].email-card { background-color:#1f2937 !important; }[data-ogsc] .header, [data-ogsc].header, [data-ogsb] .header, [data-ogsb].header { background-color:#0b1220 !important; }[data-ogsc] .header-text, [data-ogsc].header-text, [data-ogsb] .header-text, [data-ogsb].header-text { color:#ffffff !important; }[data-ogsc] .mark, [data-ogsc].mark, [data-ogsb] .mark, [data-ogsb].mark { background-color:#0b1220 !important; outline:1px solid rgba(255,255,255,0.65) !important; }[data-ogsc] .email-card h1, [data-ogsb] .email-card h1, [data-ogsc] .email-card p, [data-ogsb] .email-card p, [data-ogsc] .email-card li, [data-ogsb] .email-card li, [data-ogsc] .email-card td, [data-ogsb] .email-card td, [data-ogsc] .email-card th, [data-ogsb] .email-card th, [data-ogsc] .email-card strong, [data-ogsb] .email-card strong {
+    color:#f9fafb !important;
+  }[data-ogsc] .email-card .muted, [data-ogsb] .email-card .muted, [data-ogsc] .footer, [data-ogsc].footer, [data-ogsb] .footer, [data-ogsb].footer, [data-ogsc] .footer p, [data-ogsb] .footer p, [data-ogsc] .footer .muted, [data-ogsb] .footer .muted { color:#d1d5db !important; }[data-ogsc] .footer, [data-ogsc].footer, [data-ogsb] .footer, [data-ogsb].footer { background-color:#1f2937 !important; border-top:1px solid #e5e7eb !important; }[data-ogsc] .email-card a, [data-ogsb] .email-card a, [data-ogsc] .footer a, [data-ogsb] .footer a { color:#ffffff !important; text-decoration:underline !important; }[data-ogsc] .btn-fill, [data-ogsc].btn-fill, [data-ogsb] .btn-fill, [data-ogsb].btn-fill { background-color:#0b1220 !important; border:1px solid rgba(255,255,255,0.7) !important; }[data-ogsc] a.btn-fill-link, [data-ogsb] a.btn-fill-link { color:#ffffff !important; background-color:#0b1220 !important; text-decoration:none !important; }[data-ogsc] .btn-outline, [data-ogsc].btn-outline, [data-ogsb] .btn-outline, [data-ogsb].btn-outline { background-color:transparent !important; border:1px solid #ffffff !important; }[data-ogsc] a.btn-outline-link, [data-ogsb] a.btn-outline-link { color:#ffffff !important; background-color:transparent !important; text-decoration:none !important; }[data-ogsc] .panel, [data-ogsc].panel, [data-ogsb] .panel, [data-ogsb].panel { background-color:#111827 !important; border-color:#374151 !important; }[data-ogsc] .panel-alert, [data-ogsc].panel-alert, [data-ogsb] .panel-alert, [data-ogsb].panel-alert { background-color:#3f1d1d !important; border-color:#fecaca !important; }[data-ogsc] .sheet, [data-ogsc].sheet, [data-ogsb] .sheet, [data-ogsb].sheet, [data-ogsc] .sheet td, [data-ogsb] .sheet td, [data-ogsc] .sheet th, [data-ogsb] .sheet th { background-color:#111827 !important; color:#f9fafb !important; border-color:#374151 !important; }
+
+  </style>
+</head>
+<body class="email-body" style="margin:0;padding:0;background-color:#f9fafb;color:#0b1220;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" class="email-canvas" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+          <tr>
+            <td class="header" style="background-color:#0b1220;padding:16px 28px;border-bottom:1px solid rgba(255,255,255,0.16);">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="40" style="width:40px;vertical-align:middle;">
+                    <img class="mark" src="https://www.godottie.cloud/email/go-dottie-mark.png" width="40" height="40" alt="Go Dottie" style="display:block;width:40px;height:40px;border:0;background-color:#0b1220;outline:1px solid rgba(255,255,255,0.45);border-radius:4px;">
+                  </td>
+                  <td style="padding-left:12px;vertical-align:middle;">
+                    <p class="header-text" style="margin:0;font-size:20px;font-weight:700;line-height:40px;color:#ffffff;letter-spacing:-0.3px;">Go Dottie</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="email-card ink" style="background-color:#ffffff;padding:36px 32px;color:#0b1220;">
+              
+      <h1 class="ink" style="margin:0 0 12px;font-size:24px;font-weight:700;line-height:1.3;color:#0b1220;">Sign in</h1>
+      <p class="ink" style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#0b1220;">Use this link to sign in to Go Dottie as sam.taylor@example.com.</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 20px;"><tr><td align="left"><table role="presentation" cellpadding="0" cellspacing="0" border="0" class="btn" style="margin:0;">
+    <tr>
+      <td class="btn-fill" align="center" bgcolor="#0b1220" style="border-radius:8px;background-color:#0b1220;">
+        <a class="btn-fill-link" href="https://www.godottie.cloud/auth/v1/verify?token=preview&type=signup" style="display:inline-block;padding:12px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;line-height:20px;color:#ffffff;text-decoration:none;border-radius:8px;background-color:#0b1220;">Sign in</a>
+      </td>
+    </tr>
+  </table></td></tr></table>
+    <p class="muted" style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#5b6573;">Or copy this link:</p>
+    <p class="ink" style="margin:0 0 16px;font-size:13px;line-height:1.5;word-break:break-all;color:#0b1220;"><a class="link" href="https://www.godottie.cloud/auth/v1/verify?token=preview&type=signup" style="color:#0b1220;text-decoration:underline;">https://www.godottie.cloud/auth/v1/verify?token=preview&type=signup</a></p>
+    <p class="muted" style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#5b6573;">Or enter this code: 482913</p>
+    
+            </td>
+          </tr>
+          <tr>
+            <td class="footer" style="background-color:#ffffff;padding:20px 32px;border-top:1px solid #e5e7eb;">
+              <p class="muted" style="margin:0;font-size:12px;line-height:1.5;color:#5b6573;text-align:center;">
+                Need help? Email us at <a class="link" href="mailto:hello@godottie.cloud" style="color:#0b1220;text-decoration:underline;">hello@godottie.cloud</a>
+              </p>
+              <p class="muted" style="margin:8px 0 0;font-size:11px;line-height:1.5;color:#5b6573;text-align:center;">&copy; 2026 Go Dottie. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

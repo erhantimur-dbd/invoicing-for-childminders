@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail } from '@/lib/email/resend'
 import { rateLimit, clientIp } from '@/lib/rate-limit'
 import { log } from '@/lib/log'
-import { escapeHtml } from '@/lib/html-escape.mjs'
+import { contactAutoReplyEmail, contactInboxNoticeEmail } from '@/lib/email/transactional'
 
 // ── Spam keyword filter ────────────────────────────────────────────────────
 const SPAM_PATTERNS = [
@@ -73,11 +73,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Send email via the Resend chokepoint ────────────────────────────────
-  const safeSubject = escapeHtml(subject?.trim() || '(no subject)')
-  const safeName = escapeHtml(name.trim())
-  const safeEmail = escapeHtml(email.trim())
-  const safeMessage = escapeHtml(message.trim())
-  const safeFirst = escapeHtml(name.trim().split(' ')[0] || 'there')
+  const inbox = contactInboxNoticeEmail({
+    name: name.trim(),
+    email: email.trim(),
+    subject: subject?.trim() || '',
+    message: message.trim(),
+    ip,
+  })
+  const reply = contactAutoReplyEmail({ name: name.trim() })
 
   const sendFailed = NextResponse.json(
     { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
@@ -86,56 +89,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const toSupport = await sendEmail({
-      from: 'Dottie Contact Form <hello@godottie.cloud>',
+      from: 'Go Dottie contact form <hello@godottie.cloud>',
       to: 'support@godottie.cloud',
       replyTo: email.trim(),
-      subject: `[Contact] ${subject?.trim() || '(no subject)'}`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
-          <h2 style="color: #059669; margin-bottom: 4px;">New contact form submission</h2>
-          <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via godottie.cloud/support</p>
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-            <tr><td style="padding: 6px 0; color: #6b7280; width: 80px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${safeName}</td></tr>
-            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;"><a href="mailto:${safeEmail}" style="color: #059669;">${safeEmail}</a></td></tr>
-            <tr><td style="padding: 6px 0; color: #6b7280;">Subject</td><td style="padding: 6px 0;">${safeSubject}</td></tr>
-          </table>
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
-          <p style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Message</p>
-          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${safeMessage}</div>
-          <p style="font-size: 11px; color: #9ca3af; margin-top: 16px;">IP: ${escapeHtml(ip)}</p>
-        </div>
-      `,
+      subject: inbox.subject,
+      html: inbox.html,
     })
     if (!toSupport.success) return sendFailed
 
-    // Send confirmation to the sender
     const autoReply = await sendEmail({
-      from: 'Dottie <hello@godottie.cloud>',
+      from: 'Go Dottie <hello@godottie.cloud>',
       to: email.trim(),
-      subject: "Got your message — I'll be in touch soon 👋",
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
-          <div style="background: linear-gradient(135deg, #10b981, #0ea5e9); padding: 24px 32px; border-radius: 12px 12px 0 0;">
-            <p style="margin: 0; font-size: 20px; font-weight: 700; color: #fff;">Dottie</p>
-            <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.8);">Invoicing simplified.</p>
-          </div>
-          <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none;">
-            <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 700;">Hi ${safeFirst}! 👋</h2>
-            <p style="color: #6b7280; margin: 0 0 16px;">Thanks for getting in touch.</p>
-            <p style="color: #374151; line-height: 1.6; margin: 0 0 16px;">
-              I've received your message and will get back to you within 24 hours on business days.
-            </p>
-            <p style="color: #374151; line-height: 1.6; margin: 0;">
-              Talk soon,<br/>
-              <strong>Dottie 💚</strong>
-            </p>
-          </div>
-          <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; padding: 16px 32px; text-align: center;">
-            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Dottie · <a href="https://www.godottie.cloud" style="color: #059669;">www.godottie.cloud</a></p>
-          </div>
-        </div>
-      `,
+      subject: reply.subject,
+      html: reply.html,
     })
     if (!autoReply.success) return sendFailed
 

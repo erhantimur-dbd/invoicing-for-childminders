@@ -13,6 +13,7 @@ import { sendDueReminders } from '@/lib/cron/reminders'
 import { sendEmail } from '@/lib/email/resend'
 import { log } from '@/lib/log'
 import { accountAllowlistGate } from '@/lib/preview-guard'
+import { weeklyDraftDigestEmail } from '@/lib/email/transactional'
 
 export async function GET(request: NextRequest) {
   // Verify cron secret — Vercel sends this as Authorization: Bearer <CRON_SECRET>.
@@ -178,59 +179,20 @@ async function sendCronNotificationEmail(
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
 
   const weekLabel = `${new Date(weekStart + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(weekEnd + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
-  const totalAmount = created.reduce((s, i) => s + i.total, 0)
   const firstName = profile.full_name?.split(' ')[0] || 'there'
 
-  const createdRows = created.map(c =>
-    `<tr><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${c.child_name}</td><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:#059669">£${c.total.toFixed(2)}</td>${c.agent_notes ? `<td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#6b7280;font-size:12px">${c.agent_notes}</td>` : '<td></td>'}</tr>`
-  ).join('')
-
-  const skippedRows = skipped.length > 0
-    ? `<p style="margin:24px 0 8px;font-weight:600;color:#374151">Skipped (${skipped.length})</p>
-       <ul style="margin:0;padding-left:20px;color:#6b7280">
-         ${skipped.map(s => `<li>${s.child_name} — ${s.reason}</li>`).join('')}
-       </ul>`
-    : ''
+  const mail = weeklyDraftDigestEmail({
+    firstName,
+    weekLabel,
+    created,
+    skipped,
+    invoicesUrl: `${appUrl}/invoices`,
+  })
 
   await sendEmail({
-    from: process.env.RESEND_FROM_EMAIL || 'Dottie <invoices@godottie.cloud>',
+    from: process.env.RESEND_FROM_EMAIL || 'Go Dottie <invoices@godottie.cloud>',
     to: profile.email,
-    subject: `✨ ${created.length} draft invoice${created.length !== 1 ? 's' : ''} generated — w/c ${weekLabel}`,
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 16px;color:#111827">
-        <h2 style="margin:0 0 4px;font-size:22px">Weekly invoices generated</h2>
-        <p style="margin:0 0 24px;color:#6b7280">Hi ${firstName}, here's a summary for w/c ${weekLabel}</p>
-
-        <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:8px;overflow:hidden">
-          <thead>
-            <tr style="background:#ecfdf5">
-              <th style="padding:10px 12px;text-align:left;font-size:13px;color:#065f46">Child</th>
-              <th style="padding:10px 12px;text-align:right;font-size:13px;color:#065f46">Amount</th>
-              <th style="padding:10px 12px;text-align:left;font-size:13px;color:#065f46">Notes</th>
-            </tr>
-          </thead>
-          <tbody>${createdRows}</tbody>
-          <tfoot>
-            <tr style="background:#ecfdf5">
-              <td style="padding:10px 12px;font-weight:700">Total</td>
-              <td style="padding:10px 12px;text-align:right;font-weight:700;color:#059669">£${totalAmount.toFixed(2)}</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
-
-        ${skippedRows}
-
-        <div style="margin-top:32px;text-align:center">
-          <a href="${appUrl}/invoices" style="background:#059669;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">
-            Review & send drafts →
-          </a>
-        </div>
-
-        <p style="margin-top:24px;font-size:12px;color:#9ca3af;text-align:center">
-          These invoices are saved as drafts. Review them before sending to parents.
-        </p>
-      </div>
-    `,
+    subject: mail.subject,
+    html: mail.html,
   })
 }

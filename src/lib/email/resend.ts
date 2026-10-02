@@ -8,7 +8,7 @@ function getResend() {
   return new Resend(key)
 }
 
-const DEFAULT_FROM = process.env.RESEND_FROM_EMAIL ?? 'Dottie <hello@godottie.cloud>'
+const DEFAULT_FROM = process.env.RESEND_FROM_EMAIL ?? 'Go Dottie <hello@godottie.cloud>'
 
 interface SendEmailOptions {
   to: string | string[]
