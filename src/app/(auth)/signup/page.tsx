@@ -205,7 +205,7 @@ export default function SignupPage() {
                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 flex-shrink-0"
               />
               <span className="text-xs text-gray-500 leading-relaxed">
-                I agree to Dottie&apos;s{' '}
+                I agree to Go Dottie&apos;s{' '}
                 <Link href="/terms" target="_blank" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
                   Terms of Service
                 </Link>{' '}

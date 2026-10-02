@@ -7,11 +7,11 @@ import { howMuchDoesDottieCost, noSelfServeTrial } from '@/lib/plans-copy.mjs'
 
 export const metadata: Metadata = {
   title: 'FAQ',
-  description: 'Frequently asked questions about Dottie — invoicing software for UK childminders. Answers on pricing, invoicing, security, and more.',
+  description: 'Frequently asked questions about Go Dottie — invoicing software for UK childminders. Answers on pricing, invoicing, security, and more.',
   alternates: { canonical: 'https://www.godottie.cloud/faq' },
   openGraph: {
-    title: 'FAQ — Dottie',
-    description: 'Answers to the most common questions about Dottie for childminders.',
+    title: 'FAQ — Go Dottie',
+    description: 'Answers to the most common questions about Go Dottie for childminders.',
     url: 'https://www.godottie.cloud/faq',
   },
 }
@@ -19,24 +19,24 @@ export const metadata: Metadata = {
 const CATEGORIES = [
   {
     id: 'about',
-    label: 'About Dottie',
+    label: 'About Go Dottie',
     icon: '💜',
     questions: [
       {
-        q: 'What is Dottie?',
-        a: "Dottie is invoicing on autopilot for UK childminders and childcare professionals. We handle the scheduling, invoice generation, expense tracking, and payment chasing — so you can focus on the children in your care, not the paperwork.",
+        q: 'What is Go Dottie?',
+        a: "Go Dottie is invoicing on autopilot for UK childminders and childcare professionals. We handle the scheduling, invoice generation, expense tracking, and payment chasing — so you can focus on the children in your care, not the paperwork.",
       },
       {
-        q: 'Who is Dottie built for?',
-        a: "Dottie is built specifically for UK childminders and childcare providers — sole traders who look after children in their own homes. Whether you have 1 child or 20, Dottie is designed to fit the way you work.",
+        q: 'Who is Go Dottie built for?',
+        a: "Go Dottie is built specifically for UK childminders and childcare providers — sole traders who look after children in their own homes. Whether you have 1 child or 20, Go Dottie is designed to fit the way you work.",
       },
       {
         q: 'Do I need to be tech-savvy to use it?',
-        a: "Not at all. Dottie is designed to be as simple as possible. Set up your children's details once and Dottie does the rest automatically. If you can use a smartphone, you can use Dottie.",
+        a: "Not at all. Go Dottie is designed to be as simple as possible. Set up your children's details once and Go Dottie does the rest automatically. If you can use a smartphone, you can use Go Dottie.",
       },
       {
-        q: 'Is Dottie only for childminders, or can other childcare providers use it?',
-        a: "Dottie works for any UK childcare professional — registered childminders, nannies, au pairs, and small nursery settings. The core features (invoicing, expenses, reports) are useful for anyone charging parents for childcare.",
+        q: 'Is Go Dottie only for childminders, or can other childcare providers use it?',
+        a: "Go Dottie works for any UK childcare professional — registered childminders, nannies, au pairs, and small nursery settings. The core features (invoicing, expenses, reports) are useful for anyone charging parents for childcare.",
       },
     ],
   },
@@ -51,7 +51,7 @@ const CATEGORIES = [
       },
       {
         q: 'How long does setup take?',
-        a: "Most childminders are fully set up in under 5 minutes. You'll add your profile, bank details, and children's schedules — Dottie handles everything else.",
+        a: "Most childminders are fully set up in under 5 minutes. You'll add your profile, bank details, and children's schedules — Go Dottie handles everything else.",
       },
       {
         q: 'Can I import data from a spreadsheet or another app?',
@@ -70,7 +70,7 @@ const CATEGORIES = [
     questions: [
       {
         q: 'How does auto-invoice generation work?',
-        a: "You set each child's schedule and rates once, then choose how often to generate invoices — weekly, fortnightly, or monthly. You configure this during onboarding and can update it any time in Settings. At your chosen interval, Dottie automatically creates draft invoices for each child. They appear in your invoices list for you to review, approve, and send to parents in one tap.",
+        a: "You set each child's schedule and rates once, then choose how often to generate invoices — weekly, fortnightly, or monthly. You configure this during onboarding and can update it any time in Settings. At your chosen interval, Go Dottie automatically creates draft invoices for each child. They appear in your invoices list for you to review, approve, and send to parents in one tap.",
       },
       {
         q: 'Can I change my invoice generation schedule?',
@@ -90,10 +90,10 @@ const CATEGORIES = [
       },
       {
         q: 'Can I send invoices by email?',
-        a: "Yes. With one tap, Dottie sends the invoice directly to the parent's email address. The email includes a link to view the invoice online and download it as PDF.",
+        a: "Yes. With one tap, Go Dottie sends the invoice directly to the parent's email address. The email includes a link to view the invoice online and download it as PDF.",
       },
       {
-        q: 'Can parents pay online through Dottie?',
+        q: 'Can parents pay online through Go Dottie?',
         a: "Yes — attach a payment link (from Stripe, Monzo, PayPal or similar) to any invoice and parents see a \"Pay now\" button on the invoice page and in reminder emails. Invoices also show your bank details for bank transfer — still the most common method for UK childminders.",
       },
       {
@@ -108,7 +108,7 @@ const CATEGORIES = [
     icon: '💳',
     questions: [
       {
-        q: 'How much does Dottie cost?',
+        q: 'How much does Go Dottie cost?',
         a: howMuchDoesDottieCost(),
       },
       {
@@ -117,7 +117,7 @@ const CATEGORIES = [
       },
       {
         q: 'Can I see it before I pay?',
-        a: "Yes — book a free demo and we'll give you a full walkthrough, answer your questions, and show you exactly how Dottie would work for your setting. No obligation.",
+        a: "Yes — book a free demo and we'll give you a full walkthrough, answer your questions, and show you exactly how Go Dottie would work for your setting. No obligation.",
       },
       {
         q: 'Can I cancel at any time?',
@@ -144,19 +144,19 @@ const CATEGORIES = [
     questions: [
       {
         q: 'Can I track my childminding expenses?',
-        a: "Yes. Dottie includes a full expense tracker where you can log costs by category (food & drink, outings, arts & crafts, nappies, etc.), upload receipts, and even use AI to extract details from a photo of a receipt.",
+        a: "Yes. Go Dottie includes a full expense tracker where you can log costs by category (food & drink, outings, arts & crafts, nappies, etc.), upload receipts, and even use AI to extract details from a photo of a receipt.",
       },
       {
         q: 'Can I use AI to scan receipts?',
-        a: "Yes. Take a photo of a receipt and Dottie's AI will extract the merchant name, date, and amount automatically — saving you the manual entry.",
+        a: "Yes. Take a photo of a receipt and Go Dottie's AI will extract the merchant name, date, and amount automatically — saving you the manual entry.",
       },
       {
-        q: 'Does Dottie produce tax year reports?',
+        q: 'Does Go Dottie produce tax year reports?',
         a: "Yes. The Reports section shows your income and expenses broken down by tax year, ready to hand to your accountant or use for your Self Assessment return. You can export as PDF.",
       },
       {
-        q: 'Is Dottie a replacement for an accountant?',
-        a: "Dottie makes it much easier to keep your records in order, but it's not a substitute for professional tax advice. Think of it as a very well-organised filing system that saves your accountant time — and saves you money.",
+        q: 'Is Go Dottie a replacement for an accountant?',
+        a: "Go Dottie makes it much easier to keep your records in order, but it's not a substitute for professional tax advice. Think of it as a very well-organised filing system that saves your accountant time — and saves you money.",
       },
     ],
   },
@@ -170,8 +170,8 @@ const CATEGORIES = [
         a: "Yes. All data is encrypted in transit (TLS 1.2+) and at rest (AES-256). Row-level security means your data is completely isolated from other users — nobody else can see your records. Bank details are further protected by a date-of-birth verification step for parent access.",
       },
       {
-        q: 'Is Dottie GDPR compliant?',
-        a: "Yes. Dottie is fully compliant with UK GDPR and the Data Protection Act 2018. All data is stored in UK/EU data centres. We have a full Privacy Policy you can read at godottie.cloud/privacy.",
+        q: 'Is Go Dottie GDPR compliant?',
+        a: "Yes. Go Dottie is fully compliant with UK GDPR and the Data Protection Act 2018. All data is stored in UK/EU data centres. We have a full Privacy Policy you can read at godottie.cloud/privacy.",
       },
       {
         q: "How is children's data protected?",
@@ -217,7 +217,7 @@ export default function FaqPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Frequently asked questions</h1>
-          <p className="mt-3 text-gray-500 text-lg">Everything you need to know about Dottie.</p>
+          <p className="mt-3 text-gray-500 text-lg">Everything you need to know about Go Dottie.</p>
           <p className="mt-2 text-gray-400 text-sm">
             Can&apos;t find what you&apos;re looking for?{' '}
             <Link href="/support" className="text-[#123a4a] underline underline-offset-2 hover:text-emerald-700">

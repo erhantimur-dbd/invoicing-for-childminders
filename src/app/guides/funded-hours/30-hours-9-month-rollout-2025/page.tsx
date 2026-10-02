@@ -56,10 +56,10 @@ const articleJsonLd = {
   description: metadata.description,
   datePublished: '2026-05-06',
   dateModified: '2026-05-06',
-  author: { '@type': 'Organization', name: 'Dottie', url: 'https://www.godottie.cloud' },
+  author: { '@type': 'Organization', name: 'Go Dottie', url: 'https://www.godottie.cloud' },
   publisher: {
     '@type': 'Organization',
-    name: 'Dottie',
+    name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
     logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
   },
@@ -80,7 +80,7 @@ const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Dottie', item: 'https://www.godottie.cloud' },
+    { '@type': 'ListItem', position: 1, name: 'Go Dottie', item: 'https://www.godottie.cloud' },
     { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://www.godottie.cloud/guides' },
     { '@type': 'ListItem', position: 3, name: 'Funded hours', item: 'https://www.godottie.cloud/guides/funded-hours' },
     { '@type': 'ListItem', position: 4, name: '30 hours from 9 months (Sept 2025)', item: URL },
@@ -100,7 +100,7 @@ export default function Page() {
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
               <span className="text-white text-xs font-extrabold">D.</span>
             </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
           <Link href="/signup" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
             Get started →
@@ -218,7 +218,7 @@ export default function Page() {
         <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Track every funded entitlement on every child</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
-            Dottie supports all six UK funded entitlements — universal, working-parents, disadvantaged, 9 months to school. Pick the scheme once per child, and invoices format themselves correctly.
+            Go Dottie supports all six UK funded entitlements — universal, working-parents, disadvantaged, 9 months to school. Pick the scheme once per child, and invoices format themselves correctly.
           </p>
           <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95">
             Get started →

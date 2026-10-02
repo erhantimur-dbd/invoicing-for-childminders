@@ -6,11 +6,11 @@ import { marketing, formatGbp, pricingAmounts } from '@/lib/marketing.mjs'
 
 export const metadata: Metadata = {
   title: 'Plans & Pricing',
-  description: `Start with Dottie at ${formatGbp(pricingAmounts.enquiries.annual)} a year. Add invoicing when a child starts. Same account. Cancel anytime.`,
+  description: `Start with Go Dottie at ${formatGbp(pricingAmounts.enquiries.annual)} a year. Add invoicing when a child starts. Same account. Cancel anytime.`,
   alternates: { canonical: 'https://www.godottie.cloud/subscribe' },
   openGraph: {
-    title: 'Plans & Pricing — Dottie',
-    description: `Dottie ${formatGbp(pricingAmounts.enquiries.annual)} a year. Invoicing is an add-on when a child starts.`,
+    title: 'Plans & Pricing — Go Dottie',
+    description: `Go Dottie ${formatGbp(pricingAmounts.enquiries.annual)} a year. Invoicing is an add-on when a child starts.`,
     url: 'https://www.godottie.cloud/subscribe',
   },
 }

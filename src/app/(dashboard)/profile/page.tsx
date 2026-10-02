@@ -301,7 +301,7 @@ export default function ProfilePage() {
                     ? 'Ready — Pay uses your Stripe for the exact invoice total.'
                     : profile.stripe_connect_account_id
                       ? 'Finish onboarding in Stripe to take card payments.'
-                      : 'Optional. Parents pay you; Dottie does not.'}
+                      : 'Optional. Parents pay you; Go Dottie does not.'}
                 </p>
               </div>
               <Button
@@ -345,7 +345,7 @@ export default function ProfilePage() {
               </div>
               Invoice generation
             </CardTitle>
-            <p className="text-xs text-gray-500 mt-1">Choose when Dottie auto-generates draft invoices for your children</p>
+            <p className="text-xs text-gray-500 mt-1">Choose when Go Dottie auto-generates draft invoices for your children</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">

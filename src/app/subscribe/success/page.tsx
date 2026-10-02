@@ -117,7 +117,7 @@ export default function SubscribeSuccessPage() {
   const trialEndLabel = formatDate(sub?.trial_end ?? null)
   const renewLabel = formatDate(sub?.current_period_end ?? null)
   const nextHref = isEnquiries ? '/enquiries/setup' : '/dashboard'
-  const nextLabel = isEnquiries ? 'Set up Dottie →' : 'Go to dashboard →'
+  const nextLabel = isEnquiries ? 'Set up Go Dottie →' : 'Go to dashboard →'
 
   return (
     <Shell>
@@ -127,9 +127,9 @@ export default function SubscribeSuccessPage() {
 
       {isEnquiries ? (
         <>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Dottie is on</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Go Dottie is on</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-6">
-            Next: tell Dottie about your setting, spaces, funded hours, and visiting times. Takes a few minutes.
+            Next: tell Go Dottie about your setting, spaces, funded hours, and visiting times. Takes a few minutes.
           </p>
         </>
       ) : isTrialing ? (

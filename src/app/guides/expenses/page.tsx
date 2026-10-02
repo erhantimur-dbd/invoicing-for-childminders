@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'A plain-English list of the expenses UK childminders can claim against tax: food, utilities apportionment, toys, mileage, insurance, training and more — with how the childminder-specific rules work.',
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Expenses childminders can claim — Dottie',
+    title: 'Expenses childminders can claim — Go Dottie',
     description:
       'What UK childminders can claim against tax, and how to apportion household costs. Food, utilities, toys, car, insurance, training and more.',
     url: URL,
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 const FAQS: { q: string; a: string }[] = [
   {
     q: 'Do I need to keep receipts for everything?',
-    a: 'Keep a record of every business expense — a receipt, invoice or bank/card statement line. HMRC can ask to see them for up to roughly six years. Small cash items like a loaf of bread for the children can be logged with a note if no receipt survives, but the more evidence you keep, the safer you are. Photographing receipts as you go (Dottie extracts the amount, date and category for you) means you never lose one.',
+    a: 'Keep a record of every business expense — a receipt, invoice or bank/card statement line. HMRC can ask to see them for up to roughly six years. Small cash items like a loaf of bread for the children can be logged with a note if no receipt survives, but the more evidence you keep, the safer you are. Photographing receipts as you go (Go Dottie extracts the amount, date and category for you) means you never lose one.',
   },
   {
     q: 'How do I work out the business share of my gas and electricity?',
@@ -87,7 +87,7 @@ const CATEGORIES: { title: string; body: string; examples: string }[] = [
   },
   {
     title: 'Admin, consumables & office',
-    body: 'The everyday running costs of the business, including software like Dottie, stationery, and the consumables children get through.',
+    body: 'The everyday running costs of the business, including software like Go Dottie, stationery, and the consumables children get through.',
     examples: 'Nappies, wipes, cleaning products, printer ink, invoicing software',
   },
 ]
@@ -99,10 +99,10 @@ const articleJsonLd = {
   description: metadata.description,
   datePublished: '2026-07-05',
   dateModified: '2026-07-05',
-  author: { '@type': 'Organization', name: 'Dottie', url: 'https://www.godottie.cloud' },
+  author: { '@type': 'Organization', name: 'Go Dottie', url: 'https://www.godottie.cloud' },
   publisher: {
     '@type': 'Organization',
-    name: 'Dottie',
+    name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
     logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
   },
@@ -123,7 +123,7 @@ const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Dottie', item: 'https://www.godottie.cloud' },
+    { '@type': 'ListItem', position: 1, name: 'Go Dottie', item: 'https://www.godottie.cloud' },
     { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://www.godottie.cloud/guides' },
     { '@type': 'ListItem', position: 3, name: 'Expenses childminders can claim', item: URL },
   ],
@@ -142,7 +142,7 @@ export default function Page() {
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
               <span className="text-white text-xs font-extrabold">D.</span>
             </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
           <Link href="/signup" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
             Get started →
@@ -246,7 +246,7 @@ export default function Page() {
         <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Never lose an expense again</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
-            Snap a photo of any receipt and Dottie pulls out the amount, date and category, then files it under the right HMRC heading — ready for your tax return.
+            Snap a photo of any receipt and Go Dottie pulls out the amount, date and category, then files it under the right HMRC heading — ready for your tax return.
           </p>
           <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95">
             Get started →

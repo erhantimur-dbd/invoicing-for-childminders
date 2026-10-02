@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'From January 2026, every funded-hours invoice must itemise free hours, paid hours, food, consumables, and activities separately. Here\'s exactly what changes — and a free compliant template.',
   alternates: { canonical: URL },
   openGraph: {
-    title: 'The 2026 Childminder Invoice Rules — Dottie',
+    title: 'The 2026 Childminder Invoice Rules — Go Dottie',
     description:
       'What UK childminders must itemise on every invoice from January 2026 (and why the top-up fee ban from April 2025 still trips people up).',
     url: URL,
@@ -41,8 +41,8 @@ const FAQS: { q: string; a: string }[] = [
     a: 'No. The default is 38 weeks (term-time only) but funding can be stretched across up to 52 weeks, which reduces the number of funded hours per week. You agree the pattern with the parent and the local authority funding portal at the start of the term.',
   },
   {
-    q: 'Does Dottie support the 2026 invoice rules?',
-    a: 'Yes. Dottie generates invoices that itemise funded hours, additional paid hours, food, non-consumables, and activities as separate line items by default. The invoice is compliant out of the box — you do not need to build a custom template.',
+    q: 'Does Go Dottie support the 2026 invoice rules?',
+    a: 'Yes. Go Dottie generates invoices that itemise funded hours, additional paid hours, food, non-consumables, and activities as separate line items by default. The invoice is compliant out of the box — you do not need to build a custom template.',
   },
   {
     q: 'What about the September 2025 expansion to 30 funded hours from 9 months old?',
@@ -57,10 +57,10 @@ const articleJsonLd = {
   description: metadata.description,
   datePublished: '2026-05-06',
   dateModified: '2026-05-06',
-  author: { '@type': 'Organization', name: 'Dottie', url: 'https://www.godottie.cloud' },
+  author: { '@type': 'Organization', name: 'Go Dottie', url: 'https://www.godottie.cloud' },
   publisher: {
     '@type': 'Organization',
-    name: 'Dottie',
+    name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
     logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
   },
@@ -81,7 +81,7 @@ const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Dottie', item: 'https://www.godottie.cloud' },
+    { '@type': 'ListItem', position: 1, name: 'Go Dottie', item: 'https://www.godottie.cloud' },
     { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://www.godottie.cloud/guides' },
     { '@type': 'ListItem', position: 3, name: 'Funded hours', item: 'https://www.godottie.cloud/guides/funded-hours' },
     { '@type': 'ListItem', position: 4, name: '2026 invoice rules', item: URL },
@@ -111,7 +111,7 @@ export default function Page() {
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
               <span className="text-white text-xs font-extrabold">D.</span>
             </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
           <Link
             href="/signup"
@@ -224,10 +224,10 @@ export default function Page() {
 
         {/* Section 4 — pivot to product */}
         <h2 id="how-dottie-handles-it" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-4">
-          4. How Dottie handles this for you
+          4. How Go Dottie handles this for you
         </h2>
         <p className="text-gray-700 leading-relaxed mb-4">
-          Dottie is the only UK childminder invoicing tool built around these rules from day one. Set each child&apos;s funded hours, paid hours, and any extras once. Every invoice is generated with the five line-item categories already separated — funded shown at £0.00, paid hours at your rate, food itemised by day, non-consumables and activities each on their own line.
+          Go Dottie is the only UK childminder invoicing tool built around these rules from day one. Set each child&apos;s funded hours, paid hours, and any extras once. Every invoice is generated with the five line-item categories already separated — funded shown at £0.00, paid hours at your rate, food itemised by day, non-consumables and activities each on their own line.
         </p>
         <p className="text-gray-700 leading-relaxed mb-6">
           You review the draft, approve it, and send it to the parent in a single tap. The parent verifies their child&apos;s date of birth before they can see anything sensitive (your bank details). HMRC-ready records are kept automatically — useful when MTD for Income Tax kicks in for £50k+ childminders in April 2026.

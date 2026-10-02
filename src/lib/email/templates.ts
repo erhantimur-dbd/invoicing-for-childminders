@@ -10,7 +10,7 @@ function baseLayout(content: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Dottie</title>
+  <title>Go Dottie</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;padding:40px 16px;">
@@ -21,7 +21,7 @@ function baseLayout(content: string): string {
           <!-- Header -->
           <tr>
             <td style="background-color:${BRAND_COLOR};border-radius:12px 12px 0 0;padding:28px 32px;">
-              <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Dottie</p>
+              <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">Go Dottie</p>
               <p style="margin:4px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Invoicing simplified.</p>
             </td>
           </tr>
@@ -41,7 +41,7 @@ function baseLayout(content: string): string {
                 <a href="mailto:${SUPPORT_EMAIL}" style="color:${BRAND_COLOR};text-decoration:none;">${SUPPORT_EMAIL}</a>
               </p>
               <p style="margin:8px 0 0;font-size:11px;color:#9ca3af;text-align:center;">
-                &copy; ${new Date().getFullYear()} Dottie. All rights reserved.
+                &copy; ${new Date().getFullYear()} Go Dottie. All rights reserved.
               </p>
             </td>
           </tr>
@@ -86,7 +86,7 @@ export function welcomeEmail({ name }: { name: string }): {
   const firstName = name.split(' ')[0]
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Hi ${firstName}, I'm Dottie! 👋</h1>
+    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Hi ${firstName}, I'm Go Dottie! 👋</h1>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">I'll be handling your invoicing from here on in.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
@@ -154,12 +154,12 @@ export function welcomeEmail({ name }: { name: string }): {
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
       Talk soon,<br>
-      <strong style="color:#111827;">Dottie 💚</strong>
+      <strong style="color:#111827;">Go Dottie 💚</strong>
     </p>
   `
 
   return {
-    subject: `Hi ${firstName} — I'm Dottie, and I'm here to help! 👋`,
+    subject: `Hi ${firstName} — I'm Go Dottie, and I'm here to help! 👋`,
     html: baseLayout(content),
   }
 }
@@ -222,12 +222,12 @@ export function trialExpiringEmail({
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
       See you on the other side,<br>
-      <strong style="color:#111827;">Dottie 💚</strong>
+      <strong style="color:#111827;">Go Dottie 💚</strong>
     </p>
   `
 
   return {
-    subject: `Your Dottie access ends in ${daysLeft} ${dayWord}`,
+    subject: `Your Go Dottie access ends in ${daysLeft} ${dayWord}`,
     html: baseLayout(content),
   }
 }
@@ -273,12 +273,12 @@ export function subscriptionConfirmEmail({
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
       Here to help,<br>
-      <strong style="color:#111827;">Dottie 💚</strong>
+      <strong style="color:#111827;">Go Dottie 💚</strong>
     </p>
   `
 
   return {
-    subject: "You're all set! Dottie subscription confirmed",
+    subject: "You're all set! Go Dottie subscription confirmed",
     html: baseLayout(content),
   }
 }
@@ -335,7 +335,7 @@ export function paymentReminderEmail({
     </table>
 
     ${payUrl ? ctaButton('Pay now', payUrl) : ''}
-    ${payUrl ? `<p style="margin:0 0 16px;font-size:12px;color:#6b7280;">Your childminder uses their own Stripe or PayPal. Dottie doesn't handle payments, refunds or disputes.</p>` : ''}
+    ${payUrl ? `<p style="margin:0 0 16px;font-size:12px;color:#6b7280;">Your childminder uses their own Stripe or PayPal. Go Dottie doesn't handle payments, refunds or disputes.</p>` : ''}
     ${ctaButton('View invoice', publicUrl)}
 
     <p style="margin:0;font-size:14px;line-height:1.6;color:#6b7280;">
@@ -343,7 +343,7 @@ export function paymentReminderEmail({
     </p>
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Dottie
+      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Go Dottie
     </p>
   `
 
@@ -413,7 +413,7 @@ export function paymentReceivedEmail({
     </p>
 
     <p style="margin:20px 0 0;font-size:14px;color:#374151;">
-      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Dottie
+      Sent on behalf of <strong style="color:#111827;">${esc(childminderName)}</strong> by Go Dottie
     </p>
   `
 
@@ -434,14 +434,14 @@ export function escalationEmail(input: {
     .filter(Boolean)
     .join(' ')
   const href = `${APP_URL}/enquiries/${encodeURIComponent(input.prospectId)}`
-  const items = (input.reasons.length ? input.reasons : ['Dottie was not sure enough to reply.'])
+  const items = (input.reasons.length ? input.reasons : ['Go Dottie was not sure enough to reply.'])
     .map((r) => `<li style="margin:0 0 6px;font-size:14px;color:#374151;line-height:1.5;">${esc(r)}</li>`)
     .join('')
   const hi = input.displayName ? `Hi ${esc(firstName(input.displayName))},` : 'Hi,'
   const content = `
-    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">Dottie needs you</h1>
+    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">Go Dottie needs you</h1>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      ${hi} ${esc(who)} emailed about a place. Dottie could not answer with full confidence, so she did not send a reply.
+      ${hi} ${esc(who)} emailed about a place. Go Dottie could not answer with full confidence, so she did not send a reply.
     </p>
     <ul style="margin:0 0 8px;padding-left:20px;">${items}</ul>
     ${ctaButton('Review this enquiry', href)}
@@ -477,7 +477,7 @@ export function placeOfferEmail(input: {
       ${esc(extra)}
     </p>
     ${ctaButton('Complete signup', input.formUrl)}
-    <p style="margin:0;font-size:13px;color:#6b7280;">This link expires in 7 days. You do not pay through Dottie — invoices will show bank transfer details.</p>
+    <p style="margin:0;font-size:13px;color:#6b7280;">This link expires in 7 days. You do not pay through Go Dottie — invoices will show bank transfer details.</p>
   `
   return {
     subject: `Place offered${child ? child : ''} — complete signup`,

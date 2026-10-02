@@ -41,7 +41,7 @@ export default function FundedHoursIndex() {
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
               <span className="text-white text-xs font-extrabold">D.</span>
             </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
           <Link
             href="/signup"

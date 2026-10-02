@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await resend.emails.send({
-      from: 'Dottie Contact Form <hello@godottie.cloud>',
+      from: 'Go Dottie Contact Form <hello@godottie.cloud>',
       to: 'support@godottie.cloud',
       replyTo: email.trim(),
       subject: `[Contact] ${subject?.trim() || '(no subject)'}`,
@@ -120,13 +120,13 @@ export async function POST(req: NextRequest) {
 
     // Send confirmation to the sender
     await resend.emails.send({
-      from: 'Dottie <hello@godottie.cloud>',
+      from: 'Go Dottie <hello@godottie.cloud>',
       to: email.trim(),
       subject: "Got your message — I'll be in touch soon 👋",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
           <div style="background: linear-gradient(135deg, #10b981, #0ea5e9); padding: 24px 32px; border-radius: 12px 12px 0 0;">
-            <p style="margin: 0; font-size: 20px; font-weight: 700; color: #fff;">Dottie</p>
+            <p style="margin: 0; font-size: 20px; font-weight: 700; color: #fff;">Go Dottie</p>
             <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,0.8);">Invoicing simplified.</p>
           </div>
           <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none;">
@@ -137,11 +137,11 @@ export async function POST(req: NextRequest) {
             </p>
             <p style="color: #374151; line-height: 1.6; margin: 0;">
               Talk soon,<br/>
-              <strong>Dottie 💚</strong>
+              <strong>Go Dottie 💚</strong>
             </p>
           </div>
           <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; padding: 16px 32px; text-align: center;">
-            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Dottie · <a href="https://www.godottie.cloud" style="color: #059669;">www.godottie.cloud</a></p>
+            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Go Dottie · <a href="https://www.godottie.cloud" style="color: #059669;">www.godottie.cloud</a></p>
           </div>
         </div>
       `,

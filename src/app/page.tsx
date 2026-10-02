@@ -9,7 +9,7 @@ import Pricing from '@/components/marketing/Pricing'
 import { marketing, marketingCtaClass, ctaRadiusStyle, pricingAmounts } from '@/lib/marketing.mjs'
 
 export const metadata: Metadata = {
-  title: 'Dottie — AI assistant for UK childminders',
+  title: 'Go Dottie — AI assistant for UK childminders',
   description: marketing.subhead,
   alternates: { canonical: 'https://www.godottie.cloud' },
   openGraph: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'Dottie',
+  name: 'Go Dottie',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: 'https://www.godottie.cloud',
@@ -107,7 +107,7 @@ export default async function RootPage() {
 
         <section className="px-6 py-24">
           <div className="max-w-[1120px] mx-auto">
-            <p className="marketing-kicker mb-4" style={{ color: marketing.muted }}>What Dottie runs</p>
+            <p className="marketing-kicker mb-4" style={{ color: marketing.muted }}>What Go Dottie runs</p>
             <h2 className="text-[34px] sm:text-[44px] tracking-[-0.03em] font-semibold mb-12 max-w-[18ch]">
               One assistant. The whole business end.
             </h2>

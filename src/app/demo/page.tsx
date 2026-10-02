@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: marketing.demoSubhead,
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Book a demo — Dottie',
+    title: 'Book a demo — Go Dottie',
     description: marketing.demoSubhead,
     url: URL,
     type: 'website',
@@ -45,7 +45,7 @@ export default function DemoPage() {
         <div className="overflow-hidden border" style={{ borderRadius: 18, borderColor: marketing.hairline }}>
           <iframe
             src={EMBED_URL}
-            title="Book a demo with Dottie"
+            title="Book a demo with Go Dottie"
             className="w-full"
             style={{ height: '700px', border: 0 }}
             loading="lazy"

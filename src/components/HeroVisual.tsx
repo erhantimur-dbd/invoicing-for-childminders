@@ -102,7 +102,7 @@ export default function HeroVisual() {
                   <div className="relative max-w-[85%]">
                     <div className="absolute top-0 -left-1.5" style={{ width: 0, height: 0, borderStyle: 'solid', borderWidth: '0 7px 7px 0', borderColor: 'transparent white transparent transparent' }} />
                     <div className="bg-white rounded-xl rounded-tl-none px-3 py-1.5 shadow-sm">
-                      <p className="text-[#075E54] text-[9px] font-bold leading-none mb-0.5">Dottie</p>
+                      <p className="text-[#075E54] text-[9px] font-bold leading-none mb-0.5">Go Dottie</p>
                       <p className="text-gray-800 text-xs leading-snug">Hi Sarah! 👋 Here&apos;s Daniel&apos;s childcare invoice for this week.</p>
                       <p className="text-gray-400 text-[9px] text-right mt-0.5">9:41 AM</p>
                     </div>

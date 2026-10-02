@@ -183,7 +183,7 @@ async function sendCronNotificationEmail(
     : ''
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'Dottie <invoices@godottie.cloud>',
+    from: process.env.RESEND_FROM_EMAIL || 'Go Dottie <invoices@godottie.cloud>',
     to: profile.email,
     subject: `✨ ${created.length} draft invoice${created.length !== 1 ? 's' : ''} generated — w/c ${weekLabel}`,
     html: `

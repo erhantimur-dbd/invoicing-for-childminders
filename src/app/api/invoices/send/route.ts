@@ -109,14 +109,14 @@ export async function POST(request: NextRequest) {
   const viewUrl = `${origin.replace(/\/$/, '')}/invoice/${invoice.id}`
   const bankHtml = payee.account_number ? `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-top:20px;">
-      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Dottie</p>
+      <p style="color:#166534;font-weight:600;margin:0 0 8px;">Pay by bank transfer — not through Go Dottie</p>
       ${payee.bank_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Bank:</strong> ${esc(payee.bank_name)}</p>` : ''}
       ${payee.account_name ? `<p style="margin:2px 0;font-size:14px;"><strong>Account name:</strong> ${esc(payee.account_name)}</p>` : ''}
       ${payee.sort_code ? `<p style="margin:2px 0;font-size:14px;"><strong>Sort code:</strong> ${esc(payee.sort_code)}</p>` : ''}
       ${payee.account_number ? `<p style="margin:2px 0;font-size:14px;"><strong>Account number:</strong> ${esc(payee.account_number)}</p>` : ''}
       <p style="margin:8px 0 0;font-size:14px;color:#6b7280;"><strong>Reference:</strong> ${esc(invoice.invoice_number)}</p>
     </div>
-  ` : `<p style="margin-top:16px;font-size:14px;color:#6b7280;">Pay by bank transfer using the details your childminder has given you. You do not pay through Dottie.</p>`
+  ` : `<p style="margin-top:16px;font-size:14px;color:#6b7280;">Pay by bank transfer using the details your childminder has given you. You do not pay through Go Dottie.</p>`
 
   const html = `
     <!DOCTYPE html>

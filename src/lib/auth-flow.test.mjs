@@ -59,7 +59,7 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
   assert.match(signup, /subscribeNext/)
   assert.match(signup, /data\.session/)
   assert.match(signup, /Check your inbox/)
-  assert.ok(signup.indexOf('I agree to Dottie') < signup.indexOf('Create account'))
+  assert.ok(signup.indexOf('I agree to Go Dottie') < signup.indexOf('Create account'))
 
   const forgot = read('app/(auth)/forgot-password/page.tsx')
   assert.match(forgot, /authCallbackRedirect/)
@@ -146,7 +146,7 @@ test('signup lands on Enquiries subscribe; proxy splits the two products', () =>
   assert.match(signup, /subscribeNext/)
   assert.match(signup, /product=enquiries/)
   assert.match(signup, /Create account/)
-  assert.ok(signup.indexOf('I agree to Dottie') < signup.indexOf('Create account'))
+  assert.ok(signup.indexOf('I agree to Go Dottie') < signup.indexOf('Create account'))
 
   const proxy = read('proxy.ts')
   assert.match(proxy, /\/children/)
@@ -166,7 +166,7 @@ test('signup lands on Enquiries subscribe; proxy splits the two products', () =>
 
   const subscribe = read('app/subscribe/page.tsx')
   assert.match(subscribe, /get\('product'\) !== 'invoicing'/)
-  assert.match(subscribe, /Start Dottie/)
+  assert.match(subscribe, /Start Go Dottie/)
   assert.match(subscribe, /Add invoicing/)
 })
 

@@ -46,7 +46,7 @@ export default function SiteFooter() {
         className="max-w-[1120px] mx-auto px-6 pb-10 pt-2 text-[12px]"
         style={{ color: marketing.heroMuted, borderTop: `1px solid ${marketing.heroHairline}` }}
       >
-        <p className="pt-6">© {new Date().getFullYear()} Dottie. All rights reserved.</p>
+        <p className="pt-6">© {new Date().getFullYear()} Go Dottie. All rights reserved.</p>
       </div>
     </footer>
   )

@@ -6,10 +6,10 @@ const URL = 'https://www.godottie.cloud/guides/mtd'
 export const metadata: Metadata = {
   title: 'Making Tax Digital for childminders — the 2026 guide',
   description:
-    'MTD for Income Tax kicks in for £50k+ UK sole traders from April 2026, then £30k from April 2027 and £20k from April 2028. What it means for childminders — what to do, when, and how Dottie helps.',
+    'MTD for Income Tax kicks in for £50k+ UK sole traders from April 2026, then £30k from April 2027 and £20k from April 2028. What it means for childminders — what to do, when, and how Go Dottie helps.',
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Making Tax Digital for childminders — Dottie',
+    title: 'Making Tax Digital for childminders — Go Dottie',
     description:
       'Everything UK childminders need to know about MTD for Income Tax (April 2026 onward). Thresholds, quarterly updates, what software has to do.',
     url: URL,
@@ -45,11 +45,11 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Do I have to use software, or can I keep doing my spreadsheet?',
-    a: 'Once you are within MTD you must use software that connects to HMRC — a "spreadsheet plus bridging software" approach is allowed. A standalone spreadsheet is not. Dottie handles the digital-records and quarterly-summary side; for the actual HMRC filing we integrate with HMRC-recognised filing tools (FreeAgent, QuickBooks, Xero) so you do not need to learn a separate package.',
+    a: 'Once you are within MTD you must use software that connects to HMRC — a "spreadsheet plus bridging software" approach is allowed. A standalone spreadsheet is not. Go Dottie handles the digital-records and quarterly-summary side; for the actual HMRC filing we integrate with HMRC-recognised filing tools (FreeAgent, QuickBooks, Xero) so you do not need to learn a separate package.',
   },
   {
     q: 'What if I am under the £20k threshold?',
-    a: 'You stay on the existing Self Assessment process — one return a year, due 31 January. There has been no announcement of MTD applying below £20k. You can still benefit from digital record-keeping (and Dottie still helps), but it is not yet mandatory.',
+    a: 'You stay on the existing Self Assessment process — one return a year, due 31 January. There has been no announcement of MTD applying below £20k. You can still benefit from digital record-keeping (and Go Dottie still helps), but it is not yet mandatory.',
   },
 ]
 
@@ -60,10 +60,10 @@ const articleJsonLd = {
   description: metadata.description,
   datePublished: '2026-05-06',
   dateModified: '2026-05-06',
-  author: { '@type': 'Organization', name: 'Dottie', url: 'https://www.godottie.cloud' },
+  author: { '@type': 'Organization', name: 'Go Dottie', url: 'https://www.godottie.cloud' },
   publisher: {
     '@type': 'Organization',
-    name: 'Dottie',
+    name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
     logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
   },
@@ -84,7 +84,7 @@ const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Dottie', item: 'https://www.godottie.cloud' },
+    { '@type': 'ListItem', position: 1, name: 'Go Dottie', item: 'https://www.godottie.cloud' },
     { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://www.godottie.cloud/guides' },
     { '@type': 'ListItem', position: 3, name: 'MTD for childminders', item: URL },
   ],
@@ -103,7 +103,7 @@ export default function Page() {
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
               <span className="text-white text-xs font-extrabold">D.</span>
             </span>
-            <span className="font-bold text-gray-900 text-sm">Dottie</span>
+            <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
           <Link href="/signup" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
             Get started →
@@ -215,26 +215,26 @@ export default function Page() {
 
         {/* Dottie pivot */}
         <h2 id="how-dottie-helps" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-4">
-          4. How Dottie fits in
+          4. How Go Dottie fits in
         </h2>
         <p className="text-gray-700 leading-relaxed mb-4">
-          Dottie keeps digital records the way MTD requires: every invoice you send and every expense you log is captured as a categorised, dated, digital entry — not a row on a paper book. From there, two paths to HMRC:
+          Go Dottie keeps digital records the way MTD requires: every invoice you send and every expense you log is captured as a categorised, dated, digital entry — not a row on a paper book. From there, two paths to HMRC:
         </p>
         <ul className="space-y-2 mb-6 text-gray-700">
           <li className="flex gap-3">
             <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-            <span><strong className="text-gray-900">Bridge to FreeAgent / Xero / QuickBooks.</strong> <span className="text-gray-600">Export an MTD-shaped CSV from Dottie&apos;s reports into your existing bookkeeping software. We are working on a one-click sync to FreeAgent (free for FreeAgent customers of NatWest/RBS/Mettle).</span></span>
+            <span><strong className="text-gray-900">Bridge to FreeAgent / Xero / QuickBooks.</strong> <span className="text-gray-600">Export an MTD-shaped CSV from Go Dottie&apos;s reports into your existing bookkeeping software. We are working on a one-click sync to FreeAgent (free for FreeAgent customers of NatWest/RBS/Mettle).</span></span>
           </li>
           <li className="flex gap-3">
             <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-            <span><strong className="text-gray-900">Direct quarterly submission (roadmap).</strong> <span className="text-gray-600">A native Dottie + HMRC connection so you never leave the app. Targeted for the 2027 threshold drop.</span></span>
+            <span><strong className="text-gray-900">Direct quarterly submission (roadmap).</strong> <span className="text-gray-600">A native Go Dottie + HMRC connection so you never leave the app. Targeted for the 2027 threshold drop.</span></span>
           </li>
         </ul>
 
         <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Get MTD-ready records from day one</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
-            Dottie keeps every invoice and expense as a digital record HMRC will accept under MTD.
+            Go Dottie keeps every invoice and expense as a digital record HMRC will accept under MTD.
           </p>
           <Link href="/signup" className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-colors active:scale-95">
             Get started →

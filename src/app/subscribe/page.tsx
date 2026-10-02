@@ -144,7 +144,7 @@ export default function SubscribePage() {
             </span>
           </div>
           <p className="text-white/70 text-sm">
-            Your complimentary access is active. Pick a plan before it ends to keep using Dottie.
+            Your complimentary access is active. Pick a plan before it ends to keep using Go Dottie.
           </p>
         </div>
       ) : (
@@ -153,7 +153,7 @@ export default function SubscribePage() {
             <span className="font-semibold text-lg">Choose your plan</span>
           </div>
           <p className="text-white/70 text-sm">
-            Start with Dottie. Add invoicing when a child is on roll. Same account. Cancel anytime.
+            Start with Go Dottie. Add invoicing when a child is on roll. Same account. Cancel anytime.
             {' '}
             <Link href="/demo" className="underline font-semibold text-white">
               Book a demo
@@ -211,7 +211,7 @@ export default function SubscribePage() {
         )}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#123a4a] mb-2">Dottie</div>
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#123a4a] mb-2">Go Dottie</div>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-extrabold text-gray-900">
                 £{ENQUIRIES_PRICE.annual} a year
@@ -230,7 +230,7 @@ export default function SubscribePage() {
               disabled={loadingPlan !== null}
               className="shrink-0 px-6 py-3 bg-[#123a4a] hover:bg-[#0c2c38] text-white font-semibold disabled:opacity-60"
             >
-              {loadingPlan === 'enquiries' ? 'Redirecting…' : 'Start Dottie'}
+              {loadingPlan === 'enquiries' ? 'Redirecting…' : 'Start Go Dottie'}
             </button>
           )}
         </div>

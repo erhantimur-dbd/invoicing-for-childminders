@@ -1,8 +1,8 @@
 export const PAY_DISCLAIMER =
-  "You use your own Stripe account. Dottie doesn't handle payments, refunds or disputes."
+  "You use your own Stripe account. Go Dottie doesn't handle payments, refunds or disputes."
 
 export const PARENT_PAY_DISCLAIMER =
-  "Your childminder uses their own Stripe or PayPal. Dottie doesn't handle payments, refunds or disputes."
+  "Your childminder uses their own Stripe or PayPal. Go Dottie doesn't handle payments, refunds or disputes."
 
 export function invoicePayHref(input) {
   if (!input?.acceptOnlinePayments) return null

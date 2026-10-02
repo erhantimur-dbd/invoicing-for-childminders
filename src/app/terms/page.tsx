@@ -7,7 +7,7 @@ import { enquiriesQuotaCopy } from '@/lib/enquiries/quota.mjs'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Terms and conditions for using Dottie — invoicing software for UK childminders.',
+  description: 'Terms and conditions for using Go Dottie — invoicing software for UK childminders.',
   alternates: { canonical: 'https://www.godottie.cloud/terms' },
   robots: { index: true, follow: false },
 }
@@ -68,7 +68,7 @@ export default function TermsPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Terms of Service</h1>
           <p className="mt-2 text-sm text-gray-500">Last updated: {LAST_UPDATED}</p>
           <div className="mt-4 p-4 rounded-xl bg-[#eef0f3] border text-sm text-[#123a4a]">
-            Please read these terms carefully before using Dottie. By creating an account, you agree to be bound by them.
+            Please read these terms carefully before using Go Dottie. By creating an account, you agree to be bound by them.
           </div>
         </div>
 
@@ -97,18 +97,18 @@ export default function TermsPage() {
 
             <Section id="agreement" title="1. Agreement to terms">
               <P>
-                These Terms of Service (&quot;Terms&quot;) govern your use of Dottie (&quot;Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;), available at <strong>www.godottie.cloud</strong> and associated applications.
+                These Terms of Service (&quot;Terms&quot;) govern your use of Go Dottie (&quot;Go Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;), available at <strong>www.godottie.cloud</strong> and associated applications.
               </P>
               <P>
                 By creating an account or using the service, you agree to these Terms and our{' '}
                 <Link href="/privacy" className="text-[#123a4a] underline">Privacy Policy</Link>.
-                If you do not agree, you must not use Dottie.
+                If you do not agree, you must not use Go Dottie.
               </P>
             </Section>
 
             <Section id="the-service" title="2. The service">
               <P>
-                Dottie is an invoicing and administration tool designed for UK childminders and childcare professionals. The service allows you to:
+                Go Dottie is an invoicing and administration tool designed for UK childminders and childcare professionals. The service allows you to:
               </P>
               <Ul items={[
                 'Create and manage child and parent records',
@@ -119,12 +119,12 @@ export default function TermsPage() {
                 'Manage bank account details for payment collection',
               ]} />
               <P>
-                Dottie is a tool to assist with administration. It does not constitute financial, tax, or legal advice. You remain responsible for verifying the accuracy of all invoices, rates, and records before sending them to parents.
+                Go Dottie is a tool to assist with administration. It does not constitute financial, tax, or legal advice. You remain responsible for verifying the accuracy of all invoices, rates, and records before sending them to parents.
               </P>
             </Section>
 
             <Section id="eligibility" title="3. Eligibility">
-              <P>You must be at least 18 years old to use Dottie. By creating an account, you confirm that:</P>
+              <P>You must be at least 18 years old to use Go Dottie. By creating an account, you confirm that:</P>
               <Ul items={[
                 'You are 18 years of age or older',
                 'You are a childminder, childcare provider, or otherwise authorised to process the data you enter',
@@ -143,12 +143,12 @@ export default function TermsPage() {
                 if you believe your account has been compromised.
               </P>
               <P>
-                We reserve the right to suspend or terminate accounts that violate these Terms, are suspected of fraudulent activity, or are otherwise used in a manner harmful to Dottie or its users.
+                We reserve the right to suspend or terminate accounts that violate these Terms, are suspected of fraudulent activity, or are otherwise used in a manner harmful to Go Dottie or its users.
               </P>
             </Section>
 
             <Section id="subscription" title="5. Subscription and billing">
-              <P>Access to Dottie requires an active subscription. Current list prices:</P>
+              <P>Access to Go Dottie requires an active subscription. Current list prices:</P>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries</p>
@@ -173,7 +173,7 @@ export default function TermsPage() {
 
             <Section id="free-trial" title="6. Free trials">
               <P>
-                Free trials are not offered as standard. New accounts subscribe to a plan to access Dottie. We may, at our sole discretion, offer a free trial to selected accounts — for example following a demo or qualification conversation.
+                Free trials are not offered as standard. New accounts subscribe to a plan to access Go Dottie. We may, at our sole discretion, offer a free trial to selected accounts — for example following a demo or qualification conversation.
               </P>
               <P>
                 Where a trial is offered, we reserve the right to modify or terminate it at any time. Only one free trial is permitted per person, and attempting to obtain multiple trials by creating multiple accounts is a violation of these Terms.
@@ -196,7 +196,7 @@ export default function TermsPage() {
             </Section>
 
             <Section id="acceptable-use" title="8. Acceptable use">
-              <P>You agree not to use Dottie to:</P>
+              <P>You agree not to use Go Dottie to:</P>
               <Ul items={[
                 'Enter false, fraudulent, or misleading information',
                 'Create invoices for services not actually provided',
@@ -213,7 +213,7 @@ export default function TermsPage() {
 
             <Section id="your-data" title="9. Your data">
               <P>
-                You retain full ownership of the data you enter into Dottie — your profile, children&apos;s records, invoices, and expenses. We do not claim any rights over your data.
+                You retain full ownership of the data you enter into Go Dottie — your profile, children&apos;s records, invoices, and expenses. We do not claim any rights over your data.
               </P>
               <P>
                 You grant us a limited licence to store and process your data for the sole purpose of providing the service. This licence ends when you delete your account (subject to legal retention obligations).
@@ -226,16 +226,16 @@ export default function TermsPage() {
 
             <Section id="intellectual-property" title="10. Intellectual property">
               <P>
-                All software, design, trademarks, and content that make up Dottie are owned by us or our licensors. These Terms do not grant you any rights to our intellectual property beyond the right to use the service as described.
+                All software, design, trademarks, and content that make up Go Dottie are owned by us or our licensors. These Terms do not grant you any rights to our intellectual property beyond the right to use the service as described.
               </P>
             </Section>
 
             <Section id="disclaimers" title="11. Disclaimers">
               <P>
-                Dottie is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind, express or implied. We do not warrant that the service will be uninterrupted, error-free, or completely secure.
+                Go Dottie is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind, express or implied. We do not warrant that the service will be uninterrupted, error-free, or completely secure.
               </P>
               <P>
-                <strong>Dottie is not financial, tax, or legal advice.</strong> Invoice amounts, rates, and records are generated based on information you provide. You are responsible for verifying all figures before sending invoices to parents or submitting tax returns to HMRC.
+                <strong>Go Dottie is not financial, tax, or legal advice.</strong> Invoice amounts, rates, and records are generated based on information you provide. You are responsible for verifying all figures before sending invoices to parents or submitting tax returns to HMRC.
               </P>
               <P>
                 We are not responsible for any errors in invoices arising from incorrect data entered by you.
@@ -244,7 +244,7 @@ export default function TermsPage() {
 
             <Section id="liability" title="12. Limitation of liability">
               <P>
-                To the maximum extent permitted by UK law, Dottie&apos;s total liability to you for any claim arising from use of the service is limited to the amount you paid us in the 3 months preceding the claim.
+                To the maximum extent permitted by UK law, Go Dottie&apos;s total liability to you for any claim arising from use of the service is limited to the amount you paid us in the 3 months preceding the claim.
               </P>
               <P>We are not liable for:</P>
               <Ul items={[
@@ -261,7 +261,7 @@ export default function TermsPage() {
 
             <Section id="changes" title="13. Changes to terms">
               <P>
-                We may update these Terms from time to time. We will notify you by email or in-app notice at least 14 days before material changes take effect. Continued use of Dottie after changes come into effect constitutes acceptance of the revised Terms.
+                We may update these Terms from time to time. We will notify you by email or in-app notice at least 14 days before material changes take effect. Continued use of Go Dottie after changes come into effect constitutes acceptance of the revised Terms.
               </P>
               <P>
                 If you do not agree to updated Terms, you may cancel your account before the changes take effect.
@@ -277,7 +277,7 @@ export default function TermsPage() {
             <Section id="contact" title="15. Contact us">
               <P>For questions about these Terms, please contact us:</P>
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1">
-                <p className="font-semibold text-gray-900">Dottie</p>
+                <p className="font-semibold text-gray-900">Go Dottie</p>
                 <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline block">{CONTACT_EMAIL}</a>
                 <p className="text-gray-500">www.godottie.cloud</p>
               </div>

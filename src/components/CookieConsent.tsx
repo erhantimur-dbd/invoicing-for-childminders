@@ -58,7 +58,7 @@ export default function CookieConsent({ gaId }: { gaId: string }) {
         >
           <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-black/10 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4">
             <p className="text-sm text-gray-600 leading-relaxed flex-1">
-              We use essential cookies to run Dottie. With your consent we also
+              We use essential cookies to run Go Dottie. With your consent we also
               use Google Analytics to understand how the site is used. See our{' '}
               <Link href="/privacy" className="text-emerald-600 font-medium underline underline-offset-2 hover:text-emerald-700">
                 privacy policy

@@ -1,6 +1,6 @@
 {
-  "name": "Dottie — Invoicing simplified.",
-  "short_name": "Dottie",
+  "name": "Go Dottie — Invoicing simplified.",
+  "short_name": "Go Dottie",
   "description": "Invoicing on autopilot for UK childminders and childcare professionals.",
   "start_url": "/",
   "display": "standalone",

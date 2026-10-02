@@ -103,7 +103,7 @@ export default function SignupPlacePage() {
         <div className="max-w-md text-center space-y-2">
           <h1 className="text-2xl font-bold text-gray-900">Thank you</h1>
           <p className="text-gray-600 text-sm">
-            {displayName || 'Your childminder'} has your details. Invoices will be sent by email with bank transfer details — you do not pay through Dottie.
+            {displayName || 'Your childminder'} has your details. Invoices will be sent by email with bank transfer details — you do not pay through Go Dottie.
           </p>
         </div>
       </div>
@@ -197,14 +197,14 @@ export default function SignupPlacePage() {
             {bank && (bank.sort_code || bank.account_number) ? (
               <div className="text-sm text-gray-700 space-y-1">
                 <p className="font-semibold text-gray-900">How invoices are paid</p>
-                <p>Bank transfer — you do not pay through Dottie.</p>
+                <p>Bank transfer — you do not pay through Go Dottie.</p>
                 {bank.account_name ? <p>Account name: {bank.account_name}</p> : null}
                 {bank.bank_name ? <p>Bank: {bank.bank_name}</p> : null}
                 {bank.sort_code ? <p>Sort code: {bank.sort_code}</p> : null}
                 {bank.account_number ? <p>Account number: {bank.account_number}</p> : null}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Invoices will include bank transfer details. You do not pay through Dottie.</p>
+              <p className="text-sm text-gray-500">Invoices will include bank transfer details. You do not pay through Go Dottie.</p>
             )}
           </div>
         ) : null}

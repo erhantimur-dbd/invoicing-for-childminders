@@ -90,7 +90,7 @@ export default function ProspectDetail({
       })
       toast.success(
         data.needsHuman
-          ? 'Dottie needs you — she was not sure enough to send this.'
+          ? 'Go Dottie needs you — she was not sure enough to send this.'
           : 'Draft ready — read it, then send from your own email.',
       )
     } catch (err) {
@@ -182,7 +182,7 @@ export default function ProspectDetail({
 
       {prospect.needs_human ? (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-950 space-y-2">
-          <p className="font-semibold">Dottie needs you</p>
+          <p className="font-semibold">Go Dottie needs you</p>
           <p>She could not answer this with full confidence, so she did not send it.</p>
           <ul className="list-disc pl-5 space-y-1">
             {(prospect.escalate_reasons || []).map((r) => (
@@ -204,7 +204,7 @@ export default function ProspectDetail({
         <div className="rounded-2xl border border-emerald-100 bg-white p-4 space-y-4">
           <p className="font-semibold text-gray-900">Add to Your answers</p>
           <p className="text-sm text-gray-500">
-            Dottie can remember this for next time. Approve only setting facts, never a child&apos;s health.
+            Go Dottie can remember this for next time. Approve only setting facts, never a child&apos;s health.
           </p>
           {pending.map((item) => (
             <PendingFactCard
@@ -285,7 +285,7 @@ export default function ProspectDetail({
       {prospect.stage === 'started' ? (
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-950 space-y-2">
           <p className="font-semibold">Onboarded</p>
-          <p>Dottie can raise invoices from their days and rates. Parents pay by bank transfer — not through Dottie.</p>
+          <p>Go Dottie can raise invoices from their days and rates. Parents pay by bank transfer — not through Go Dottie.</p>
           <Link
             href="/invoices/new"
             className="inline-flex items-center h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium"
@@ -329,7 +329,7 @@ export default function ProspectDetail({
               </Button>
             ) : null}
           </div>
-          <p className="text-xs text-gray-400">Read it before you send. Dottie writes from Your answers — she does not send this herself yet.</p>
+          <p className="text-xs text-gray-400">Read it before you send. Go Dottie writes from Your answers — she does not send this herself yet.</p>
         </div>
       ) : null}
 

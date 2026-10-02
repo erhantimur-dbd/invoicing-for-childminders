@@ -5,7 +5,7 @@ import { marketing } from '@/lib/marketing.mjs'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'How Dottie collects, uses, and protects your personal data in line with UK GDPR and the Data Protection Act 2018.',
+  description: 'How Go Dottie collects, uses, and protects your personal data in line with UK GDPR and the Data Protection Act 2018.',
   alternates: { canonical: 'https://www.godottie.cloud/privacy' },
   robots: { index: true, follow: false },
 }
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
 
             <Section id="who-we-are" title="1. Who we are">
               <P>
-                Dottie (&quot;Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is an invoicing and business management tool built specifically for UK childminders and childcare professionals. Our service is available at <strong>www.godottie.cloud</strong>.
+                Go Dottie (&quot;Go Dottie&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is an invoicing and business management tool built specifically for UK childminders and childcare professionals. Our service is available at <strong>www.godottie.cloud</strong>.
               </P>
               <P>
                 We are the data controller for the personal data you provide to us. If you have any questions about this policy or how we handle your data, please contact us at{' '}
@@ -166,7 +166,7 @@ export default function PrivacyPage() {
 
             <Section id="gmail-enquiries" title="4. Parent enquiries">
               <P>
-                Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so new parent emails are ingested. Automatic send is off unless you turn it on. Dottie does not sync your whole personal mailbox as a product — she looks for new parent enquiry mail.
+                Go Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so new parent emails are ingested. Automatic send is off unless you turn it on. Go Dottie does not sync your whole personal mailbox as a product — she looks for new parent enquiry mail.
               </P>
 
               <div className="space-y-4">
@@ -181,8 +181,8 @@ export default function PrivacyPage() {
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="font-semibold text-gray-800 mb-2">How sending works</p>
                   <Ul items={[
-                    <>Dottie drafts a visit letter in your voice. <strong>Automatic send is off until you turn it on</strong> in Your answers. With it off, you copy the draft into Gmail yourself.</>,
-                    <>If you connect Gmail, you can disconnect it at any time. Connecting Calendar lets Dottie write the visit you confirm onto your Google Calendar.</>,
+                    <>Go Dottie drafts a visit letter in your voice. <strong>Automatic send is off until you turn it on</strong> in Your answers. With it off, you copy the draft into Gmail yourself.</>,
+                    <>If you connect Gmail, you can disconnect it at any time. Connecting Calendar lets Go Dottie write the visit you confirm onto your Google Calendar.</>,
                   ]} />
                 </div>
 
@@ -266,7 +266,7 @@ export default function PrivacyPage() {
                   },
                   {
                     name: 'Resend',
-                    role: 'Transactional email delivery, and inbound forwarding of parent emails to your unique Dottie address when you use that backup.',
+                    role: 'Transactional email delivery, and inbound forwarding of parent emails to your unique Go Dottie address when you use that backup.',
                     location: 'EU',
                     link: 'https://resend.com/legal/privacy-policy',
                   },
@@ -308,7 +308,7 @@ export default function PrivacyPage() {
                 As a childminder, you enter data about the children in your care. This data belongs to you and is used solely to provide the invoicing service. We act as your data processor for this information — you are the data controller for the children&apos;s data.
               </P>
               <P>
-                By using Dottie, you confirm that you have appropriate consent or another lawful basis (such as the performance of a contract with the child&apos;s parent/guardian) to enter and process this data within the app.
+                By using Go Dottie, you confirm that you have appropriate consent or another lawful basis (such as the performance of a contract with the child&apos;s parent/guardian) to enter and process this data within the app.
               </P>
               <P>
                 We store children&apos;s dates of birth for the sole purpose of verifying parent identity when they access an invoice. This verification step protects your bank details from unauthorised access.
@@ -411,7 +411,7 @@ export default function PrivacyPage() {
                 We may update this Privacy Policy from time to time. We will notify you of significant changes by email or by displaying a notice in the app. The &quot;Last updated&quot; date at the top of this page reflects the most recent revision.
               </P>
               <P>
-                Continued use of Dottie after a change is posted constitutes your acceptance of the updated policy.
+                Continued use of Go Dottie after a change is posted constitutes your acceptance of the updated policy.
               </P>
             </Section>
 
@@ -420,7 +420,7 @@ export default function PrivacyPage() {
                 For any questions, requests to exercise your rights, or data concerns, please contact us:
               </P>
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1">
-                <p className="font-semibold text-gray-900">Dottie</p>
+                <p className="font-semibold text-gray-900">Go Dottie</p>
                 <p>
                   <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#123a4a] underline">{CONTACT_EMAIL}</a>
                 </p>

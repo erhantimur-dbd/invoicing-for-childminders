@@ -86,7 +86,7 @@ function DobGate({ invoiceId, onVerified }: { invoiceId: string; onVerified: (to
             <span className="text-white font-extrabold text-sm">D.</span>
           </div>
           <div>
-            <span className="font-bold text-gray-900">Dottie</span>
+            <span className="font-bold text-gray-900">Go Dottie</span>
             <p className="text-gray-400 text-xs leading-tight">Invoicing simplified.</p>
           </div>
         </div>
@@ -242,7 +242,7 @@ function InvoiceView({ invoiceId, token }: { invoiceId: string; token: string })
           <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-amber-400 rounded-lg flex items-center justify-center shadow-sm">
             <span className="text-white font-extrabold text-xs">D.</span>
           </div>
-          <span className="font-semibold text-gray-900 text-sm">Dottie</span>
+          <span className="font-semibold text-gray-900 text-sm">Go Dottie</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
@@ -292,7 +292,7 @@ function InvoiceView({ invoiceId, token }: { invoiceId: string; token: string })
         </div>
         <p className="text-center text-xs text-gray-400 mt-6 print:hidden">
           This invoice was sent to you via{' '}
-          <span className="font-medium text-emerald-600">Dottie</span>
+          <span className="font-medium text-emerald-600">Go Dottie</span>
           {' '}— invoicing simplified.
         </p>
       </div>

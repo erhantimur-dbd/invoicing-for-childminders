@@ -16,7 +16,7 @@ export default function NotFound() {
           href="/"
           className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-md transition-all active:scale-95"
         >
-          Back to Dottie
+          Back to Go Dottie
         </Link>
       </div>
     </div>

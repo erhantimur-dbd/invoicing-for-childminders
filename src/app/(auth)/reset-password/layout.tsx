@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Set a New Password',
-  description: 'Choose a new password for your Dottie account.',
+  description: 'Choose a new password for your Go Dottie account.',
   alternates: { canonical: 'https://www.godottie.cloud/reset-password' },
   robots: { index: false, follow: false },
 }
