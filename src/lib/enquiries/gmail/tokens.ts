@@ -44,6 +44,19 @@ export async function upsertGmailAccount(
     ? encryptToken(token.refresh_token)
     : previousRefreshEnc ?? null
 
+  const { data: existing, error: existingError } = await supabase
+    .from('enquiry_gmail_accounts')
+    .select('email, connected_at')
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (existingError) {
+    log.error('enquiry_gmail_upsert_failed', existingError, { user_id: userId })
+    throw new Error('Could not save the Gmail connection.')
+  }
+
+  const previousEmail = typeof existing?.email === 'string' ? existing.email.trim().toLowerCase() : ''
+  const sameAddress = previousEmail.length > 0 && previousEmail === email.trim().toLowerCase()
+
   const row = {
     user_id: userId,
     email,
@@ -54,6 +67,9 @@ export async function upsertGmailAccount(
     history_id: profile.historyId ? String(profile.historyId) : null,
     last_error: null,
     updated_at: new Date().toISOString(),
+    // A token refresh of the same address must keep the original connected_at.
+    // A first connect, or a different Gmail address, starts the auto-send window now.
+    ...(sameAddress ? {} : { connected_at: new Date().toISOString() }),
   }
 
   const { data, error } = await supabase
