@@ -277,8 +277,8 @@ export default function SetupWizard() {
 
       {step === 0 && (
         <section className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-gray-900">Tell Dottie about your setting</h1>
-          <p className="text-gray-500 text-sm">This is how she introduces you to new parents. Use the name they already know.</p>
+          <h1 className="text-2xl font-extrabold text-gray-900">Tell Go Dottie about your setting</h1>
+          <p className="text-gray-500 text-sm">This is how it introduces you to new parents. Use the name they already know.</p>
           <div className="space-y-1.5">
             <Label>Your name</Label>
             <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Mary" />
@@ -317,7 +317,7 @@ export default function SetupWizard() {
             <Input type="number" min={0} step="0.01" value={dayRate} onChange={(e) => setDayRate(e.target.value)} placeholder="65" />
             <label className="flex items-center gap-2 text-sm text-gray-600 pt-1">
               <input type="checkbox" checked={quoteFees} onChange={(e) => setQuoteFees(e.target.checked)} />
-              Dottie may mention this rate in emails
+              Go Dottie may mention this rate in emails
             </label>
           </div>
         </section>
@@ -326,7 +326,7 @@ export default function SetupWizard() {
       {step === 1 && (
         <section className="space-y-4">
           <h1 className="text-2xl font-extrabold text-gray-900">Which days have space?</h1>
-          <p className="text-gray-500 text-sm">Only tick days you could take a new child. Dottie will never offer a day you leave blank.</p>
+          <p className="text-gray-500 text-sm">Only tick days you could take a new child. Go Dottie will never offer a day you leave blank.</p>
           <div className="space-y-2">
             {vacancies.map((v, i) => {
               const day = WEEKDAYS.find((d) => d.id === v.weekday)!
@@ -426,7 +426,7 @@ export default function SetupWizard() {
       {step === 3 && (
         <section className="space-y-4">
           <h1 className="text-2xl font-extrabold text-gray-900">When can parents visit?</h1>
-          <p className="text-gray-500 text-sm">Dottie only offers these times. Pick evenings after the children have gone home.</p>
+          <p className="text-gray-500 text-sm">Go Dottie only offers these times. Pick evenings after the children have gone home.</p>
           <label className="flex items-center gap-2 font-medium">
             <input type="checkbox" checked={tueEve} onChange={(e) => setTueEve(e.target.checked)} />
             Tuesday evening
@@ -456,7 +456,7 @@ export default function SetupWizard() {
         <section className="space-y-4">
           <h1 className="text-2xl font-extrabold text-gray-900">Your answers</h1>
           <p className="text-gray-500 text-sm">
-            Dottie only uses what you write here. If you leave an answer blank, she will say she will check with you.
+            Go Dottie only uses what you write here. If you leave an answer blank, it will say it will check with you.
           </p>
           {faqs.map((f, i) => (
             <div key={i} className="rounded-2xl border border-gray-100 bg-white p-4 space-y-2">
@@ -508,12 +508,12 @@ export default function SetupWizard() {
               onChange={(e) => setPackNotes(e.target.value)}
               placeholder="I email my parent contract, child information form, and privacy notice. Settling-in is two mornings in the first week."
             />
-            <p className="text-xs text-gray-400">You can attach the real PDFs later. For now, tell Dottie what the pack includes.</p>
+            <p className="text-xs text-gray-400">You can attach the real PDFs later. For now, tell Go Dottie what the pack includes.</p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white p-4 space-y-4">
             <p className="text-sm font-semibold text-gray-900">Your letter</p>
             <p className="text-xs text-gray-500">
-              Dottie always writes: greeting, the place, hours if needed, a visit ask, then your name. You can add a line and turn waitlist on or off.
+              Go Dottie always writes: greeting, the place, hours if needed, a visit ask, then your name. You can add a line and turn waitlist on or off.
             </p>
             <div className="space-y-2">
               <p className="text-sm font-medium text-gray-800">When you win a place</p>
@@ -568,7 +568,7 @@ export default function SetupWizard() {
             </div>
             {learnedNuances.length > 0 ? (
               <div className="space-y-2">
-                <Label>What Dottie has learned</Label>
+                <Label>What Go Dottie has learned</Label>
                 <ul className="space-y-2">
                   {learnedNuances.map((n, i) => (
                     <li key={`${n}-${i}`} className="flex items-start gap-2 text-sm text-gray-700">
@@ -586,7 +586,7 @@ export default function SetupWizard() {
                 </ul>
               </div>
             ) : (
-              <p className="text-xs text-gray-400">When a draft sounds like you, tap Remember this wording on the parent page. Dottie will reuse those lines.</p>
+              <p className="text-xs text-gray-400">When a draft sounds like you, tap Remember this wording on the parent page. Go Dottie will reuse those lines.</p>
             )}
           </div>
           <div className="rounded-2xl border border-gray-100 bg-white p-4 space-y-3">
@@ -599,7 +599,7 @@ export default function SetupWizard() {
                 placeholder="Optional. Example: Don't mention the dog. Always offer a Saturday if I have listed it."
               />
               <p className="text-xs text-gray-400">
-                These sit under Dottie&apos;s locked rules: polite enquiry letters whose job is to secure a visit.
+                These sit under Go Dottie&apos;s locked rules: polite enquiry letters whose job is to secure a visit.
               </p>
             </div>
           </div>
@@ -613,7 +613,7 @@ export default function SetupWizard() {
 
       {step === 5 && (
         <section className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-gray-900">How should Dottie send?</h1>
+          <h1 className="text-2xl font-extrabold text-gray-900">How should Go Dottie send?</h1>
           <p className="text-gray-500 text-sm">
             You can change this later on New parents. Auto-send is the default. Draft &amp; approve is opt-in. Pause always stops reading Gmail, drafts, and sends.
           </p>

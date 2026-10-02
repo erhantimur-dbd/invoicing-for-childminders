@@ -130,7 +130,7 @@ export default function GmailConnect({
       toast.error('Could not update pause.')
       return
     }
-    toast.success(next ? 'Dottie is paused. She will not read Gmail, draft, or send.' : 'Dottie is back on.')
+    toast.success(next ? 'Go Dottie is paused. It will not read Gmail, draft, or send.' : 'Go Dottie is back on.')
     router.refresh()
   }
 
@@ -150,8 +150,8 @@ export default function GmailConnect({
     }
     toast.success(
       next === 'auto'
-        ? 'Auto-send is on. Dottie will send filtered parent replies after she drafts them.'
-        : 'Draft & approve is on. Dottie will not send until you tap Approve.',
+        ? 'Auto-send is on. Go Dottie will send filtered parent replies after it drafts them.'
+        : 'Draft & approve is on. Go Dottie will not send until you tap Approve.',
     )
     router.refresh()
   }
@@ -207,7 +207,7 @@ export default function GmailConnect({
             <p className="font-semibold text-gray-900">Gmail</p>
             {status?.connected ? (
               <p className="text-sm text-gray-500">
-                Connected as {status.account?.email}. Dottie looks for new childcare enquiries and sends as you on the real Gmail thread.
+                Connected as {status.account?.email}. Go Dottie looks for new childcare enquiries and sends as you on the real Gmail thread.
               </p>
             ) : (
               <p className="text-sm text-gray-500">

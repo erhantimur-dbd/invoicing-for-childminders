@@ -11,7 +11,7 @@ Sender name for every template: **Go Dottie**
 | Confirm signup | Confirm your Go Dottie email | `confirmation.html` |
 | Magic link | Your Go Dottie sign-in link | `magic-link.html` |
 | Reset password | Reset your Go Dottie password | `recovery.html` |
-| Invite user | You are invited to Go Dottie | `invite.html` |
+| Invite user | You've been invited to Go Dottie | `invite.html` |
 | Change email address | Confirm your new Go Dottie email | `email-change.html` |
 | Reauthentication | Your Go Dottie code | `reauthentication.html` |
 

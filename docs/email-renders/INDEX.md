@@ -216,7 +216,7 @@ Dummy data: Sam Taylor / Ava / Jordan Patel / INV-0042 £120.00. Subscription st
 
 ## authInviteUser
 
-- Subject: You are invited to Go Dottie
+- Subject: You've been invited to Go Dottie
 - Trigger: Supabase Auth invite user. Paste supabase/templates/auth/invite.html into the dashboard.
 - Files: `authInviteUser.html`, `authInviteUser.png`, `authInviteUser-dark.png`
 - bare Dottie: pass

@@ -130,7 +130,7 @@ export default function ProspectDetail({
         setDraftBody(data.draft?.body || '')
         toast.success(
           data.needsHuman
-            ? 'Dottie needs you — she was not sure enough to send this.'
+            ? 'Go Dottie needs you — it was not sure enough to send this.'
             : 'Draft ready — read it, then approve to send from Gmail.',
         )
       }
@@ -186,7 +186,7 @@ export default function ProspectDetail({
       toast.success(
         sendMode === 'auto'
           ? 'Sent from your Gmail.'
-          : 'Sent from your Gmail. Dottie will not send again unless you approve.',
+          : 'Sent from your Gmail. Go Dottie will not send again unless you approve.',
       )
       router.refresh()
     } catch (err) {
@@ -265,8 +265,8 @@ export default function ProspectDetail({
 
       {prospect.needs_human ? (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-950 space-y-2">
-          <p className="font-semibold">Dottie needs you</p>
-          <p>She could not answer this with full confidence, so she did not send it.</p>
+          <p className="font-semibold">Go Dottie needs you</p>
+          <p>It could not answer this with full confidence, so it did not send it.</p>
           <ul className="list-disc pl-5 space-y-1">
             {(prospect.escalate_reasons || []).map((r) => (
               <li key={r}>{(ESCALATE_LABELS as Record<string, string>)[r] || r}</li>
@@ -287,7 +287,7 @@ export default function ProspectDetail({
         <div className="rounded-2xl border border-emerald-100 bg-white p-4 space-y-4">
           <p className="font-semibold text-gray-900">Add to Your answers</p>
           <p className="text-sm text-gray-500">
-            Dottie can remember this for next time. Approve only setting facts, never a child&apos;s health.
+            Go Dottie can remember this for next time. Approve only setting facts, never a child&apos;s health.
           </p>
           {pending.map((item) => (
             <PendingFactCard
@@ -301,7 +301,7 @@ export default function ProspectDetail({
 
       {agentPaused ? (
         <p className="text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
-          Dottie is paused. Turn her back on from New parents to read Gmail, draft, or send.
+          Go Dottie is paused. Turn it back on from New parents to read Gmail, draft, or send.
         </p>
       ) : null}
 
@@ -378,7 +378,7 @@ export default function ProspectDetail({
       {prospect.stage === 'started' ? (
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-950 space-y-2">
           <p className="font-semibold">Onboarded</p>
-          <p>Dottie can raise invoices from their days and rates. Parents pay by bank transfer — not through Dottie.</p>
+          <p>Go Dottie can raise invoices from their days and rates. Payments go straight to you, not to Go Dottie.</p>
           <Link
             href="/invoices/new"
             className="inline-flex items-center h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium"
@@ -437,7 +437,7 @@ export default function ProspectDetail({
           </div>
           <p className="text-xs text-gray-400">
             {gmailConnected
-              ? `Sends as ${gmailEmail} on the Gmail thread — not from a Dottie address.`
+              ? `Sends as ${gmailEmail} on the Gmail thread — not from a Go Dottie address.`
               : 'Connect Gmail on the inbox so Go Dottie can send as you on the real thread.'}
           </p>
         </div>

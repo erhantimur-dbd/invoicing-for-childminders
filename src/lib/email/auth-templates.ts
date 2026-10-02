@@ -73,12 +73,13 @@ const emails: AuthEmail[] = [
     file: 'invite.html',
     renderFile: 'authInviteUser',
     dashboard: 'Invite user',
-    subject: 'You are invited to Go Dottie',
+    subject: "You've been invited to Go Dottie",
     trigger: 'Supabase Auth invite user. Paste supabase/templates/auth/invite.html into the dashboard.',
     html: renderEmail(`
-      <h1 class="ink" style="${H}">You are invited</h1>
-      <p class="ink" style="${P}">You have been invited to join Go Dottie at {{ .SiteURL }}.</p>
+      <h1 class="ink" style="${H}">You've been invited</h1>
+      <p class="ink" style="${P}">You've been invited to Go Dottie. Accept the invite to set up your account.</p>
       ${confirmBlock('Accept invite')}
+      ${IGNORE}
     `, 'account', { markSrc: AUTH_MARK }),
   },
   {

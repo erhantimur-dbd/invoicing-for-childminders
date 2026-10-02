@@ -218,13 +218,16 @@ test('supabase auth templates stay on the shared layout', () => {
       assert.match(email.html, /\{\{ \.Token \}\}/)
       assert.match(email.html, /btn-fill/)
       assert.match(email.html, /padding:12px 28px/)
-      if (email.id === 'invite') assert.doesNotMatch(email.html, /If you didn't ask for this/)
-      else assert.match(email.html, /If you didn't ask for this, you can ignore this email\./)
+      assert.match(email.html, /If you didn't ask for this, you can ignore this email\./)
     }
     assert.doesNotMatch(previewAuthHtml(email.html), /\{\{/)
   }
   assert.match(authEmails().find((email) => email.id === 'email_change')!.html, /\{\{ \.NewEmail \}\}/)
-  assert.match(authEmails().find((email) => email.id === 'invite')!.html, /\{\{ \.SiteURL \}\}/)
+  const invite = authEmails().find((email) => email.id === 'invite')!
+  assert.equal(invite.subject, "You've been invited to Go Dottie")
+  assert.match(invite.html, /You've been invited to Go Dottie\. Accept the invite to set up your account\./)
+  assert.match(invite.html, /Accept invite/)
+  assert.doesNotMatch(invite.html, /\{\{ \.SiteURL \}\}/)
 })
 
 test('sender names and the live trial email hook', () => {

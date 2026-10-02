@@ -74,9 +74,9 @@ export default async function EnquiriesPage({
           <h1 className="text-2xl font-bold text-gray-900">New parents</h1>
           <p className="text-gray-500 text-sm mt-1">
             {settings.agent_paused
-              ? 'Dottie is paused — she will not read Gmail, draft, or send until you turn her back on.'
+              ? 'Go Dottie is paused — it will not read Gmail, draft, or send until you turn it back on.'
               : sendMode === 'auto'
-                ? 'New parent emails from Gmail show up here. Auto-send is on: Dottie replies on the real Gmail thread.'
+                ? 'New parent emails from Gmail show up here. Auto-send is on: Go Dottie replies on the real Gmail thread.'
                 : 'New parent emails from Gmail show up here. Draft & approve is on — nothing sends until you tap Approve.'}
           </p>
         </div>
@@ -109,9 +109,9 @@ export default async function EnquiriesPage({
           <p className="font-semibold text-gray-900 mb-2">No one waiting</p>
           <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
             {settings.agent_paused
-              ? 'Dottie is paused, so she is not checking Gmail. Turn her back on when you want new parent emails to land here.'
+              ? 'Go Dottie is paused, so it is not checking Gmail. Turn it back on when you want new parent emails to land here.'
               : gmailAccount?.email
-                ? 'Label parent emails Enquiries or New parent in Gmail. Dottie only saves classified enquiry threads — receipts and personal mail are never stored.'
+                ? 'Label parent emails Enquiries or New parent in Gmail. Go Dottie only saves classified enquiry threads — receipts and personal mail are never stored.'
                 : 'Connect Gmail above, or tap Add a parent and paste a message. Go Dottie drafts a polite visit letter and, with Auto-send on, sends it from your Gmail.'}
           </p>
           <Link href="/enquiries/new" className="text-emerald-700 font-semibold">
