@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import StatusBadge from '@/components/StatusBadge'
 import { Plus, TrendingUp, Clock, AlertCircle, CheckCircle, Sparkles, Zap, ChevronRight, Receipt, Baby } from 'lucide-react'
 import { enquiriesActive, invoicingActive } from '@/lib/enquiries/access'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 import type { Invoice } from '@/lib/types'
 import { format } from 'date-fns'
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-  const enquiriesEntry = enquiriesSignupCta(await isPaidSignupOpen())
+  const enquiriesEntry = enquiriesSignupCta(await readPaidSignupOpen())
 
   const { data: profile } = await supabase
     .from('profiles')

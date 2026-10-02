@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 
 export const metadata: Metadata = {
   title: 'Sign up',
@@ -10,6 +10,6 @@ export const metadata: Metadata = {
 }
 
 export default async function SignupLayout({ children }: { children: React.ReactNode }) {
-  if (!(await isPaidSignupOpen())) redirect('/demo')
+  if (!(await readPaidSignupOpen())) redirect('/demo')
   return children
 }

@@ -59,7 +59,7 @@ test('every Enquiries signup surface calls the payments-open gate', () => {
   ]
   for (const rel of gated) {
     const src = read(rel)
-    assert.match(src, /isPaidSignupOpen|enquiriesSignupCta|EnquiriesSignupLink|paymentsOpen|signupHref/)
+    assert.match(src, /readPaidSignupOpen|isPaidSignupOpen|enquiriesSignupCta|EnquiriesSignupLink|paymentsOpen|signupHref/)
   }
   const pricing = read('components/marketing/Pricing.tsx')
   assert.match(pricing, /paymentsOpen \? enquiriesHref : '\/demo'/)
@@ -74,4 +74,8 @@ test('every Enquiries signup surface calls the payments-open gate', () => {
   const faq = read('app/faq/page.tsx')
   assert.match(faq, /freeTrialAnswerParts/)
   assert.match(faq, /trial\.href/)
+  const runtime = read('lib/paid-signup-render.ts')
+  assert.match(runtime, /connection\(\)/)
+  assert.match(runtime, /VERCEL_ENV === 'production'/)
+  assert.match(runtime, /isPaidSignupOpen/)
 })

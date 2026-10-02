@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import MobileNav from '@/components/MobileNav'
 import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mjs'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 export default async function SiteHeader() {
-  const signup = enquiriesSignupCta(await isPaidSignupOpen())
+  const signup = enquiriesSignupCta(await readPaidSignupOpen())
   return (
     <header
       className="sticky top-0 z-50 border-b"

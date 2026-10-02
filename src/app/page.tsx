@@ -7,7 +7,7 @@ import SiteFooter from '@/components/marketing/SiteFooter'
 import EmailFlow from '@/components/marketing/EmailFlow'
 import Pricing from '@/components/marketing/Pricing'
 import { marketing, marketingCtaClass, ctaRadiusStyle, pricingAmounts } from '@/lib/marketing.mjs'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 export const metadata: Metadata = {
@@ -56,7 +56,7 @@ const jsonLd = {
 }
 
 export default async function RootPage() {
-  const signup = enquiriesSignupCta(await isPaidSignupOpen())
+  const signup = enquiriesSignupCta(await readPaidSignupOpen())
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')

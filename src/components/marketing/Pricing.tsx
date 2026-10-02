@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { marketing, ctaRadiusStyle } from '@/lib/marketing.mjs'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 
 function Check({ on }: { on: boolean }) {
   if (!on) {
@@ -70,7 +70,7 @@ export function PricingCards({
 }
 
 export default async function Pricing() {
-  const paymentsOpen = await isPaidSignupOpen()
+  const paymentsOpen = await readPaidSignupOpen()
   return (
     <PricingSection paymentsOpen={paymentsOpen} />
   )

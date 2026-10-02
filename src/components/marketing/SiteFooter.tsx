@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { marketing } from '@/lib/marketing.mjs'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 export default async function SiteFooter() {
-  const signup = enquiriesSignupCta(await isPaidSignupOpen())
+  const signup = enquiriesSignupCta(await readPaidSignupOpen())
   return (
     <footer style={{ backgroundColor: marketing.hero, color: '#f6f7f9', borderTop: `1px solid ${marketing.heroHairline}` }}>
       <div className="max-w-[1120px] mx-auto px-6 py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">

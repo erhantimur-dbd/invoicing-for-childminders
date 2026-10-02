@@ -5,7 +5,7 @@ import { PricingCards } from '@/components/marketing/Pricing'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import { marketing } from '@/lib/marketing.mjs'
 import { howMuchDoesDottieCost, freeTrialAnswer } from '@/lib/plans-copy.mjs'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 import { freeTrialAnswerParts } from '@/lib/enquiries-signup.mjs'
 
 export const metadata: Metadata = {
@@ -206,7 +206,7 @@ function faqJsonLdFor(trialText: string) {
 }
 
 export default async function FaqPage() {
-  const paymentsOpen = await isPaidSignupOpen()
+  const paymentsOpen = await readPaidSignupOpen()
   const trial = freeTrialAnswerParts(paymentsOpen)
   return (
     <div

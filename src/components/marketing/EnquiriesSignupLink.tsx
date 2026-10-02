@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { CSSProperties, ReactNode } from 'react'
-import { isPaidSignupOpen } from '@/lib/stripe/prices'
+import { readPaidSignupOpen } from '@/lib/paid-signup-render'
 import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 /**
@@ -18,7 +18,7 @@ export async function EnquiriesSignupLink({
   className?: string
   style?: CSSProperties
 }) {
-  const open = await isPaidSignupOpen()
+  const open = await readPaidSignupOpen()
   const cta = enquiriesSignupCta(open)
   return (
     <Link href={open ? href : cta.href} className={className} style={style}>
