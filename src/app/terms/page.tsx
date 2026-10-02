@@ -150,18 +150,18 @@ export default function TermsPage() {
             <Section id="subscription" title="5. Subscription and billing">
               <P>Access to Go Dottie requires an active subscription. Current list prices:</P>
               <div className="grid sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries</p>
+                <div className="p-4 rounded-xl bg-white border border-[#e5e7eb]" style={{ borderWidth: 1 }}>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#0b1220] mb-1">Enquiries</p>
                   <p className="text-sm text-gray-500 mb-2">Parent emails, visits, onboarding</p>
                   <p className="text-xl font-bold text-gray-900">{formatGbp(pricingAmounts.enquiries.annual)} a year</p>
                 </div>
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Limited</p>
+                <div className="p-4 rounded-xl bg-white border border-[#e5e7eb]" style={{ borderWidth: 1 }}>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#0b1220] mb-1">Limited</p>
                   <p className="text-sm text-gray-500 mb-2">Invoicing for a smaller setting</p>
                   <p className="text-xl font-bold text-gray-900">£208 a year</p>
                 </div>
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Full</p>
+                <div className="p-4 rounded-xl bg-white border border-[#e5e7eb]" style={{ borderWidth: 1 }}>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#0b1220] mb-1">Full</p>
                   <p className="text-sm text-gray-500 mb-2">Invoicing for a larger setting</p>
                   <p className="text-xl font-bold text-gray-900">£280 a year</p>
                 </div>

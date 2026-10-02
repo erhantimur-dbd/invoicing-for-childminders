@@ -172,7 +172,7 @@ async function sendCronNotificationEmail(
   const firstName = profile.full_name?.split(' ')[0] || 'there'
 
   const createdRows = created.map(c =>
-    `<tr><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${c.child_name}</td><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:#059669">£${c.total.toFixed(2)}</td>${c.agent_notes ? `<td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#6b7280;font-size:12px">${c.agent_notes}</td>` : '<td></td>'}</tr>`
+    `<tr><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${c.child_name}</td><td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:600;color:#0b1220">£${c.total.toFixed(2)}</td>${c.agent_notes ? `<td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#6b7280;font-size:12px">${c.agent_notes}</td>` : '<td></td>'}</tr>`
   ).join('')
 
   const skippedRows = skipped.length > 0
@@ -203,7 +203,7 @@ async function sendCronNotificationEmail(
           <tfoot>
             <tr style="background:#ecfdf5">
               <td style="padding:10px 12px;font-weight:700">Total</td>
-              <td style="padding:10px 12px;text-align:right;font-weight:700;color:#059669">£${totalAmount.toFixed(2)}</td>
+              <td style="padding:10px 12px;text-align:right;font-weight:700;color:#0b1220">£${totalAmount.toFixed(2)}</td>
               <td></td>
             </tr>
           </tfoot>
@@ -212,7 +212,7 @@ async function sendCronNotificationEmail(
         ${skippedRows}
 
         <div style="margin-top:32px;text-align:center">
-          <a href="${appUrl}/invoices" style="background:#059669;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">
+          <a href="${appUrl}/invoices" style="background:#0b1220;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">
             Review & send drafts →
           </a>
         </div>

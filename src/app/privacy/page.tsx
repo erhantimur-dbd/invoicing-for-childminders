@@ -191,7 +191,7 @@ export default function PrivacyPage() {
                     ].map(([activity, basis]) => (
                       <tr key={activity} className="border-b border-gray-100">
                         <td className="px-4 py-2 border border-gray-200">{activity}</td>
-                        <td className="px-4 py-2 border border-gray-200 text-emerald-700 font-medium">{basis}</td>
+                        <td className="px-4 py-2 border border-[#e5e7eb] text-[#0b1220] font-medium" style={{ borderWidth: 1 }}>{basis}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -323,8 +323,8 @@ export default function PrivacyPage() {
                   { right: 'Right to object', desc: 'Object to processing based on legitimate interests.' },
                   { right: 'Right to withdraw consent', desc: 'Where we rely on consent, you can withdraw it at any time.' },
                 ].map(item => (
-                  <div key={item.right} className="flex gap-3 p-4 rounded-xl bg-white border border-gray-200">
-                    <span className="text-emerald-500 mt-0.5 flex-shrink-0">✓</span>
+                  <div key={item.right} className="flex gap-3 p-4 rounded-xl bg-white border border-[#e5e7eb]" style={{ borderWidth: 1 }}>
+                    <span className="text-[#0b1220] mt-0.5 flex-shrink-0">✓</span>
                     <div>
                       <span className="font-semibold text-gray-800">{item.right}: </span>
                       <span className="text-gray-600">{item.desc}</span>

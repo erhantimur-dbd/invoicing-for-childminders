@@ -1,4 +1,4 @@
-const BRAND_COLOR = '#059669'
+const BRAND_COLOR = '#0b1220'
 const BRAND_COLOR_DARK = '#047857'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.godottie.cloud'
 const SUPPORT_EMAIL = 'hello@godottie.cloud'

@@ -102,12 +102,12 @@ export async function POST(req: NextRequest) {
       subject: `[Contact] ${subject?.trim() || '(no subject)'}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; color: #111827;">
-          <h2 style="color: #059669; margin-bottom: 4px;">New contact form submission</h2>
+          <h2 style="color: #0b1220; margin-bottom: 4px;">New contact form submission</h2>
           <p style="color: #6b7280; font-size: 13px; margin-top: 0;">Received via godottie.cloud/support</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
           <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <tr><td style="padding: 6px 0; color: #6b7280; width: 80px;">Name</td><td style="padding: 6px 0; font-weight: 600;">${safeName}</td></tr>
-            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;"><a href="mailto:${safeEmail}" style="color: #059669;">${safeEmail}</a></td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;"><a href="mailto:${safeEmail}" style="color: #0b1220;">${safeEmail}</a></td></tr>
             <tr><td style="padding: 6px 0; color: #6b7280;">Subject</td><td style="padding: 6px 0;">${safeSubject}</td></tr>
           </table>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
             </p>
           </div>
           <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; padding: 16px 32px; text-align: center;">
-            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Go Dottie · <a href="https://www.godottie.cloud" style="color: #059669;">www.godottie.cloud</a></p>
+            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© 2026 Go Dottie · <a href="https://www.godottie.cloud" style="color: #0b1220;">www.godottie.cloud</a></p>
           </div>
         </div>
       `,

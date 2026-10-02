@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mjs'
+import { marketing, ctaRadiusStyle } from '@/lib/marketing.mjs'
 
 function Check({ on }: { on: boolean }) {
   if (!on) {
@@ -22,7 +22,7 @@ export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: st
       {marketing.pricingPlans.map((plan) => {
         const href = plan.id === 'enquiries' ? enquiriesHref : plan.href
         return (
-          <article key={plan.id} className="bg-white p-8 sm:p-10 flex flex-col">
+          <article key={plan.id} className="bg-white p-8 sm:p-10 flex flex-col h-full">
             <p className="text-[13px] font-semibold tracking-tight">{plan.name}</p>
             <p className="mt-2 text-[14px] leading-relaxed" style={{ color: marketing.muted }}>
               {plan.icp}
@@ -38,7 +38,7 @@ export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: st
             {plan.checkout ? (
               <Link
                 href={href}
-                className={`${marketingCtaClass.primary} mt-10 w-full`}
+                className="mt-10 inline-flex w-full min-h-[44px] items-center justify-center px-6 text-[15px] font-medium text-white bg-[#0b1220]"
                 style={ctaRadiusStyle()}
               >
                 {plan.cta}
@@ -46,8 +46,8 @@ export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: st
             ) : (
               <Link
                 href={href}
-                className="mt-10 text-[15px] font-medium underline underline-offset-4"
-                style={{ color: marketing.accent }}
+                className="mt-10 inline-flex w-full min-h-[44px] items-center justify-center border border-[#0b1220] bg-white px-6 text-[15px] font-medium text-[#0b1220]"
+                style={ctaRadiusStyle()}
               >
                 {plan.cta}
               </Link>

@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     <html>
     <head><meta charset="utf-8"><title>Invoice ${esc(invoice.invoice_number)}</title></head>
     <body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#111;">
-      <div style="background:#059669;color:white;padding:24px;border-radius:12px;margin-bottom:24px;">
+      <div style="background:#0b1220;color:white;padding:24px;border-radius:12px;margin-bottom:24px;">
         <h1 style="margin:0;font-size:24px;">Invoice ${esc(invoice.invoice_number)}</h1>
         <p style="margin:4px 0 0;opacity:0.9;">${esc(profile.full_name)}</p>
       </div>
@@ -141,14 +141,14 @@ export async function POST(request: NextRequest) {
         <tbody>${itemsHtml}</tbody>
       </table>
       <div style="text-align:right;margin:16px 0;">
-        <div style="display:inline-block;background:#059669;color:white;padding:12px 24px;border-radius:8px;">
+        <div style="display:inline-block;background:#0b1220;color:white;padding:12px 24px;border-radius:8px;">
           <strong style="font-size:18px;">Total: ${formatGBP(Number(invoice.total))}</strong>
         </div>
       </div>
       ${invoice.due_date ? `<p style="color:#b45309;font-weight:600;">Payment due by: ${format(new Date(invoice.due_date), 'd MMMM yyyy')}</p>` : ''}
       ${bankHtml}
       <div style="margin-top:20px;text-align:center;">
-        <a href="${esc(viewUrl)}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
+        <a href="${esc(viewUrl)}" style="background:#0b1220;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
           View invoice
         </a>
       </div>

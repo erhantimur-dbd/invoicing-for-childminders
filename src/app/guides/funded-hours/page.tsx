@@ -38,14 +38,12 @@ export default function FundedHoursIndex() {
       <header className="border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-amber-400">
-              <span className="text-white text-xs font-extrabold">D.</span>
-            </span>
+            <img src="/icon.png" alt="" width={28} height={28} className="h-7 w-7 rounded-lg" />
             <span className="font-bold text-gray-900 text-sm">Go Dottie</span>
           </Link>
           <Link
             href="/signup"
-            className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
+            className="text-sm font-semibold text-[#0b1220] hover:text-[#0b1220]"
           >
             Get started →
           </Link>
@@ -63,7 +61,7 @@ export default function FundedHoursIndex() {
           </ol>
         </nav>
 
-        <p className="text-emerald-700 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p className="text-[#0b1220] text-xs font-semibold uppercase tracking-widest mb-3">
           Funded hours
         </p>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">

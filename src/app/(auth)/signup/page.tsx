@@ -99,7 +99,7 @@ export default function SignupPage() {
         </p>
         <Link
           href="/login"
-          className="text-emerald-600 font-semibold text-sm hover:text-emerald-700"
+          className="text-[#0b1220] font-semibold text-sm underline underline-offset-2"
         >
           Back to sign in
         </Link>
@@ -208,11 +208,11 @@ export default function SignupPage() {
               />
               <span className="text-xs text-gray-500 leading-relaxed">
                 I agree to Go Dottie&apos;s{' '}
-                <Link href="/terms" target="_blank" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
+                <Link href="/terms" target="_blank" className="text-[#0b1220] underline underline-offset-2">
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" target="_blank" className="text-emerald-600 hover:text-emerald-700 underline underline-offset-2">
+                <Link href="/privacy" target="_blank" className="text-[#0b1220] underline underline-offset-2">
                   Privacy Policy
                 </Link>
               </span>
@@ -226,7 +226,7 @@ export default function SignupPage() {
 
           <Button
             type="submit"
-            className="w-full h-12 text-base bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-sm shadow-emerald-200"
+            className="w-full min-h-[44px] h-12 text-base bg-[#0b1220] text-white hover:bg-[#0b1220] rounded-xl font-semibold"
             disabled={loading}
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create account'}
@@ -234,13 +234,13 @@ export default function SignupPage() {
 
           <p className="text-sm text-gray-400 text-center pt-1">
             Already have an account?{' '}
-            <Link href="/login" className="text-emerald-600 font-semibold hover:text-emerald-700">
+            <Link href="/login" className="text-[#0b1220] font-semibold underline underline-offset-2">
               Sign in
             </Link>
           </p>
           <p className="text-xs text-gray-400 text-center">
             Questions?{' '}
-            <a href="mailto:support@godottie.cloud" className="text-emerald-600 font-medium hover:text-emerald-700">
+            <a href="mailto:support@godottie.cloud" className="text-[#0b1220] font-medium underline underline-offset-2">
               support@godottie.cloud
             </a>
           </p>

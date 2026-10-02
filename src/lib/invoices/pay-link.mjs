@@ -33,7 +33,7 @@ export function invoicePayButtonHtml(href) {
     .replace(/</g, '&lt;')
   return `
       <div style="margin-top:16px;text-align:center;">
-        <a href="${safe}" style="background:#059669;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
+        <a href="${safe}" style="background:#0b1220;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;">
           Pay this invoice
         </a>
         <p style="margin:10px 0 0;font-size:12px;color:#6b7280;">${PARENT_PAY_DISCLAIMER}</p>

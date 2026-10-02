@@ -96,6 +96,10 @@ test('pricing cards are Enquiries, Limited and Full, billed once a year', () => 
   const faq = readFileSync(join(root, 'app/faq/page.tsx'), 'utf8')
   assert.match(signup, /PricingCards/)
   assert.match(faq, /PricingCards/)
+  assert.match(pricing, /min-h-\[44px\]/)
+  assert.match(pricing, /bg-\[#0b1220\]/)
+  assert.match(pricing, /border border-\[#0b1220\] bg-white/)
+  assert.doesNotMatch(pricing, /underline underline-offset-4/)
 })
 
 test('public prices are annual and there is no monthly billing toggle', () => {
