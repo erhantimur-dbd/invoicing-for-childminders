@@ -3,8 +3,8 @@ import { ENQUIRIES_QUOTA, enquiriesQuotaCopy } from './enquiries/quota.mjs'
 
 export const SIGN_UP_CTA = 'Sign up'
 
-export const noSelfServeTrial =
-  "We don't offer a self-serve free trial. Sign up and choose a plan to get started, or book a demo. Qualifying childminders may be offered a trial after a chat."
+export const freeTrialAnswer =
+  "No. Book a demo and we'll show you how Go Dottie handles a parent enquiry, or sign up for Enquiries at £160 a year."
 
 export function enquiriesPriceSentence() {
   const p = pricingAmounts.enquiries

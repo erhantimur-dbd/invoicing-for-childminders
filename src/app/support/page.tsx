@@ -5,7 +5,7 @@ import { useState } from 'react'
 import SiteHeader from '@/components/marketing/SiteHeader'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import { marketing } from '@/lib/marketing.mjs'
-import { howMuchDoesDottieCost, noSelfServeTrial } from '@/lib/plans-copy.mjs'
+import { howMuchDoesDottieCost, freeTrialAnswer } from '@/lib/plans-copy.mjs'
 
 const SUPPORT_EMAIL = 'support@godottie.cloud'
 
@@ -37,7 +37,7 @@ const FAQ_ITEMS = [
   },
   {
     question: 'Is there a free trial?',
-    answer: noSelfServeTrial,
+    answer: freeTrialAnswer,
   },
   {
     question: 'Do you support childminders with multiple children?',

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: false },
 }
 
-const LAST_UPDATED = '27 March 2026'
+const LAST_UPDATED = '2 October 2026'
 const CONTACT_EMAIL = 'support@godottie.cloud'
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -42,7 +42,7 @@ const TOC = [
   { id: 'eligibility', label: 'Eligibility' },
   { id: 'account', label: 'Your account' },
   { id: 'subscription', label: 'Subscription and billing' },
-  { id: 'free-trial', label: 'Free trials' },
+  { id: 'price-renewal', label: 'Price, renewal and cancellation' },
   { id: 'cancellation', label: 'Cancellation and refunds' },
   { id: 'acceptable-use', label: 'Acceptable use' },
   { id: 'your-data', label: 'Your data' },
@@ -171,12 +171,9 @@ export default function TermsPage() {
               </P>
             </Section>
 
-            <Section id="free-trial" title="6. Free trials">
+            <Section id="price-renewal" title="6. Price, renewal and cancellation">
               <P>
-                Free trials are not offered as standard. New accounts subscribe to a plan to access Go Dottie. We may, at our sole discretion, offer a free trial to selected accounts — for example following a demo or qualification conversation.
-              </P>
-              <P>
-                Where a trial is offered, we reserve the right to modify or terminate it at any time. Only one free trial is permitted per person, and attempting to obtain multiple trials by creating multiple accounts is a violation of these Terms.
+                Go Dottie Enquiries costs £160 a year, paid in advance when you sign up. There is no free trial, but you can book a free demo before you buy. Your plan renews each year unless you cancel. You can cancel at any time in Settings, and your plan keeps running until the end of the year you&apos;ve paid for. We don&apos;t refund part-years, except where the law requires it. Prices exclude VAT. VAT will only be added if we become VAT-registered, and then only from your next renewal.
               </P>
             </Section>
 

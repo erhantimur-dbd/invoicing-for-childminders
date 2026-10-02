@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: false },
 }
 
-const LAST_UPDATED = '10 September 2026'
+const LAST_UPDATED = '2 October 2026'
 const CONTACT_EMAIL = 'support@godottie.cloud'
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -156,7 +156,7 @@ export default function PrivacyPage() {
                 'To display your bank details on invoices you send to parents',
                 'To allow parents to securely access their child\'s invoices (using DOB as verification)',
                 'To process subscription payments via Stripe',
-                'To send transactional emails (welcome, trial reminders, payment confirmations) via Resend',
+                'To send service emails, such as payment receipts, via Resend',
                 'To generate draft invoices and parent-enquiry replies using AI assistance (xAI Grok) — see Third-party Processors',
                 'To provide expense tracking and tax-year reports',
                 'To respond to support requests',
@@ -166,52 +166,8 @@ export default function PrivacyPage() {
 
             <Section id="gmail-enquiries" title="4. Parent enquiries">
               <P>
-                Go Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so new parent emails are ingested. Automatic send is off unless you turn it on. Go Dottie does not sync your whole personal mailbox as a product — she looks for new parent enquiry mail.
+                When you connect Gmail, Go Dottie reads new enquiries in your inbox and, by default, replies to them automatically from your Gmail. The replies are written by AI in your voice. You can switch to draft &amp; approve, so nothing is sent until you approve it, or pause Go Dottie, at any time in Settings. Each automatic reply includes a short line saying it was written with Go Dottie&apos;s AI assistant. Go Dottie doesn&apos;t send automatic replies about safeguarding, a child&apos;s health or medical needs, complaints, or payment disputes. It saves those as drafts for you to handle. You&apos;re responsible for the messages sent from your account, so please check your settings and your sent replies.
               </P>
-
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">What we store</p>
-                  <Ul items={[
-                    <>We store the parent facts and messages you enter (name, email, child age, days needed, and any extra-needs notes you type).</>,
-                    <>We store AI drafts so you can read them before anything is sent.</>,
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">How sending works</p>
-                  <Ul items={[
-                    <>Go Dottie drafts a visit letter in your voice. <strong>Automatic send is off until you turn it on</strong> in Your answers. With it off, you copy the draft into Gmail yourself.</>,
-                    <>If you connect Gmail, you can disconnect it at any time. Connecting Calendar lets Go Dottie write the visit you confirm onto your Google Calendar.</>,
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">How long we keep enquiry data</p>
-                  <Ul items={[
-                    <>Enquiry threads we store are kept for <strong>365 days by default</strong>.</>,
-                    <>Retention is <strong>configurable</strong> (you or we can set a different period where the product allows).</>,
-                    'After retention ends, we delete or anonymise that enquiry data as described in this Privacy notice.',
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">AI processing (xAI, Anthropic failover)</p>
-                  <Ul items={[
-                    <>Drafting enquiry replies uses AI services from <strong>xAI (Grok)</strong>. If xAI is unavailable, drafting may fall back to <strong>Anthropic (Claude)</strong>. You send the reply yourself (copy, mailto, or an explicit send tick). Extra-needs / SEN notes are stored for you and are not sent to those AI processors.</>,
-                    <>Drafting may involve a <strong>transfer of enquiry content to the United States</strong> (or other locations where xAI or Anthropic process data). We only send what is needed to draft the reply for that enquiry thread.</>,
-                    <>See the <a href="#third-party-processors" className="text-emerald-600 underline">subprocessors / international transfers</a> section for more detail.</>,
-                  ]} />
-                </div>
-
-                <div className="p-4 rounded-xl bg-white border border-gray-200">
-                  <p className="font-semibold text-gray-800 mb-2">What we do not claim / do not do via Gmail</p>
-                  <Ul items={[
-                    <>We do <strong>not</strong> run a full mailbox sync for unrelated personal or business mail.</>,
-                    <>Soft Launch Gmail Enquiries is <strong>not</strong> WhatsApp, medical records access, or DfE systems via Gmail.</>,
-                  ]} />
-                </div>
-              </div>
             </Section>
 
             <Section id="lawful-basis" title="5. Lawful basis for processing">

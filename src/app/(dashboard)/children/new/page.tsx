@@ -74,14 +74,10 @@ export default async function NewChildPage({
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-white border border-gray-200 p-3 text-center">
-                    <p className="text-xs text-gray-500 mb-0.5">Monthly</p>
-                    <p className="text-xl font-bold text-gray-900">£19.99</p>
-                    <p className="text-xs text-gray-400">/month</p>
+                    <p className="text-xl font-bold text-gray-900">Limited £208 a year</p>
                   </div>
                   <div className="rounded-xl bg-white border-2 border-emerald-200 p-3 text-center">
-                    <p className="text-xs text-gray-500 mb-0.5">Annual</p>
-                    <p className="text-xl font-bold text-gray-900">£199</p>
-                    <p className="text-xs text-gray-400">/year · save 17%</p>
+                    <p className="text-xl font-bold text-gray-900">Full £280 a year</p>
                   </div>
                 </div>
                 <Link

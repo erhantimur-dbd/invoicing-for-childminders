@@ -104,7 +104,7 @@ const articleJsonLd = {
     '@type': 'Organization',
     name: 'Go Dottie',
     url: 'https://www.godottie.cloud',
-    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon' },
+    logo: { '@type': 'ImageObject', url: 'https://www.godottie.cloud/icon.png' },
   },
   mainEntityOfPage: { '@type': 'WebPage', '@id': URL },
 }

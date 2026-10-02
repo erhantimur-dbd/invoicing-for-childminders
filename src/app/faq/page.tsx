@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import SiteHeader from '@/components/marketing/SiteHeader'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import { marketing } from '@/lib/marketing.mjs'
-import { howMuchDoesDottieCost, noSelfServeTrial } from '@/lib/plans-copy.mjs'
+import { howMuchDoesDottieCost, freeTrialAnswer } from '@/lib/plans-copy.mjs'
 
 export const metadata: Metadata = {
   title: 'FAQ',
@@ -113,7 +113,7 @@ const CATEGORIES = [
       },
       {
         q: 'Is there a free trial?',
-        a: noSelfServeTrial,
+        a: freeTrialAnswer,
       },
       {
         q: 'Can I see it before I pay?',
