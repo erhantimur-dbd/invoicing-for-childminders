@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { afterEach, describe, it } from 'node:test'
 import { clearPaidSignupCache, isPaidSignupOpen } from './prices.ts'
 
@@ -69,5 +72,30 @@ describe('isPaidSignupOpen', () => {
     assert.equal(await isPaidSignupOpen(liveEnv, lookup), true)
     assert.equal(await isPaidSignupOpen(liveEnv, lookup), true)
     assert.equal(calls, 1)
+  })
+
+  it('returns false outside production for ?paid=closed or gd_paid=closed, and production ignores both', async () => {
+    let calls = 0
+    const lookup = async () => {
+      calls += 1
+      return { livemode: true, active: true }
+    }
+    assert.equal(await isPaidSignupOpen({ VERCEL_ENV: 'preview' }, lookup, { paidQuery: 'closed' }), false)
+    assert.equal(await isPaidSignupOpen({ VERCEL_ENV: 'development' }, lookup, { paidCookie: 'closed' }), false)
+    assert.equal(await isPaidSignupOpen({}, lookup, { paidQuery: 'closed', paidCookie: 'closed' }), false)
+    assert.equal(await isPaidSignupOpen({ VERCEL_ENV: 'preview' }, lookup, { paidQuery: 'open' }), true)
+    assert.equal(calls, 0)
+
+    assert.equal(
+      await isPaidSignupOpen(liveEnv, lookup, { paidQuery: 'closed', paidCookie: 'closed' }),
+      true,
+    )
+    assert.equal(calls, 1)
+
+    const proxy = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../proxy.ts'), 'utf8')
+    assert.match(proxy, /VERCEL_ENV !== 'production'/)
+    assert.match(proxy, /searchParams\.get\('paid'\) === 'closed'/)
+    assert.match(proxy, /cookies\.set\('gd_paid', 'closed'/)
+    assert.match(proxy, /x-gd-paid/)
   })
 })

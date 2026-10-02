@@ -89,17 +89,47 @@ function needsInvoicing(pathname: string): boolean {
   return INVOICING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))
 }
 
-export async function proxy(request: NextRequest) {
+/**
+ * Preview and development only. `?paid=closed` forces `isPaidSignupOpen()` false
+ * and sets `gd_paid=closed` so the next request stays closed. Production ignores it.
+ * `x-gd-paid` is how this request's query reaches server components. Keep the
+ * names in sync with `PAID_SIGNUP_COOKIE` and `PAID_SIGNUP_QUERY_HEADER`.
+ */
+function qaPaidClosed(request: NextRequest): boolean {
+  return process.env.VERCEL_ENV !== 'production' && request.nextUrl.searchParams.get('paid') === 'closed'
+}
+
+function nextPassingRequest(request: NextRequest): NextResponse {
+  if (!qaPaidClosed(request)) return NextResponse.next({ request })
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-gd-paid', 'closed')
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  })
+}
+
+function rememberPaidClosed(request: NextRequest, response: NextResponse): NextResponse {
+  if (!qaPaidClosed(request)) return response
+  response.cookies.set('gd_paid', 'closed', {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: request.nextUrl.protocol === 'https:',
+  })
+  return response
+}
+
+async function handleProxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Public marketing pages (including `/` and `/privacy`) must not touch Supabase.
   // Preview has crashed with 500 both when env is missing *and* when it is
   // present but createServerClient / getUser throws.
   if (isPublicRoute(pathname)) {
-    return NextResponse.next({ request })
+    return nextPassingRequest(request)
   }
 
-  let supabaseResponse = NextResponse.next({ request })
+  let supabaseResponse = nextPassingRequest(request)
   const supabaseEnv = getSupabasePublicEnv()
   if (!supabaseEnv) {
     if (isProtectedRoute(pathname)) {
@@ -122,7 +152,7 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({ request })
+          supabaseResponse = nextPassingRequest(request)
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
@@ -223,8 +253,12 @@ export async function proxy(request: NextRequest) {
       url.search = ''
       return NextResponse.redirect(url)
     }
-    return NextResponse.next({ request })
+    return nextPassingRequest(request)
   }
+}
+
+export async function proxy(request: NextRequest) {
+  return rememberPaidClosed(request, await handleProxy(request))
 }
 
 export const config = {
