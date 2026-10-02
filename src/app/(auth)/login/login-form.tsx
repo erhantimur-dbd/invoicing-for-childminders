@@ -76,7 +76,7 @@ export default function LoginForm({
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
                 autoComplete="email"
               />
             </div>

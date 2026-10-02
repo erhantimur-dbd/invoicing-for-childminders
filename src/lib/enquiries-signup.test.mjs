@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
-import { enquiriesEntryPoints, enquiriesSignupCta, freeTrialAnswerParts } from './enquiries-signup.mjs'
+import { companionCta, enquiriesEntryPoints, enquiriesSignupCta, freeTrialAnswerParts } from './enquiries-signup.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel) => readFileSync(join(root, rel), 'utf8')
@@ -36,6 +36,8 @@ test('closed payments render no Enquiries signup link', () => {
   assert.equal(points.faq.linkLabel, 'Book a demo')
   assert.equal(points.signup, '/demo')
   assert.equal(points.subscribeEnquiries, '/demo')
+  assert.deepEqual(companionCta(false), { href: '/login', label: 'Sign in' })
+  assert.deepEqual(companionCta(true), { href: '/demo', label: 'Book a demo' })
 })
 
 test('every Enquiries signup surface calls the payments-open gate', () => {

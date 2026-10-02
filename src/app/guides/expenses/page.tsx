@@ -151,9 +151,9 @@ export default function Page() {
       <article className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-emerald-700">Home</Link></li>
+            <li><Link href="/" className="hover:text-[#0b1220]">Home</Link></li>
             <li aria-hidden>/</li>
-            <li><Link href="/guides" className="hover:text-emerald-700">Guides</Link></li>
+            <li><Link href="/guides" className="hover:text-[#0b1220]">Guides</Link></li>
             <li aria-hidden>/</li>
             <li><span className="text-gray-900 font-medium">Expenses</span></li>
           </ol>
@@ -171,8 +171,8 @@ export default function Page() {
         <p className="text-gray-500 text-sm mb-10">Last updated 5 July 2026 · 6 min read</p>
 
         {/* TL;DR */}
-        <aside className="mb-10 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-6">
-          <p className="text-emerald-900 text-xs font-bold uppercase tracking-widest mb-2">In one paragraph</p>
+        <aside className="mb-10 rounded-2xl border border-[#e5e7eb] bg-[#f6f7f9] p-6">
+          <p className="text-[#0b1220] text-xs font-bold uppercase tracking-widest mb-2">In one paragraph</p>
           <p className="text-gray-800 leading-relaxed">
             You can claim the full cost of anything used <em>only</em> for childminding (children&apos;s food, toys, nappies, Ofsted fee, insurance) and a fair <em>proportion</em> of costs shared with your household (heating, electricity, water, broadband, wear-and-tear). Apportion shared costs by hours of business use, keep a record of every item, and log business mileage at 45p a mile. Keep it consistent year to year.
           </p>
@@ -186,11 +186,11 @@ export default function Page() {
         </p>
         <ul className="space-y-2 mb-6 text-gray-700">
           <li className="flex gap-3">
-            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
             <span><strong className="text-gray-900">Wholly business.</strong> <span className="text-gray-600">Bought only for the children — claim 100%. Their food, toys, nappies, your Ofsted fee, public liability insurance.</span></span>
           </li>
           <li className="flex gap-3">
-            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+            <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
             <span><strong className="text-gray-900">Shared with your household.</strong> <span className="text-gray-600">Used by your family and the business — claim a fair proportion. Heating, electricity, water, broadband, the wear-and-tear on your sofa.</span></span>
           </li>
         </ul>
@@ -237,11 +237,11 @@ export default function Page() {
         <aside className="mb-10 rounded-2xl border border-amber-200 bg-amber-50/70 p-5">
           <p className="text-amber-900 text-sm leading-relaxed">
             <strong>Note for anyone within Making Tax Digital:</strong> HMRC confirmed in March 2026 that childminders inside MTD must use the standard approach to expenses, not the old PACEY flat-rate concession. See our{' '}
-            <Link href="/guides/mtd" className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800">MTD guide</Link> for who is affected and when.
+            <Link href="/guides/mtd" className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]">MTD guide</Link> for who is affected and when.
           </p>
         </aside>
 
-        <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
+        <div className="rounded-2xl bg-[#0b1220] p-6 sm:p-8 text-white my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Never lose an expense again</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
             Snap a photo of any receipt and Go Dottie pulls out the amount, date and category, then files it under the right HMRC heading — ready for your tax return.
@@ -271,9 +271,9 @@ export default function Page() {
         {/* Sources */}
         <h2 id="sources" className="scroll-mt-16 text-2xl font-bold text-gray-900 mt-12 mb-3">Sources &amp; further reading</h2>
         <ul className="space-y-2 text-sm text-gray-600 mb-12">
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">BIM52751 — HMRC manual: childminders&apos; expenses</a></li>
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/expenses-if-youre-self-employed" rel="nofollow noopener" target="_blank">Expenses if you&apos;re self-employed — GOV.UK</a></li>
-          <li><a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/simpler-income-tax-simplified-expenses" rel="nofollow noopener" target="_blank">Simplified expenses for the self-employed — GOV.UK</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">BIM52751 — HMRC manual: childminders&apos; expenses</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/expenses-if-youre-self-employed" rel="nofollow noopener" target="_blank">Expenses if you&apos;re self-employed — GOV.UK</a></li>
+          <li><a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/simpler-income-tax-simplified-expenses" rel="nofollow noopener" target="_blank">Simplified expenses for the self-employed — GOV.UK</a></li>
         </ul>
 
         <p className="text-xs text-gray-400 leading-relaxed border-t border-gray-100 pt-6">

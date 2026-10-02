@@ -89,8 +89,8 @@ export default function SignupPage() {
   if (checkInbox) {
     return (
       <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-          <Mail className="w-6 h-6 text-emerald-600" />
+        <div className="w-12 h-12 rounded-full bg-[#f6f7f9] flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-6 h-6 text-[#0b1220]" />
         </div>
         <h2 className="text-lg font-bold text-gray-900 mb-2">Check your inbox</h2>
         <p className="text-gray-500 text-sm mb-6">
@@ -137,7 +137,7 @@ export default function SignupPage() {
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
                 autoComplete="name"
               />
             </div>
@@ -154,7 +154,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
                 autoComplete="email"
               />
             </div>
@@ -173,7 +173,7 @@ export default function SignupPage() {
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
                 autoComplete="new-password"
               />
             </div>
@@ -188,10 +188,10 @@ export default function SignupPage() {
                 {requirements.map((req) => (
                   <li key={req.id} className="flex items-center gap-1.5 text-xs">
                     {req.met
-                      ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                      ? <CheckCircle2 className="h-3.5 w-3.5 text-[#0b1220] shrink-0" />
                       : <XCircle className="h-3.5 w-3.5 text-gray-300 shrink-0" />
                     }
-                    <span className={req.met ? 'text-emerald-700' : 'text-gray-400'}>{req.label}</span>
+                    <span className={req.met ? 'text-[#0b1220]' : 'text-gray-400'}>{req.label}</span>
                   </li>
                 ))}
               </ul>
@@ -204,7 +204,7 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={termsAccepted}
                 onChange={e => { setTermsAccepted(e.target.checked); setTermsError(false) }}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 flex-shrink-0"
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#0b1220] focus:ring-[#0b1220] flex-shrink-0"
               />
               <span className="text-xs text-gray-500 leading-relaxed">
                 I agree to Go Dottie&apos;s{' '}

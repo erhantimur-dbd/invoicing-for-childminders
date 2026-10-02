@@ -1,10 +1,12 @@
 import Link from 'next/link'
 import { marketing } from '@/lib/marketing.mjs'
 import { readPaidSignupOpen } from '@/lib/paid-signup-render'
-import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
+import { companionCta, enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 export default async function SiteFooter() {
-  const signup = enquiriesSignupCta(await readPaidSignupOpen())
+  const paymentsOpen = await readPaidSignupOpen()
+  const signup = enquiriesSignupCta(paymentsOpen)
+  const companion = companionCta(paymentsOpen)
   return (
     <footer style={{ backgroundColor: marketing.hero, color: '#f6f7f9', borderTop: `1px solid ${marketing.heroHairline}` }}>
       <div className="max-w-[1120px] mx-auto px-6 py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -20,8 +22,8 @@ export default async function SiteFooter() {
             <a href="/#how-it-works" className="hover:text-white transition-colors">How it works</a>
             <a href="/#invoicing" className="hover:text-white transition-colors">Invoicing</a>
             <a href="/#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <Link href={marketing.ctas.demo.href} className="hover:text-white transition-colors">
-              {marketing.ctas.demo.label}
+            <Link href={companion.href} className="hover:text-white transition-colors">
+              {companion.label}
             </Link>
             <Link href={signup.href} className="hover:text-white transition-colors">
               {signup.label}

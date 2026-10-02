@@ -135,7 +135,8 @@ test('signup is paid checkout, not a self-serve trial; demo stays on navy chrome
   assert.doesNotMatch(demo, /from-emerald-500/)
 
   const home = read('app/page.tsx')
-  assert.match(home, /marketing\.ctas\.demo/)
+  assert.match(home, /companionCta/)
+  assert.match(home, /companion\.href/)
   assert.match(home, /marketing\.headline/)
   assert.doesNotMatch(home, /free trial|Start free trial|7 days completely free/i)
   assert.match(home, /marketing\.hero/)

@@ -15,7 +15,7 @@ function getStrengthLevel(score: number): StrengthLevel | null {
   if (score === 1) return { bars: 1, colour: 'bg-red-500', label: 'Weak' }
   if (score === 2) return { bars: 2, colour: 'bg-orange-400', label: 'Fair' }
   if (score === 3) return { bars: 3, colour: 'bg-yellow-400', label: 'Good' }
-  return { bars: 4, colour: 'bg-emerald-500', label: 'Strong' }
+  return { bars: 4, colour: 'bg-[#0b1220]', label: 'Strong' }
 }
 
 export default function PasswordStrength({ password }: Props) {
@@ -39,7 +39,7 @@ export default function PasswordStrength({ password }: Props) {
           score === 1 ? 'text-red-500' :
           score === 2 ? 'text-orange-400' :
           score === 3 ? 'text-yellow-500' :
-          'text-emerald-600'
+          'text-[#0b1220]'
         }`}>
           {level.label}
         </span>

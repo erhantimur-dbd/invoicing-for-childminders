@@ -86,8 +86,8 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+        <div className="w-12 h-12 rounded-full bg-[#f6f7f9] flex items-center justify-center mx-auto mb-4">
+          <CheckCircle2 className="w-6 h-6 text-[#0b1220]" />
         </div>
         <h2 className="text-lg font-bold text-gray-900 mb-2">Password updated</h2>
         <p className="text-gray-500 text-sm">Redirecting you to your dashboard...</p>
@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
   if (linkState === 'checking') {
     return (
       <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
-        <Loader2 className="w-6 h-6 animate-spin text-emerald-600 mx-auto mb-4" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#0b1220] mx-auto mb-4" />
         <p className="text-gray-500 text-sm">Verifying your reset link...</p>
       </div>
     )
@@ -113,7 +113,7 @@ export default function ResetPasswordPage() {
         </p>
         <Link
           href="/forgot-password"
-          className="text-emerald-600 font-semibold text-sm hover:text-emerald-700"
+          className="text-[#0b1220] font-semibold text-sm underline underline-offset-2"
         >
           Request a new reset link
         </Link>
@@ -171,13 +171,13 @@ export default function ResetPasswordPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-12 text-base bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-sm shadow-emerald-200"
+          className="w-full min-h-[44px] h-12 text-base bg-[#0b1220] text-white hover:bg-[#0b1220] rounded-xl font-semibold"
         >
           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Update password'}
         </Button>
 
         <p className="text-sm text-gray-400 text-center pt-1">
-          <Link href="/login" className="text-emerald-600 font-semibold hover:text-emerald-700">
+          <Link href="/login" className="text-[#0b1220] font-semibold underline underline-offset-2">
             Back to sign in
           </Link>
         </p>

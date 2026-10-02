@@ -4,6 +4,12 @@ export function enquiriesSignupCta(open) {
   return { href: '/demo', label: 'Book a demo', filled: true }
 }
 
+/** The button beside the filled Enquiries CTA. Closed must not show two Book a demo buttons. */
+export function companionCta(open) {
+  if (open) return { href: '/demo', label: 'Book a demo' }
+  return { href: '/login', label: 'Sign in' }
+}
+
 /**
  * FAQ "Is there a free trial?" answer.
  * When payments are open, the sentence is unchanged.

@@ -97,7 +97,7 @@ export default function GuidesIndex() {
                     <li key={it.href}>
                       <Link
                         href={it.href}
-                        className="block rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-sm p-4 transition-colors"
+                        className="block rounded-xl border border-gray-200 hover:border-[#0b1220] hover:shadow-sm p-4 transition-colors"
                       >
                         <p className="font-semibold text-gray-900">{it.title}</p>
                         <p className="text-gray-500 text-sm leading-relaxed">{it.desc}</p>

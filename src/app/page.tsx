@@ -8,7 +8,7 @@ import EmailFlow from '@/components/marketing/EmailFlow'
 import Pricing from '@/components/marketing/Pricing'
 import { marketing, marketingCtaClass, ctaRadiusStyle, pricingAmounts } from '@/lib/marketing.mjs'
 import { readPaidSignupOpen } from '@/lib/paid-signup-render'
-import { enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
+import { companionCta, enquiriesSignupCta } from '@/lib/enquiries-signup.mjs'
 
 export const metadata: Metadata = {
   title: 'Go Dottie — AI assistant for UK childminders',
@@ -56,7 +56,9 @@ const jsonLd = {
 }
 
 export default async function RootPage() {
-  const signup = enquiriesSignupCta(await readPaidSignupOpen())
+  const paymentsOpen = await readPaidSignupOpen()
+  const signup = enquiriesSignupCta(paymentsOpen)
+  const companion = companionCta(paymentsOpen)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')
@@ -93,8 +95,8 @@ export default async function RootPage() {
                 <Link href={signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
                   {signup.label}
                 </Link>
-                <Link href={marketing.ctas.demo.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
-                  {marketing.ctas.demo.label}
+                <Link href={companion.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
+                  {companion.label}
                 </Link>
               </div>
             </div>
@@ -217,8 +219,8 @@ export default async function RootPage() {
               <Link href={signup.href} className={marketingCtaClass.primaryOnDark} style={ctaRadiusStyle()}>
                 {signup.label}
               </Link>
-              <Link href={marketing.ctas.demo.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
-                {marketing.ctas.demo.label}
+              <Link href={companion.href} className={marketingCtaClass.secondaryOnDark} style={ctaRadiusStyle()}>
+                {companion.label}
               </Link>
             </div>
           </div>

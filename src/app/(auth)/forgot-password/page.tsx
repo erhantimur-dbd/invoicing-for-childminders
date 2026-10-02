@@ -37,8 +37,8 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-          <Mail className="w-6 h-6 text-emerald-600" />
+        <div className="w-12 h-12 rounded-full bg-[#f6f7f9] flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-6 h-6 text-[#0b1220]" />
         </div>
         <h2 className="text-lg font-bold text-gray-900 mb-2">Check your email</h2>
         <p className="text-gray-500 text-sm mb-6">
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
         </p>
         <Link
           href="/login"
-          className="text-emerald-600 font-semibold text-sm hover:text-emerald-700"
+          className="text-[#0b1220] font-semibold text-sm underline underline-offset-2"
         >
           Back to sign in
         </Link>
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-emerald-500 focus:border-emerald-500"
+              className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
             />
           </div>
         </div>
@@ -84,13 +84,13 @@ export default function ForgotPasswordPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-12 text-base bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-sm shadow-emerald-200"
+          className="w-full min-h-[44px] h-12 text-base bg-[#0b1220] text-white hover:bg-[#0b1220] rounded-xl font-semibold"
         >
           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Send reset link'}
         </Button>
 
         <p className="text-sm text-gray-400 text-center pt-1">
-          <Link href="/login" className="text-emerald-600 font-semibold hover:text-emerald-700 inline-flex items-center gap-1">
+          <Link href="/login" className="text-[#0b1220] font-semibold underline underline-offset-2 inline-flex items-center gap-1">
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to sign in
           </Link>

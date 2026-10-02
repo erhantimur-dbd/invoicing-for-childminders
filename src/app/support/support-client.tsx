@@ -151,7 +151,7 @@ export default function SupportClient({
                     value={form.name}
                     onChange={e => update('name', e.target.value)}
                     placeholder="Jane Smith"
-                    className="w-full h-11 px-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                    className="w-full h-11 px-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0b1220] focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -164,7 +164,7 @@ export default function SupportClient({
                     value={form.email}
                     onChange={e => update('email', e.target.value)}
                     placeholder="jane@example.com"
-                    className="w-full h-11 px-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                    className="w-full h-11 px-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0b1220] focus:border-transparent"
                   />
                 </div>
               </div>
@@ -174,7 +174,7 @@ export default function SupportClient({
                 <select
                   value={form.subject}
                   onChange={e => update('subject', e.target.value)}
-                  className="w-full h-11 px-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent bg-white text-gray-700"
+                  className="w-full h-11 px-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0b1220] focus:border-transparent bg-white text-gray-700"
                 >
                   <option value="">Select a topic…</option>
                   {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
@@ -192,7 +192,7 @@ export default function SupportClient({
                   onChange={e => update('message', e.target.value)}
                   placeholder="Tell me how I can help…"
                   maxLength={2000}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0b1220] focus:border-transparent resize-none"
                 />
                 <p className="text-xs text-gray-400 mt-1 text-right">{form.message.length}/2000</p>
               </div>
@@ -223,7 +223,7 @@ export default function SupportClient({
         <section>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-semibold text-gray-900">Frequently asked questions</h2>
-            <Link href="/faq" className="text-sm text-[#123a4a] hover:text-emerald-700 font-medium">
+            <Link href="/faq" className="text-sm text-[#123a4a] hover:text-[#0b1220] font-medium">
               See all FAQs →
             </Link>
           </div>
@@ -269,7 +269,7 @@ export default function SupportClient({
             Prefer to email directly?{' '}
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="text-[#123a4a] hover:text-emerald-700 font-medium underline underline-offset-2 transition-colors"
+              className="text-[#123a4a] hover:text-[#0b1220] font-medium underline underline-offset-2 transition-colors"
             >
               {SUPPORT_EMAIL}
             </a>

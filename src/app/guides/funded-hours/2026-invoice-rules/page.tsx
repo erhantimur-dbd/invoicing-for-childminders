@@ -123,7 +123,7 @@ export default function Page() {
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-emerald-700">Home</Link></li>
+            <li><Link href="/" className="hover:text-[#0b1220]">Home</Link></li>
             <li aria-hidden>/</li>
             <li><span className="text-gray-700">Guides</span></li>
             <li aria-hidden>/</li>
@@ -148,8 +148,8 @@ export default function Page() {
         </p>
 
         {/* TL;DR card */}
-        <aside className="mb-10 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-6">
-          <p className="text-emerald-900 text-xs font-bold uppercase tracking-widest mb-2">
+        <aside className="mb-10 rounded-2xl border border-[#e5e7eb] bg-[#f6f7f9] p-6">
+          <p className="text-[#0b1220] text-xs font-bold uppercase tracking-widest mb-2">
             In one paragraph
           </p>
           <p className="text-gray-800 leading-relaxed">
@@ -173,7 +173,7 @@ export default function Page() {
             { k: 'Activities & trips', v: 'Each itemised: outings, classes, special projects. Optional.' },
           ].map((it) => (
             <li key={it.k} className="flex gap-3">
-              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              <span className="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-[#0b1220] flex-shrink-0" />
               <span><strong className="text-gray-900">{it.k}.</strong> <span className="text-gray-600">{it.v}</span></span>
             </li>
           ))}
@@ -200,7 +200,7 @@ export default function Page() {
               <tr><td className="py-2.5 px-4">Additional paid hours</td><td className="py-2.5 px-4 text-gray-500">10h × £6.00</td><td className="py-2.5 px-4 text-right">£60.00</td></tr>
               <tr><td className="py-2.5 px-4">Food</td><td className="py-2.5 px-4 text-gray-500">Lunch × 5 days × £3.50</td><td className="py-2.5 px-4 text-right">£17.50</td></tr>
               <tr><td className="py-2.5 px-4">Activity</td><td className="py-2.5 px-4 text-gray-500">Soft-play outing, Wed 6 May</td><td className="py-2.5 px-4 text-right">£8.00</td></tr>
-              <tr className="bg-emerald-50/50 font-semibold"><td className="py-2.5 px-4">Total</td><td className="py-2.5 px-4"></td><td className="py-2.5 px-4 text-right text-emerald-700">£85.50</td></tr>
+              <tr className="bg-[#f6f7f9] font-semibold"><td className="py-2.5 px-4">Total</td><td className="py-2.5 px-4"></td><td className="py-2.5 px-4 text-right text-[#0b1220]">£85.50</td></tr>
             </tbody>
           </table>
         </div>
@@ -230,7 +230,7 @@ export default function Page() {
           You review the draft, approve it, and send it to the parent in a single tap. The parent verifies their child&apos;s date of birth before they can see anything sensitive (your bank details). HMRC-ready records are kept automatically — useful when MTD for Income Tax kicks in for £50k+ childminders in April 2026.
         </p>
 
-        <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-amber-400 p-6 sm:p-8 text-white shadow-xl shadow-emerald-200/40 my-10">
+        <div className="rounded-2xl bg-[#0b1220] p-6 sm:p-8 text-white my-10">
           <h3 className="text-xl sm:text-2xl font-extrabold mb-2">Put your invoicing on autopilot</h3>
           <p className="text-white/85 mb-5 leading-relaxed">
             Compliant invoices, funded-hours tracking, expense capture, and tax-year reports — built for UK childminders. Cancel anytime.
@@ -273,22 +273,22 @@ export default function Page() {
         </h2>
         <ul className="space-y-2 text-sm text-gray-600 mb-12">
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://assets.publishing.service.gov.uk/media/683981d4c99c4f37ab4e86e3/September_2025_early_education_and_childcare_entitlements_expansion_-_local_authority_system_guidance_May_2025.pdf" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://assets.publishing.service.gov.uk/media/683981d4c99c4f37ab4e86e3/September_2025_early_education_and_childcare_entitlements_expansion_-_local_authority_system_guidance_May_2025.pdf" rel="nofollow noopener" target="_blank">
               DfE — September 2025 early education and childcare entitlements expansion (PDF)
             </a>
           </li>
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.childcare.co.uk/funding-fees-policy" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.childcare.co.uk/funding-fees-policy" rel="nofollow noopener" target="_blank">
               Funding Fees Policy Guidance — Childcare.co.uk
             </a>
           </li>
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.gov.uk/hmrc-internal-manuals/business-income-manual/bim52751" rel="nofollow noopener" target="_blank">
               BIM52751 — HMRC manual: childminders&apos; expenses
             </a>
           </li>
           <li>
-            <a className="text-emerald-700 underline underline-offset-2 hover:text-emerald-800" href="https://www.pacey.org.uk/working-in-childcare/spotlight-on/tax-return-survival-guide/" rel="nofollow noopener" target="_blank">
+            <a className="text-[#0b1220] underline underline-offset-2 hover:text-[#0b1220]" href="https://www.pacey.org.uk/working-in-childcare/spotlight-on/tax-return-survival-guide/" rel="nofollow noopener" target="_blank">
               Coram PACEY — Tax return survival guide
             </a>
           </li>

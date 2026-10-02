@@ -23,7 +23,6 @@ const CATEGORIES = [
   {
     id: 'about',
     label: 'About Go Dottie',
-    icon: '💜',
     questions: [
       {
         q: 'What is Go Dottie?',
@@ -46,7 +45,6 @@ const CATEGORIES = [
   {
     id: 'getting-started',
     label: 'Getting started',
-    icon: '🚀',
     questions: [
       {
         q: 'How do I get started?',
@@ -69,7 +67,6 @@ const CATEGORIES = [
   {
     id: 'invoicing',
     label: 'Invoicing',
-    icon: '📄',
     questions: [
       {
         q: 'How does auto-invoice generation work?',
@@ -108,7 +105,6 @@ const CATEGORIES = [
   {
     id: 'pricing',
     label: 'Plans & pricing',
-    icon: '💳',
     questions: [
       {
         q: 'How much does Go Dottie cost?',
@@ -139,7 +135,6 @@ const CATEGORIES = [
   {
     id: 'expenses',
     label: 'Expenses & reports',
-    icon: '📊',
     questions: [
       {
         q: 'Can I track my childminding expenses?',
@@ -162,7 +157,6 @@ const CATEGORIES = [
   {
     id: 'security',
     label: 'Security & privacy',
-    icon: '🔒',
     questions: [
       {
         q: 'Is my data secure?',
@@ -226,7 +220,7 @@ export default async function FaqPage() {
           <p className="mt-3 text-gray-500 text-lg">Everything you need to know about Go Dottie.</p>
           <p className="mt-2 text-gray-400 text-sm">
             Can&apos;t find what you&apos;re looking for?{' '}
-            <Link href="/support" className="text-[#123a4a] underline underline-offset-2 hover:text-emerald-700">
+            <Link href="/support" className="text-[#123a4a] underline underline-offset-2 hover:text-[#0b1220]">
               Contact us
             </Link>
           </p>
@@ -238,9 +232,8 @@ export default async function FaqPage() {
             <a
               key={cat.id}
               href={`#${cat.id}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-gray-200 text-sm text-gray-600 hover:border-emerald-400 hover:text-emerald-700 transition-colors shadow-sm"
+              className="inline-flex items-center px-3 py-1.5 rounded-full bg-white border border-gray-200 text-sm text-gray-600 hover:border-[#0b1220] hover:text-[#0b1220] transition-colors shadow-sm"
             >
-              <span>{cat.icon}</span>
               {cat.label}
             </a>
           ))}
@@ -250,8 +243,7 @@ export default async function FaqPage() {
         <div className="space-y-12">
           {CATEGORIES.map(cat => (
             <section key={cat.id} id={cat.id} className="scroll-mt-8">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="text-2xl">{cat.icon}</span>
+              <div className="mb-5">
                 <h2 className="text-xl font-bold text-gray-900">{cat.label}</h2>
               </div>
               {cat.id === 'pricing' ? (

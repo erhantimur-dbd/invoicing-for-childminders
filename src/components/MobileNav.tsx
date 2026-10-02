@@ -7,9 +7,13 @@ import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mj
 export default function MobileNav({
   signupHref,
   signupLabel,
+  companionHref,
+  companionLabel,
 }: {
   signupHref: string
   signupLabel: string
+  companionHref: string
+  companionLabel: string
 }) {
   const [open, setOpen] = useState(false)
 
@@ -63,12 +67,12 @@ export default function MobileNav({
             Sign in
           </Link>
           <Link
-            href={marketing.ctas.demo.href}
+            href={companionHref}
             onClick={() => setOpen(false)}
             className={`${marketingCtaClass.secondaryOnDark} mt-2 !px-4 !py-2.5 text-sm`}
             style={ctaRadiusStyle()}
           >
-            {marketing.ctas.demo.label}
+            {companionLabel}
           </Link>
           <Link
             href={signupHref}

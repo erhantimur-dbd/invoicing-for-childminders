@@ -52,9 +52,9 @@ export default function FundedHoursIndex() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-emerald-700">Home</Link></li>
+            <li><Link href="/" className="hover:text-[#0b1220]">Home</Link></li>
             <li aria-hidden>/</li>
-            <li><Link href="/guides" className="hover:text-emerald-700">Guides</Link></li>
+            <li><Link href="/guides" className="hover:text-[#0b1220]">Guides</Link></li>
             <li aria-hidden>/</li>
             <li><span className="text-gray-900 font-medium">Funded hours</span></li>
           </ol>
@@ -75,10 +75,10 @@ export default function FundedHoursIndex() {
             <li key={it.href}>
               <Link
                 href={it.href}
-                className="block rounded-xl border border-gray-200 hover:border-emerald-300 hover:shadow-sm p-5 transition-colors"
+                className="block rounded-xl border border-gray-200 hover:border-[#0b1220] hover:shadow-sm p-5 transition-colors"
               >
                 {it.badge && (
-                  <span className="inline-block mb-2 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">
+                  <span className="inline-block mb-2 text-xs font-bold uppercase tracking-wider text-[#0b1220] bg-[#f6f7f9] border border-[#e5e7eb] rounded-full px-2 py-0.5">
                     {it.badge}
                   </span>
                 )}

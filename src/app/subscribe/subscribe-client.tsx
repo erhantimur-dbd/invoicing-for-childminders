@@ -113,7 +113,6 @@ export default function SubscribePage({ paymentsOpen = true }: { paymentsOpen?: 
       {sub?.status === 'past_due' ? (
         <div className="rounded-2xl bg-red-50 border border-red-200 p-5">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">⚠️</span>
             <span className="font-bold text-red-900 text-lg">Your last payment failed</span>
           </div>
           <p className="text-red-800/90 text-sm leading-relaxed">
@@ -169,7 +168,7 @@ export default function SubscribePage({ paymentsOpen = true }: { paymentsOpen?: 
       {/* Stripe unavailable notice */}
       {stripeUnavailable && (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-center">
-          <div className="text-amber-700 font-semibold mb-1">💳 Hold on — billing is briefly unavailable</div>
+          <div className="text-amber-700 font-semibold mb-1">Hold on — billing is briefly unavailable</div>
           <p className="text-amber-800/80 text-sm">
             We couldn&apos;t reach Stripe just now. Please try again in a moment.
           </p>
@@ -338,7 +337,7 @@ function ManageBillingSection() {
             <span className="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
             Loading…
           </>
-        ) : '⚙️ Manage billing'}
+        ) : 'Manage billing'}
       </button>
     </div>
   )
