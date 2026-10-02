@@ -137,7 +137,7 @@ export default function SignupPage() {
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
                 autoComplete="name"
               />
             </div>
@@ -154,7 +154,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
                 autoComplete="email"
               />
             </div>
@@ -173,7 +173,7 @@ export default function SignupPage() {
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
                 required
-                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220]"
+                className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
                 autoComplete="new-password"
               />
             </div>
@@ -204,7 +204,7 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={termsAccepted}
                 onChange={e => { setTermsAccepted(e.target.checked); setTermsError(false) }}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#0b1220] focus:ring-[#0b1220] flex-shrink-0"
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#0b1220] focus:ring-[#0b1220] focus-visible:ring-[#0b1220] flex-shrink-0"
               />
               <span className="text-xs text-gray-500 leading-relaxed">
                 I agree to Go Dottie&apos;s{' '}

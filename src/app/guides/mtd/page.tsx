@@ -186,7 +186,7 @@ export default function Page() {
               <tr><td className="py-2.5 px-4">6 July – 5 October</td><td className="py-2.5 px-4">7 November</td></tr>
               <tr><td className="py-2.5 px-4">6 October – 5 January</td><td className="py-2.5 px-4">7 February</td></tr>
               <tr><td className="py-2.5 px-4">6 January – 5 April</td><td className="py-2.5 px-4">7 May</td></tr>
-              <tr className="bg-amber-50/50"><td className="py-2.5 px-4 font-semibold">Final declaration</td><td className="py-2.5 px-4 font-semibold">31 January after tax-year end</td></tr>
+              <tr className="bg-[#f6f7f9] text-[#0b1220]"><td className="py-2.5 px-4 font-semibold text-[#0b1220]">Final declaration</td><td className="py-2.5 px-4 font-semibold text-[#0b1220]">31 January after tax-year end</td></tr>
             </tbody>
           </table>
         </div>

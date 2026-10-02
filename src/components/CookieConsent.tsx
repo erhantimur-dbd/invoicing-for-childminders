@@ -69,14 +69,14 @@ export default function CookieConsent({ gaId }: { gaId: string }) {
               <button
                 type="button"
                 onClick={() => choose('denied')}
-                className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 rounded-xl border border-[#0b1220] bg-white text-sm font-semibold text-[#0b1220] hover:bg-[#f6f7f9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b1220] transition-colors"
               >
                 Decline
               </button>
               <button
                 type="button"
                 onClick={() => choose('granted')}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition-colors"
+                className="px-4 py-2 rounded-xl bg-[#0b1220] hover:bg-[#0b1220] text-white text-sm font-semibold shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b1220] transition-colors"
               >
                 Accept analytics
               </button>

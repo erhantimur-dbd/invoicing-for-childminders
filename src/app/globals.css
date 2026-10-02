@@ -171,7 +171,20 @@
 
 /* Unlayered so it wins over inherited wrapper font-family on public pages. */
 .marketing-page {
+  --ring: #0b1220;
   font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+/* Token rings on these pages are grey (ring-ring). Paint them navy, matching /login. */
+.marketing-page input:focus-visible,
+.marketing-page textarea:focus-visible,
+.marketing-page select:focus-visible,
+.marketing-page button:focus-visible {
+  --tw-ring-color: #0b1220;
+}
+.marketing-page input:focus-visible,
+.marketing-page textarea:focus-visible,
+.marketing-page select:focus-visible {
+  border-color: #0b1220;
 }
 .marketing-page h1,
 .marketing-page h2,

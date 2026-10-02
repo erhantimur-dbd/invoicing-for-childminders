@@ -143,7 +143,7 @@ export default function ResetPasswordPage() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="h-12 text-base pl-10 border-gray-200 rounded-xl"
+              className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
             />
           </div>
           <PasswordStrength password={password} />
@@ -163,7 +163,7 @@ export default function ResetPasswordPage() {
               autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="h-12 text-base pl-10 border-gray-200 rounded-xl"
+              className="h-12 text-base pl-10 border-gray-200 rounded-xl focus:ring-[#0b1220] focus:border-[#0b1220] focus-visible:ring-[#0b1220] focus-visible:border-[#0b1220]"
             />
           </div>
         </div>
