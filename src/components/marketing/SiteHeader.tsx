@@ -37,13 +37,15 @@ export default async function SiteHeader() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          <Link
-            href={companion.href}
-            className={`${marketingCtaClass.secondaryOnDark} !px-4 !py-1.5 text-[13px]`}
-            style={ctaRadiusStyle()}
-          >
-            {companion.label}
-          </Link>
+          {paymentsOpen ? (
+            <Link
+              href={companion.href}
+              className={`${marketingCtaClass.secondaryOnDark} !px-4 !py-1.5 text-[13px]`}
+              style={ctaRadiusStyle()}
+            >
+              {companion.label}
+            </Link>
+          ) : null}
           <Link
             href={signup.href}
             className={`${marketingCtaClass.primaryOnDark} !px-4 !py-1.5 text-[13px]`}
@@ -58,6 +60,7 @@ export default async function SiteHeader() {
           signupLabel={signup.label}
           companionHref={companion.href}
           companionLabel={companion.label}
+          showCompanion={paymentsOpen}
         />
       </div>
     </header>

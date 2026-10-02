@@ -40,6 +40,19 @@ test('closed payments render no Enquiries signup link', () => {
   assert.deepEqual(companionCta(true), { href: '/demo', label: 'Book a demo' })
 })
 
+test('closed header and mobile menu keep the Sign in link and drop the outlined button', () => {
+  const header = read('components/marketing/SiteHeader.tsx')
+  const mobile = read('components/MobileNav.tsx')
+  const home = read('app/page.tsx')
+  assert.match(header, /href="\/login"/)
+  assert.match(header, /paymentsOpen \? \(/)
+  assert.match(header, /showCompanion=\{paymentsOpen\}/)
+  assert.match(mobile, /href="\/login"/)
+  assert.match(mobile, /showCompanion \? \(/)
+  assert.match(home, /companion\.href/)
+  assert.equal(home.includes('showCompanion'), false)
+})
+
 test('every Enquiries signup surface calls the payments-open gate', () => {
   const gated = [
     'components/marketing/SiteHeader.tsx',

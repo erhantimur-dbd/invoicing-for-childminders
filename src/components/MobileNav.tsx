@@ -9,11 +9,13 @@ export default function MobileNav({
   signupLabel,
   companionHref,
   companionLabel,
+  showCompanion = true,
 }: {
   signupHref: string
   signupLabel: string
   companionHref: string
   companionLabel: string
+  showCompanion?: boolean
 }) {
   const [open, setOpen] = useState(false)
 
@@ -66,14 +68,16 @@ export default function MobileNav({
           <Link href="/login" onClick={() => setOpen(false)} className="py-3 px-3 text-sm font-medium hover:text-white transition-colors" style={{ color: marketing.heroMuted }}>
             Sign in
           </Link>
-          <Link
-            href={companionHref}
-            onClick={() => setOpen(false)}
-            className={`${marketingCtaClass.secondaryOnDark} mt-2 !px-4 !py-2.5 text-sm`}
-            style={ctaRadiusStyle()}
-          >
-            {companionLabel}
-          </Link>
+          {showCompanion ? (
+            <Link
+              href={companionHref}
+              onClick={() => setOpen(false)}
+              className={`${marketingCtaClass.secondaryOnDark} mt-2 !px-4 !py-2.5 text-sm`}
+              style={ctaRadiusStyle()}
+            >
+              {companionLabel}
+            </Link>
+          ) : null}
           <Link
             href={signupHref}
             onClick={() => setOpen(false)}
