@@ -4,6 +4,7 @@ import { AGENT_PAUSED_MESSAGE, isAgentPaused } from '@/lib/enquiries/pause'
 import { createEnquiryDraft, EnquiryDraftError } from '@/lib/enquiries/create-draft'
 import { sendApprovedEnquiry } from '@/lib/enquiries/gmail/send'
 import { isAutoSendEnabled } from '@/lib/enquiries/send-mode'
+import { markAutoSendHeld, resolveAutoSendDecision } from '@/lib/enquiries/auto-send-holdback.mjs'
 import { ALREADY_REPLIED_MESSAGE, hasOutboundSince, latestInboundCreatedAt } from '@/lib/enquiries/reply-guard'
 import { isOpenDraft } from '@/lib/enquiries/inbox'
 import { log } from '@/lib/log'
@@ -60,12 +61,48 @@ export async function POST(request: Request) {
     }
 
     const created = await createEnquiryDraft(supabase, user.id, prospectId, parentMessage)
-    if (created.needsHuman || !isAutoSendEnabled(settings)) {
+    if (!isAutoSendEnabled(settings)) {
       return NextResponse.json({
         draft: created.message,
         needsHuman: created.needsHuman,
         escalateLabels: created.escalateLabels,
         escalateReasons: created.escalateReasons,
+      })
+    }
+
+    const { data: latestIn } = await supabase
+      .from('enquiry_messages')
+      .select('status, body, subject')
+      .eq('user_id', user.id)
+      .eq('prospect_id', prospectId)
+      .eq('direction', 'in')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (latestIn?.status === 'historical') {
+      return NextResponse.json({
+        draft: created.message,
+        needsHuman: created.needsHuman,
+        escalateLabels: created.escalateLabels,
+        escalateReasons: created.escalateReasons,
+        held: 'before_connect',
+      })
+    }
+
+    const decision = await resolveAutoSendDecision({
+      inboundText: [parentMessage, latestIn?.subject, latestIn?.body].filter(Boolean).join('\n'),
+      draftText: created.message.body,
+      needsHuman: created.needsHuman,
+    })
+    if (!decision.send) {
+      await markAutoSendHeld(supabase, user.id, prospectId, created.message.id)
+      return NextResponse.json({
+        draft: created.message,
+        needsHuman: true,
+        held: decision.reason,
+        escalateLabels: created.escalateLabels,
+        escalateReasons: [...(created.escalateReasons || []), decision.reason],
       })
     }
 

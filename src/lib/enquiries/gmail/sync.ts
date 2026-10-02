@@ -3,7 +3,7 @@ import { autoDraftAndSend } from '@/lib/enquiries/auto-reply'
 import { isGmailPollingAllowed } from '@/lib/enquiries/pause'
 import { log } from '@/lib/log'
 import { getMessage, listLabels, listMessageRefs } from './client'
-import { classifyEnquiryMail, gmailSearchQuery } from './filters'
+import { classifyEnquiryMail, gmailSearchQuery, receivedAfterConnect } from './filters'
 import { parseFrom, parseGmailMessage } from './parse'
 import { rejectWithoutFetchingBody, shouldPersistEnquiry } from './privacy'
 import { getValidAccessToken, loadGmailAccount } from './tokens'
@@ -68,7 +68,7 @@ export async function syncEnquiryGmail(
   let createdProspects = 0
   let newMessages = 0
   let skipped = 0
-  const newInboundIds: string[] = []
+  const autoInbound: { id: string; receivedAt: string | null }[] = []
 
   const { data: existingMsgs } = await supabase
     .from('enquiry_messages')
@@ -126,14 +126,17 @@ export async function syncEnquiryGmail(
       continue
     }
 
+    const receivedMs = full.internalDate ? Number(full.internalDate) : NaN
+    const receivedAt = Number.isFinite(receivedMs)
+      ? new Date(receivedMs).toISOString()
+      : null
+
     const prospectId = await upsertProspect(supabase, {
       userId,
       email,
       name,
       threadId: ref.threadId,
-      receivedAt: full.internalDate
-        ? new Date(Number(full.internalDate)).toISOString()
-        : new Date().toISOString(),
+      receivedAt: receivedAt ?? new Date().toISOString(),
     })
     if (prospectId.created) createdProspects += 1
 
@@ -147,7 +150,7 @@ export async function syncEnquiryGmail(
         body: parsed.body || parsed.subject || '(empty message)',
         from_address: email,
         to_address: parseFrom(parsed.to).email,
-        status: 'logged',
+        status: receivedAfterConnect(receivedAt, account.connected_at) ? 'logged' : 'historical',
         gmail_message_id: ref.id,
         gmail_thread_id: ref.threadId,
         rfc_message_id: parsed.rfcMessageId || null,
@@ -169,7 +172,9 @@ export async function syncEnquiryGmail(
 
     seenIds.add(ref.id)
     newMessages += 1
-    if (inserted?.id) newInboundIds.push(inserted.id)
+    if (inserted?.id && receivedAfterConnect(receivedAt, account.connected_at)) {
+      autoInbound.push({ id: inserted.id, receivedAt })
+    }
   }
 
   await supabase
@@ -181,7 +186,7 @@ export async function syncEnquiryGmail(
     })
     .eq('user_id', userId)
 
-  const auto = await autoDraftAndSend(supabase, userId, newInboundIds)
+  const auto = await autoDraftAndSend(supabase, userId, autoInbound)
 
   return {
     createdProspects,

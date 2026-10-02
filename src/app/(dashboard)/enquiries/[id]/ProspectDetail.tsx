@@ -118,7 +118,7 @@ export default function ProspectDetail({
             id: data.sent.gmailMessageId || `out-${Date.now()}`,
             direction: 'out',
             status: 'auto_sent',
-            body: data.draft.body,
+            body: data.sent.body || data.draft.body,
             from_address: gmailEmail,
             to_address: prospect.parent_email,
           },

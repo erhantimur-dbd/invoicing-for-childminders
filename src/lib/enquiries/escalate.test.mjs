@@ -59,6 +59,25 @@ test('asking for Friday when only Mon–Wed are listed is a partial vacancy', ()
   assert.ok(d.reasons.includes('partial_vacancy'))
 })
 
+test('safeguarding, complaints and payment disputes escalate to a human', () => {
+  const prospect = mergeProspectFacts({}, extractFactsFromText(emma))
+  for (const [extra, reason] of [
+    [' I need to raise a safeguarding concern.', 'safeguarding'],
+    [' I want to make a complaint about last week.', 'complaint'],
+    [' I am writing to dispute the payment on your invoice.', 'payment_dispute'],
+  ]) {
+    const d = decideHumanEscalation({
+      prospect,
+      settings,
+      vacancies,
+      parentMessage: emma + extra,
+      knowledge: [],
+    })
+    assert.equal(d.confident, false)
+    assert.ok(d.reasons.includes(reason), reason)
+  }
+})
+
 test('facts guessed by the model are not 100% confident', () => {
   const prospect = mergeProspectFacts({}, extractFactsFromText(emma))
   const d = decideHumanEscalation({

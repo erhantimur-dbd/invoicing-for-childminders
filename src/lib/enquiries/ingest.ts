@@ -1,11 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { createEnquiryDraft } from '@/lib/enquiries/create-draft'
-import { sendApprovedEnquiry } from '@/lib/enquiries/gmail/send'
-import { parseFromHeader, shouldIngestMessage } from '@/lib/enquiries/ingest-filter.mjs'
-import { ENQUIRIES_QUOTA } from '@/lib/enquiries/quota.mjs'
-import { isAutoSendEnabled } from '@/lib/enquiries/send-mode'
-import type { EnquiryProspect, EnquirySettings } from '@/lib/enquiries/types'
-import { log } from '@/lib/log'
+import type { createEnquiryDraft } from './create-draft'
+import type { sendApprovedEnquiry } from './gmail/send'
+import { parseFromHeader, shouldIngestMessage } from './ingest-filter.mjs'
+import { ENQUIRIES_QUOTA } from './quota.mjs'
+import { isAgentPaused } from './pause'
+import { isAutoSendEnabled } from './send-mode'
+import { markAutoSendHeld, resolveAutoSendDecision } from './auto-send-holdback.mjs'
+import type { HoldbackDecision } from './auto-send-holdback'
+import type { EnquiryProspect, EnquirySettings } from './types'
+import { log } from '../log'
 
 type Admin = SupabaseClient
 
@@ -136,10 +139,27 @@ export async function draftAndMaybeSend(input: {
   prospect: EnquiryProspect
   settings: EnquirySettings
   parentMessage?: string
+}, deps?: {
+  createDraft?: typeof createEnquiryDraft
+  send?: typeof sendApprovedEnquiry
+  classify?: (inboundText: string, draftText: string) => HoldbackDecision | Promise<HoldbackDecision>
+  timeoutMs?: number
 }) {
+  const createDraft = deps?.createDraft ?? (async (
+    ...args: Parameters<typeof createEnquiryDraft>
+  ) => {
+    const mod = await import('./create-draft')
+    return mod.createEnquiryDraft(...args)
+  })
+  const send = deps?.send ?? (async (
+    ...args: Parameters<typeof sendApprovedEnquiry>
+  ) => {
+    const mod = await import('./gmail/send')
+    return mod.sendApprovedEnquiry(...args)
+  })
   let created
   try {
-    created = await createEnquiryDraft(
+    created = await createDraft(
       input.supabase,
       input.userId,
       input.prospect.id,
@@ -149,12 +169,30 @@ export async function draftAndMaybeSend(input: {
     return { draftId: null, sent: false, error: err instanceof Error ? err.message : 'draft_failed' }
   }
 
-  if (created.needsHuman || !isAutoSendEnabled(input.settings) || !input.prospect.parent_email) {
+  if (isAgentPaused(input.settings) || !isAutoSendEnabled(input.settings) || !input.prospect.parent_email) {
     return { draftId: created.message.id, sent: false, needsHuman: created.needsHuman, escalateLabels: created.escalateLabels }
   }
 
+  const decision = await resolveAutoSendDecision({
+    inboundText: input.parentMessage || '',
+    draftText: created.message.body || '',
+    needsHuman: created.needsHuman,
+    classify: deps?.classify,
+    timeoutMs: deps?.timeoutMs,
+  })
+  if (!decision.send) {
+    await markAutoSendHeld(input.supabase, input.userId, input.prospect.id, created.message.id)
+    return {
+      draftId: created.message.id,
+      sent: false,
+      needsHuman: true,
+      escalateLabels: created.escalateLabels,
+      held: decision.reason,
+    }
+  }
+
   try {
-    await sendApprovedEnquiry({
+    await send({
       supabase: input.supabase,
       userId: input.userId,
       prospectId: input.prospect.id,

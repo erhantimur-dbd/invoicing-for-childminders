@@ -10,6 +10,7 @@ import { Loader2, Mail, Pause, Play } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { DEFAULT_ENQUIRY_LABELS } from '@/lib/enquiries/gmail/filters'
 import { DEFAULT_SEND_MODE, parseSendMode, type SendMode } from '@/lib/enquiries/send-mode'
+import { AUTO_SEND_CONNECT_NOTICE } from '@/lib/enquiries/auto-send-notice'
 import SendModeToggle from '@/components/enquiries/SendModeToggle'
 
 type Status = {
@@ -62,7 +63,8 @@ export default function GmailConnect({
         if (gmailResult === 'error') {
           toast.error('Gmail did not connect. Try again, or check the Google consent screen.')
         } else if (!data.paused && gmailResult === 'connected') {
-          toast.success('Gmail connected. Checking for parent emails…')
+          const mode = parseSendMode(data.sendMode)
+          toast.success(mode === 'auto' ? AUTO_SEND_CONNECT_NOTICE : 'Gmail connected. Draft & approve: on')
           await runSync()
         } else if (!data.paused && data.connected) {
           const last = data.account?.last_sync_at ? new Date(data.account.last_sync_at).getTime() : 0
@@ -205,10 +207,7 @@ export default function GmailConnect({
             <p className="font-semibold text-gray-900">Gmail</p>
             {status?.connected ? (
               <p className="text-sm text-gray-500">
-                Connected as {status.account?.email} — Dottie looks for new childcare enquiries and sends as you on the real Gmail thread.
-                {sendMode === 'auto'
-                  ? ' Auto-send is on for classified parent emails only.'
-                  : ' Draft & approve is on — nothing sends until you tap Approve.'}
+                Connected as {status.account?.email}. Dottie looks for new childcare enquiries and sends as you on the real Gmail thread.
               </p>
             ) : (
               <p className="text-sm text-gray-500">
@@ -224,7 +223,12 @@ export default function GmailConnect({
         </label>
       </div>
 
-      <SendModeToggle value={sendMode} onChange={saveSendMode} disabled={paused} />
+      <SendModeToggle
+        value={sendMode}
+        onChange={saveSendMode}
+        disabled={paused}
+        notice={sendMode === 'auto' ? AUTO_SEND_CONNECT_NOTICE : undefined}
+      />
 
       {!status?.configured ? (
         <p className="text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">

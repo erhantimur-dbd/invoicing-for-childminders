@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { enquiriesActive } from '@/lib/enquiries/access'
 import { isGmailPollingAllowed } from '@/lib/enquiries/pause'
 import { syncEnquiryGmail } from '@/lib/enquiries/gmail/sync'
 import { log } from '@/lib/log'
@@ -38,12 +39,22 @@ export async function GET(request: NextRequest) {
   const { data: settingsRows } = userIds.length
     ? await admin.from('enquiry_settings').select('user_id, agent_paused').in('user_id', userIds)
     : { data: [] as { user_id: string; agent_paused: boolean }[] }
+  const { data: subscriptionRows } = userIds.length
+    ? await admin.from('subscriptions').select('user_id, enquiries_status').in('user_id', userIds)
+    : { data: [] as { user_id: string; enquiries_status: string | null }[] }
   const paused = new Set(
     (settingsRows ?? []).filter((row) => !isGmailPollingAllowed(row)).map((row) => row.user_id),
   )
+  const active = new Set(
+    (subscriptionRows ?? []).filter((row) => enquiriesActive(row)).map((row) => row.user_id),
+  )
 
-  const results: { userId: string; ok: boolean; error?: string; skipped?: 'paused' }[] = []
+  const results: { userId: string; ok: boolean; error?: string; skipped?: 'paused' | 'inactive' }[] = []
   for (const row of accounts ?? []) {
+    if (!active.has(row.user_id)) {
+      results.push({ userId: row.user_id, ok: true, skipped: 'inactive' })
+      continue
+    }
     if (paused.has(row.user_id)) {
       results.push({ userId: row.user_id, ok: true, skipped: 'paused' })
       continue

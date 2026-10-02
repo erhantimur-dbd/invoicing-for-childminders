@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { classifyEnquiryMail, gmailSearchQuery, hasEnquiryLabel, watchedLabels } from './filters.ts'
+import { classifyEnquiryMail, gmailSearchQuery, hasEnquiryLabel, receivedAfterConnect, watchedLabels } from './filters.ts'
 
 describe('watchedLabels', () => {
   it('includes Soft Launch defaults plus a custom label', () => {
@@ -111,5 +111,27 @@ describe('gmailSearchQuery', () => {
     assert.match(q, /label:enquiries/)
     assert.match(q, /-category:promotions/)
     assert.match(q, /-in:sent/)
+    assert.match(q, /newer_than:21d/)
+  })
+})
+
+describe('receivedAfterConnect', () => {
+  const connected = '2026-09-30T12:00:00.000Z'
+
+  it('auto-sends only mail that arrived after the account was connected', () => {
+    assert.equal(receivedAfterConnect('2026-09-30T12:00:01.000Z', connected), true)
+    assert.equal(receivedAfterConnect(Date.parse('2026-09-30T12:00:01.000Z'), connected), true)
+  })
+
+  it('does not auto-send 21-day inbox history or labelled mail from before connect', () => {
+    assert.equal(receivedAfterConnect('2026-09-09T12:00:00.000Z', connected), false)
+    assert.equal(receivedAfterConnect('2020-01-01T00:00:00.000Z', connected), false)
+    assert.equal(receivedAfterConnect(connected, connected), false)
+  })
+
+  it('fails closed when either timestamp is missing', () => {
+    assert.equal(receivedAfterConnect(null, connected), false)
+    assert.equal(receivedAfterConnect('2026-09-30T12:00:01.000Z', null), false)
+    assert.equal(receivedAfterConnect(undefined, undefined), false)
   })
 })

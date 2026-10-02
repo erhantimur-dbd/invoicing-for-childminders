@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/ai/*.test.ts src/lib/auth/*.test.ts src/lib/enquiries/*.test.ts src/lib/enquiries/gmail/*.test.ts src/lib/supabase/*.test.ts src/lib/*.test.mjs src/lib/enquiries/*.test.mjs src/lib/integrations/*.test.mjs src/lib/invoices/*.test.mjs"
+    "test": "node --experimental-strip-types --import ./src/lib/register-test-hooks.mjs --test src/lib/ai/*.test.ts src/lib/auth/*.test.ts src/lib/enquiries/*.test.ts src/lib/enquiries/gmail/*.test.ts src/lib/supabase/*.test.ts src/lib/*.test.mjs src/lib/enquiries/*.test.mjs src/lib/integrations/*.test.mjs src/lib/invoices/*.test.mjs",
+    "revoke-legacy-google": "node --experimental-strip-types --import ./src/lib/register-test-hooks.mjs scripts/revoke-legacy-google-connections.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",

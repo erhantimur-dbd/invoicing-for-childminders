@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { childminderFooterName, composeOutboundBody } from '@/lib/enquiries/auto-send-holdback.mjs'
 import { replySubject } from '@/lib/enquiries/inbox'
 import { AGENT_PAUSED_MESSAGE, isAgentPaused } from '@/lib/enquiries/pause'
 import { sendRawMessage } from './client'
@@ -13,10 +14,10 @@ export async function sendApprovedEnquiry(opts: {
   body: string
   subject: string
   via?: 'approve' | 'auto'
-}): Promise<{ gmailMessageId: string; gmailThreadId: string }> {
+}): Promise<{ gmailMessageId: string; gmailThreadId: string; body: string }> {
   const { data: settings } = await opts.supabase
     .from('enquiry_settings')
-    .select('agent_paused')
+    .select('agent_paused, display_name')
     .eq('user_id', opts.userId)
     .maybeSingle()
   if (isAgentPaused(settings)) {
@@ -52,8 +53,28 @@ export async function sendApprovedEnquiry(opts: {
   if (!draft || draft.direction !== 'draft') throw new Error('That draft is gone. Write a new one.')
   if (!prospect.parent_email) throw new Error('This parent has no email address.')
 
-  const body = opts.body.trim()
-  if (!body) throw new Error('The reply is empty.')
+  const originalBody = opts.body.trim()
+  if (!originalBody) throw new Error('The reply is empty.')
+  let footerName: string | null = null
+  if (opts.via === 'auto') {
+    try {
+      const { data: profile } = await opts.supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', opts.userId)
+        .maybeSingle()
+      footerName = childminderFooterName(
+        (settings as { display_name?: string | null } | null)?.display_name,
+        (profile as { full_name?: string | null } | null)?.full_name,
+      )
+    } catch {
+      footerName = childminderFooterName(
+        (settings as { display_name?: string | null } | null)?.display_name,
+        null,
+      )
+    }
+  }
+  const outboundBody = composeOutboundBody(originalBody, opts.via, footerName)
 
   const { data: lastInbound } = await opts.supabase
     .from('enquiry_messages')
@@ -72,7 +93,7 @@ export async function sendApprovedEnquiry(opts: {
       from: account.email,
       to: prospect.parent_email,
       subject,
-      body,
+      body: outboundBody,
       inReplyTo: lastInbound?.rfc_message_id || null,
       references: lastInbound?.rfc_message_id || null,
     }),
@@ -90,7 +111,7 @@ export async function sendApprovedEnquiry(opts: {
     user_id: opts.userId,
     direction: 'out',
     subject,
-    body,
+    body: outboundBody,
     from_address: account.email,
     to_address: prospect.parent_email,
     status: opts.via === 'auto' ? 'auto_sent' : 'sent',
@@ -102,7 +123,7 @@ export async function sendApprovedEnquiry(opts: {
 
   await opts.supabase
     .from('enquiry_messages')
-    .update({ status: opts.via === 'auto' ? 'auto_sent' : 'approved', body, subject })
+    .update({ status: opts.via === 'auto' ? 'auto_sent' : 'approved', body: originalBody, subject })
     .eq('id', draft.id)
 
   await opts.supabase
@@ -115,5 +136,5 @@ export async function sendApprovedEnquiry(opts: {
     })
     .eq('id', opts.prospectId)
 
-  return { gmailMessageId: sent.id, gmailThreadId: sent.threadId }
+  return { gmailMessageId: sent.id, gmailThreadId: sent.threadId, body: outboundBody }
 }

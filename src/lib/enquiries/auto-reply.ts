@@ -1,10 +1,18 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { createEnquiryDraft } from '@/lib/enquiries/create-draft'
-import { sendApprovedEnquiry } from '@/lib/enquiries/gmail/send'
-import { isAgentPaused } from '@/lib/enquiries/pause'
-import { hasOutboundSince } from '@/lib/enquiries/reply-guard'
-import { isAutoSendEnabled } from '@/lib/enquiries/send-mode'
-import { log } from '@/lib/log'
+import type { createEnquiryDraft } from './create-draft'
+import type { sendApprovedEnquiry } from './gmail/send'
+import { isAgentPaused } from './pause'
+import { hasOutboundSince } from './reply-guard'
+import { receivedAfterConnect } from './gmail/filters'
+import { isAutoSendEnabled } from './send-mode'
+import { markAutoSendHeld, resolveAutoSendDecision } from './auto-send-holdback.mjs'
+import type { HoldbackDecision } from './auto-send-holdback'
+import { log } from '../log'
+
+export type AutoInbound = {
+  id: string
+  receivedAt: string | null
+}
 
 export type AutoReplyResult = {
   sent: number
@@ -14,12 +22,20 @@ export type AutoReplyResult = {
 
 const MAX_AUTO_SEND_PER_SYNC = 10
 
+export type AutoSendDeps = {
+  createDraft?: typeof createEnquiryDraft
+  send?: typeof sendApprovedEnquiry
+  classify?: (inboundText: string, draftText: string) => HoldbackDecision | Promise<HoldbackDecision>
+  timeoutMs?: number
+}
+
 export async function autoDraftAndSend(
   supabase: SupabaseClient,
   userId: string,
-  inboundIds: string[],
+  inbound: AutoInbound[],
+  deps?: AutoSendDeps,
 ): Promise<AutoReplyResult> {
-  if (!inboundIds.length) return { sent: 0, skipped: 0, reason: 'none' }
+  if (!inbound.length) return { sent: 0, skipped: 0, reason: 'none' }
 
   const { data: settings } = await supabase
     .from('enquiry_settings')
@@ -28,16 +44,41 @@ export async function autoDraftAndSend(
     .maybeSingle()
 
   if (isAgentPaused(settings)) {
-    return { sent: 0, skipped: inboundIds.length, reason: 'paused' }
+    return { sent: 0, skipped: inbound.length, reason: 'paused' }
   }
   if (!isAutoSendEnabled(settings)) {
     return { sent: 0, skipped: 0, reason: 'approve' }
   }
 
+  const { data: account } = await supabase
+    .from('enquiry_gmail_accounts')
+    .select('connected_at')
+    .eq('user_id', userId)
+    .maybeSingle()
+  const connectedAt = (account?.connected_at as string | null) ?? null
+
+  const createDraft = deps?.createDraft ?? (async (
+    ...args: Parameters<typeof createEnquiryDraft>
+  ) => {
+    const mod = await import('./create-draft')
+    return mod.createEnquiryDraft(...args)
+  })
+  const send = deps?.send ?? (async (
+    ...args: Parameters<typeof sendApprovedEnquiry>
+  ) => {
+    const mod = await import('./gmail/send')
+    return mod.sendApprovedEnquiry(...args)
+  })
+
   let sent = 0
   let skipped = 0
 
-  for (const inboundId of inboundIds.slice(0, MAX_AUTO_SEND_PER_SYNC)) {
+  for (const item of inbound.slice(0, MAX_AUTO_SEND_PER_SYNC)) {
+    if (!receivedAfterConnect(item.receivedAt, connectedAt)) {
+      skipped += 1
+      continue
+    }
+    const inboundId = item.id
     try {
       const { data: stillAllowed } = await supabase
         .from('enquiry_settings')
@@ -84,19 +125,27 @@ export async function autoDraftAndSend(
         continue
       }
 
-      const draft = await createEnquiryDraft(
+      const draft = await createDraft(
         supabase,
         userId,
         prospect.id,
         inbound.body || inbound.subject || undefined,
       )
 
-      if (draft.needsHuman) {
+      const decision = await resolveAutoSendDecision({
+        inboundText: [inbound.subject, inbound.body].filter(Boolean).join('\n'),
+        draftText: draft.message.body || '',
+        needsHuman: draft.needsHuman,
+        classify: deps?.classify,
+        timeoutMs: deps?.timeoutMs,
+      })
+      if (!decision.send) {
+        await markAutoSendHeld(supabase, userId, prospect.id, draft.message.id)
         skipped += 1
         continue
       }
 
-      await sendApprovedEnquiry({
+      await send({
         supabase,
         userId,
         prospectId: prospect.id,

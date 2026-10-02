@@ -153,6 +153,9 @@ export function gmailSearchQuery(customLabel?: string | null): string {
     'ofsted',
   ].join(' OR ')
 
+  // Wide on purpose: labelled mail of any age, plus 21 days of inbox signals,
+  // so the first sync can classify and draft history. Auto-send is not this
+  // window — receivedAfterConnect is the only gate for sending.
   return [
     `((${labels}) OR (in:inbox newer_than:21d (${inboxSignals})))`,
     '-in:spam',
@@ -162,4 +165,28 @@ export function gmailSearchQuery(customLabel?: string | null): string {
     '-category:promotions',
     '-category:social',
   ].join(' ')
+}
+
+function toEpochMs(value: string | number | Date | null | undefined): number | null {
+  if (value == null || value === '') return null
+  if (value instanceof Date) {
+    const ms = value.getTime()
+    return Number.isFinite(ms) ? ms : null
+  }
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null
+  const asNumber = Number(value)
+  if (Number.isFinite(asNumber) && /^\d+$/.test(value.trim())) return asNumber
+  const parsed = Date.parse(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+/** True only when the message arrived strictly after Gmail was connected. */
+export function receivedAfterConnect(
+  receivedAt: string | number | Date | null | undefined,
+  connectedAt: string | number | Date | null | undefined,
+): boolean {
+  const received = toEpochMs(receivedAt)
+  const connected = toEpochMs(connectedAt)
+  if (received == null || connected == null) return false
+  return received > connected
 }
