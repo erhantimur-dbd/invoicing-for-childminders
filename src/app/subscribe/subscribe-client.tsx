@@ -146,7 +146,7 @@ export default function SubscribePage({ paymentsOpen = true }: { paymentsOpen?: 
             <span className="font-semibold text-lg">Choose your plan</span>
           </div>
           <p className="text-white/70 text-sm">
-            Start with Go Dottie. Add invoicing when a child is on roll. Same account. Cancel anytime.
+            Start with Enquiries. Add invoicing when a child starts with you. Same account. Cancel any time.
             {' '}
             <Link href="/demo" className="underline font-semibold text-white">
               Book a demo
@@ -223,7 +223,7 @@ export default function SubscribePage({ paymentsOpen = true }: { paymentsOpen?: 
 
       <div>
         <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">When a child starts — invoicing</p>
-        <p className="text-gray-500 text-sm mt-1">Same login. Add it once they are on roll — funded hours, PDFs, Sunday invoices.</p>
+        <p className="text-gray-500 text-sm mt-1">Same login. Add it when a child starts with you.</p>
       </div>
 
       {/* Plan cards */}

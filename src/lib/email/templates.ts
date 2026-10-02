@@ -413,7 +413,7 @@ export function placeOfferEmail(input: {
   const content = `
     <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827;">You have been offered a place${esc(child)}</h1>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
-      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form so they can get you on roll.
+      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form so your child can start with them.
       ${esc(extra)}
     </p>
     ${ctaButton('Complete signup', input.formUrl)}
