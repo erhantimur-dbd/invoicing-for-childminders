@@ -438,7 +438,7 @@ export default function ProspectDetail({
           <p className="text-xs text-gray-400">
             {gmailConnected
               ? `Sends as ${gmailEmail} on the Gmail thread — not from a Dottie address.`
-              : 'Connect Gmail on the inbox so Dottie can send as you on the real thread.'}
+              : 'Connect Gmail on the inbox so Go Dottie can send as you on the real thread.'}
           </p>
         </div>
       ) : null}

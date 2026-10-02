@@ -112,7 +112,7 @@ export default async function EnquiriesPage({
               ? 'Dottie is paused, so she is not checking Gmail. Turn her back on when you want new parent emails to land here.'
               : gmailAccount?.email
                 ? 'Label parent emails Enquiries or New parent in Gmail. Dottie only saves classified enquiry threads — receipts and personal mail are never stored.'
-                : 'Connect Gmail above, or tap Add a parent and paste a message. Dottie drafts a polite visit letter and, with Auto-send on, sends it from your Gmail.'}
+                : 'Connect Gmail above, or tap Add a parent and paste a message. Go Dottie drafts a polite visit letter and, with Auto-send on, sends it from your Gmail.'}
           </p>
           <Link href="/enquiries/new" className="text-emerald-700 font-semibold">
             Add the first parent →
