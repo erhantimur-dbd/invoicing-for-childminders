@@ -1,17 +1,5 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
-import {
-  marketing,
-  marketingCtaClass,
-  ctaRadiusStyle,
-  yearlyFromMonthly,
-  formatGbp,
-} from '@/lib/marketing.mjs'
-import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
-
-type Billing = 'monthly' | 'annual'
+import { marketing, marketingCtaClass, ctaRadiusStyle } from '@/lib/marketing.mjs'
 
 function Check({ on }: { on: boolean }) {
   if (!on) {
@@ -24,9 +12,54 @@ function Check({ on }: { on: boolean }) {
   )
 }
 
-export default function Pricing() {
-  const [billing, setBilling] = useState<Billing>('annual')
+export function PricingCards({ enquiriesHref = '/signup' }: { enquiriesHref?: string }) {
+  return (
+    <div
+      className="grid sm:grid-cols-3 gap-px"
+      data-pricing-cards="true"
+      style={{ backgroundColor: marketing.hairline, border: `1px solid ${marketing.hairline}` }}
+    >
+      {marketing.pricingPlans.map((plan) => {
+        const href = plan.id === 'enquiries' ? enquiriesHref : plan.href
+        return (
+          <article key={plan.id} className="bg-white p-8 sm:p-10 flex flex-col">
+            <p className="text-[13px] font-semibold tracking-tight">{plan.name}</p>
+            <p className="mt-2 text-[14px] leading-relaxed" style={{ color: marketing.muted }}>
+              {plan.icp}
+            </p>
+            <p className="mt-6 text-[36px] sm:text-[40px] tracking-tight leading-none">
+              {plan.price}
+              <span className="text-[16px] font-normal" style={{ color: marketing.muted }}> {plan.period}</span>
+            </p>
+            <p className="text-[13px] mt-1" style={{ color: marketing.muted }}>{plan.note}</p>
+            <p className="mt-6 text-[15px] leading-relaxed flex-1" style={{ color: marketing.muted }}>
+              {plan.body}
+            </p>
+            {plan.checkout ? (
+              <Link
+                href={href}
+                className={`${marketingCtaClass.primary} mt-10 w-full`}
+                style={ctaRadiusStyle()}
+              >
+                {plan.cta}
+              </Link>
+            ) : (
+              <Link
+                href={href}
+                className="mt-10 text-[15px] font-medium underline underline-offset-4"
+                style={{ color: marketing.accent }}
+              >
+                {plan.cta}
+              </Link>
+            )}
+          </article>
+        )
+      })}
+    </div>
+  )
+}
 
+export default function Pricing() {
   return (
     <section id="pricing" className="px-6 py-24 scroll-mt-16">
       <div className="max-w-[1120px] mx-auto">
@@ -36,96 +69,11 @@ export default function Pricing() {
         <h2 className="text-[34px] sm:text-[44px] tracking-[-0.03em] font-semibold max-w-[640px]">
           {marketing.pricingLead}
         </h2>
-
-        <div
-          role="tablist"
-          aria-label="Billing period"
-          data-billing-toggle="true"
-          className="mt-10 inline-flex p-0.5"
-          style={{ border: `1px solid ${marketing.hairline}`, backgroundColor: '#fff' }}
-        >
-          {(['monthly', 'annual'] as const).map((id) => {
-            const selected = billing === id
-            return (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => setBilling(id)}
-                className="px-4 py-2 text-[13px] font-semibold tracking-tight inline-flex items-center gap-2"
-                style={{
-                  backgroundColor: selected ? marketing.ink : 'transparent',
-                  color: selected ? '#f6f7f9' : marketing.muted,
-                  borderRadius: marketing.ctaRadiusPx,
-                }}
-              >
-                {id === 'monthly' ? 'Monthly' : 'Annual'}
-                {id === 'annual' ? (
-                  <span
-                    className="text-[11px] font-semibold tracking-tight"
-                    style={{ color: selected ? '#f6f7f9' : marketing.accent }}
-                  >
-                    {marketing.annualSaveLabel}
-                  </span>
-                ) : null}
-              </button>
-            )
-          })}
-        </div>
         <p className="mt-4 text-[13px] leading-relaxed max-w-[40rem]" style={{ color: marketing.muted }}>
           {marketing.enquiriesQuotaLine}
         </p>
-
-        <div
-          className="mt-10 grid sm:grid-cols-2 gap-px"
-          style={{ backgroundColor: marketing.hairline, border: `1px solid ${marketing.hairline}` }}
-        >
-          {marketing.pricingPlans.map((plan) => {
-            const primary = plan.featured || plan.id === 'enquiries'
-            const annual = billing === 'annual'
-            const lockedEnquiries = plan.id === 'enquiries'
-            const price = lockedEnquiries
-              ? formatGbp(ENQUIRIES_PRICE.annual)
-              : annual
-                ? formatGbp(yearlyFromMonthly(plan.monthlyAmount))
-                : formatGbp(plan.monthlyAmount)
-            const period = lockedEnquiries ? ' a year' : annual ? '/year' : '/month'
-            const note = lockedEnquiries ? 'Billed once a year.' : annual ? plan.annualNote : plan.monthlyNote
-            const href = lockedEnquiries ? `${plan.href}?billing=annual` : `${plan.href}?billing=${billing}`
-            return (
-              <article
-                key={plan.id}
-                className="bg-white p-8 sm:p-10 grid grid-rows-[auto_4.5rem_auto_2.75rem_1fr_auto]"
-                style={plan.featured ? { boxShadow: `inset 0 2px 0 ${marketing.accent}` } : undefined}
-              >
-                <p className="text-[13px] font-semibold tracking-tight">{plan.name}</p>
-                <p className="mt-2 text-[14px] leading-relaxed" style={{ color: marketing.muted }}>
-                  {plan.icp}
-                </p>
-                <p className="mt-6 text-[36px] sm:text-[40px] tracking-tight leading-none">
-                  {plan.from ? (
-                    <span className="text-[16px] font-normal" style={{ color: marketing.muted }}>from </span>
-                  ) : (
-                    <span className="text-[16px] font-normal invisible" aria-hidden="true">from </span>
-                  )}
-                  {price}
-                  <span className="text-[16px] font-normal" style={{ color: marketing.muted }}>{period}</span>
-                </p>
-                <p className="text-[13px] mt-1" style={{ color: marketing.muted }}>{note}</p>
-                <p className="mt-6 text-[15px] leading-relaxed" style={{ color: marketing.muted }}>
-                  {plan.body}
-                </p>
-                <Link
-                  href={href}
-                  className={`${primary ? marketingCtaClass.primary : marketingCtaClass.secondary} mt-10 w-full`}
-                  style={ctaRadiusStyle()}
-                >
-                  {plan.cta}
-                </Link>
-              </article>
-            )
-          })}
+        <div className="mt-10">
+          <PricingCards />
         </div>
 
         <div className="mt-16 overflow-x-auto" data-pricing-compare="true">

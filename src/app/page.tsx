@@ -38,8 +38,15 @@ const jsonLd = {
     },
     {
       '@type': 'Offer',
-      name: 'Enquiries + invoicing',
-      price: String(pricingAmounts.bothFrom.annual),
+      name: 'Limited',
+      price: '208',
+      priceCurrency: 'GBP',
+      billingIncrement: 'P1Y',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Full',
+      price: '280',
       priceCurrency: 'GBP',
       billingIncrement: 'P1Y',
     },

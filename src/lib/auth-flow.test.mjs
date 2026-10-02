@@ -76,8 +76,8 @@ test('signup, reset, login and checkout persist billing and callback URLs', () =
   const checkout = read('app/api/stripe/create-checkout/route.ts')
   assert.match(checkout, /plan/)
   const subscribe = read('app/subscribe/page.tsx')
-  assert.match(subscribe, /searchParams\.get\('billing'\)/)
-  assert.match(subscribe, /plan: billing/)
+  assert.match(subscribe, /plan: 'annual'/)
+  assert.doesNotMatch(subscribe, /setBilling\('monthly'\)/)
 })
 
 test('login surfaces auth/callback SSO failures inline', () => {

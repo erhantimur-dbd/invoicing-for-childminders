@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
-import { marketing, pricingAmounts } from '@/lib/marketing.mjs'
+import { pricingAmounts } from '@/lib/marketing.mjs'
 import { enquiriesQuotaCopy } from '@/lib/enquiries/quota.mjs'
 
 type SubState = {
@@ -28,9 +28,7 @@ const PLANS = [
     id: 'starter',
     label: 'Starter',
     children: 'Up to 5 children',
-    monthly: pricingAmounts.invoicingFrom.monthly,
     annual: pricingAmounts.invoicingFrom.annual,
-    annualMonthly: pricingAmounts.invoicingFrom.annualMonthly,
     features: ['Up to 5 children', ...FEATURES_COMMON],
     highlight: false,
     cta: 'Add invoicing',
@@ -39,9 +37,7 @@ const PLANS = [
     id: 'professional',
     label: 'Professional',
     children: 'Up to 20 children',
-    monthly: pricingAmounts.professional.monthly,
     annual: pricingAmounts.professional.annual,
-    annualMonthly: pricingAmounts.professional.annualMonthly,
     features: ['Up to 20 children', ...FEATURES_COMMON],
     highlight: false,
     cta: 'Add invoicing',
@@ -56,9 +52,6 @@ export default function SubscribePage() {
   const nextParam = searchParams.get('next')
   const continuePath =
     nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null
-  const [billing, setBilling] = useState<'monthly' | 'annual'>(
-    searchParams.get('billing') === 'monthly' ? 'monthly' : 'annual',
-  )
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [stripeUnavailable, setStripeUnavailable] = useState(false)
   const [sub, setSub] = useState<SubState | null>(null)
@@ -87,7 +80,7 @@ export default function SubscribePage() {
         body: JSON.stringify(
           planId === 'enquiries'
             ? { product: 'enquiries', plan: 'annual' as const }
-            : { plan: billing, tier: planId },
+            : { plan: 'annual' as const, tier: planId },
         ),
       })
 
@@ -183,23 +176,6 @@ export default function SubscribePage() {
         </div>
       )}
 
-      {/* Billing toggle */}
-      <div className="flex items-center justify-center gap-3">
-        <button
-          onClick={() => setBilling('monthly')}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${billing === 'monthly' ? 'bg-gray-900 text-white shadow' : 'text-gray-500 hover:text-gray-700'}`}
-        >
-          Monthly
-        </button>
-        <button
-          onClick={() => setBilling('annual')}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${billing === 'annual' ? 'bg-gray-900 text-white shadow' : 'text-gray-500 hover:text-gray-700'}`}
-        >
-          Annual
-          <span className="text-xs bg-[#123a4a] text-white px-2 py-0.5 font-bold">{marketing.annualSaveLabel}</span>
-        </button>
-      </div>
-
       {/* Enquiries — the hero product */}
       <div className={`relative p-8 bg-white ${highlightEnquiries ? 'border-2 border-[#123a4a]' : 'border border-gray-200'}`}>
         {highlightEnquiries && (
@@ -256,13 +232,9 @@ export default function SubscribePage() {
               <div className="text-xs font-semibold uppercase tracking-widest text-[#123a4a] mb-2">{plan.label}</div>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold text-gray-900">
-                  £{billing === 'annual' ? plan.annual : plan.monthly}
+                  £{plan.annual} a year
                 </span>
-                <span className="text-gray-400 text-sm">/{billing === 'annual' ? 'year' : 'month'}</span>
               </div>
-              {billing === 'annual' && (
-                <p className="text-gray-400 text-sm mt-1">Equivalent to £{plan.annualMonthly}/month</p>
-              )}
               <p className="text-gray-500 text-sm font-medium mt-3">{plan.children}</p>
             </div>
 

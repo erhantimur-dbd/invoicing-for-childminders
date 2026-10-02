@@ -58,17 +58,15 @@ export const marketing: {
   pricingPlans: {
     id: string
     name: string
-    monthlyAmount: number
     price: string
-    from: boolean
+    annual: number
     period: string
     note: string
-    monthlyNote: string
-    annualNote: string
     icp: string
     body: string
     href: string
     cta: string
+    checkout: boolean
     featured: boolean
   }[]
   pricingCompare: {

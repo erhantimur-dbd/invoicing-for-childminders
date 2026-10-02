@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/marketing/SiteHeader'
+import { PricingCards } from '@/components/marketing/Pricing'
 import SiteFooter from '@/components/marketing/SiteFooter'
 import { marketing } from '@/lib/marketing.mjs'
 import { howMuchDoesDottieCost, freeTrialAnswer } from '@/lib/plans-copy.mjs'
@@ -128,10 +129,6 @@ const CATEGORIES = [
         a: "We don't offer refunds for partial billing periods. If you cancel an annual plan early, you retain access for the remainder of the year. If something goes wrong on our side, we'll always make it right — just get in touch.",
       },
       {
-        q: 'Can I switch between monthly and annual billing?',
-        a: "Yes. You can switch billing periods from your account settings. Switching to annual billing takes effect at your next renewal date.",
-      },
-      {
         q: 'What if I need more than 20 children?',
         a: "Get in touch at support@godottie.cloud and we'll set you up on our Unlimited plan with custom pricing for your setting.",
       },
@@ -248,6 +245,11 @@ export default function FaqPage() {
                 <span className="text-2xl">{cat.icon}</span>
                 <h2 className="text-xl font-bold text-gray-900">{cat.label}</h2>
               </div>
+              {cat.id === 'pricing' ? (
+                <div className="mb-6">
+                  <PricingCards />
+                </div>
+              ) : null}
 
               <div className="space-y-2">
                 {cat.questions.map((item, i) => (

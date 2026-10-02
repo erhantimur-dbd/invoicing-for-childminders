@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
-import { marketing, ANNUAL_DISCOUNT, yearlyFromMonthly, pricingAmounts } from './marketing.mjs'
+import { marketing, pricingAmounts } from './marketing.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -64,66 +64,49 @@ test('invoicing is quiet and funded hours are a payment method', () => {
   assert.doesNotMatch(marketing.flow.map((s) => s.body).join(' ').toLowerCase(), /qualify/)
 })
 
-test('pricing has Enquiries and Enquiries + invoicing, not invoicing-only', () => {
-  assert.equal(marketing.pricingPlans.length, 2)
+test('pricing cards are Enquiries, Limited and Full, billed once a year', () => {
+  assert.equal(marketing.pricingPlans.length, 3)
   assert.deepEqual(
     marketing.pricingPlans.map((p) => p.id),
-    ['enquiries', 'both'],
-  )
-  assert.equal(marketing.pricingCompare.columns.length, 2)
-  assert.deepEqual(
-    marketing.pricingCompare.columns.map((c) => c.id),
-    ['enquiries', 'both'],
-  )
-  const names = marketing.pricingPlans.map((p) => p.name).join(' ')
-  assert.match(names, /Enquiries/)
-  assert.match(names, /Enquiries \+ invoicing/i)
-  assert.equal(
-    marketing.pricingPlans.some((p) => p.id === 'invoicing' || /^invoicing add-on$/i.test(p.name)),
-    false,
+    ['enquiries', 'limited', 'full'],
   )
   const enquiries = marketing.pricingPlans.find((p) => p.id === 'enquiries')
-  const both = marketing.pricingPlans.find((p) => p.id === 'both')
-  assert.equal(enquiries.monthlyAmount, 19)
-  assert.equal(enquiries.price, '£19')
-  assert.equal(enquiries.from, false)
-  assert.equal(both.monthlyAmount, 28.99)
-  assert.equal(both.price, '£28.99')
-  assert.equal(both.from, true)
-  assert.ok(marketing.pricingCompare.rows.length >= 6)
+  const limited = marketing.pricingPlans.find((p) => p.id === 'limited')
+  const full = marketing.pricingPlans.find((p) => p.id === 'full')
+  assert.equal(enquiries.price, '£160')
+  assert.equal(enquiries.cta, 'Sign up')
+  assert.equal(enquiries.href, '/signup')
+  assert.equal(enquiries.checkout, true)
+  assert.equal(limited.price, '£208')
+  assert.equal(limited.cta, 'Book a demo')
+  assert.equal(limited.href, '/demo')
+  assert.equal(limited.checkout, false)
+  assert.equal(full.price, '£280')
+  assert.equal(full.cta, 'Book a demo')
+  assert.equal(full.href, '/demo')
+  assert.equal(full.checkout, false)
   const home = readFileSync(join(root, 'app/page.tsx'), 'utf8')
   assert.match(home, /<Pricing/)
-  assert.doesNotMatch(home, /Invoicing add-on/)
   const pricing = readFileSync(join(root, 'components/marketing/Pricing.tsx'), 'utf8')
-  assert.match(pricing, /data-pricing-compare/)
-  assert.match(pricing, /sm:grid-cols-2/)
-  assert.match(pricing, /grid-rows-\[auto_4\.5rem_auto_2\.75rem_1fr_auto\]/)
+  assert.match(pricing, /data-pricing-cards/)
+  assert.match(pricing, /sm:grid-cols-3/)
+  assert.doesNotMatch(pricing, /data-billing-toggle/)
+  assert.doesNotMatch(pricing, /\/month/)
+  const signup = readFileSync(join(root, 'app/(auth)/signup/page.tsx'), 'utf8')
+  const faq = readFileSync(join(root, 'app/faq/page.tsx'), 'utf8')
+  assert.match(signup, /PricingCards/)
+  assert.match(faq, /PricingCards/)
 })
 
-test('annual is 30% off and is the default billing tab', () => {
-  assert.equal(ANNUAL_DISCOUNT, 0.3)
-  assert.equal(yearlyFromMonthly(19), 160)
-  assert.equal(yearlyFromMonthly(28.99), 244)
-  assert.equal(yearlyFromMonthly(9.99), 84)
+test('public prices are annual and there is no monthly billing toggle', () => {
   assert.equal(pricingAmounts.enquiries.annual, 160)
-  assert.equal(pricingAmounts.bothFrom.annual, 244)
-  assert.equal(pricingAmounts.invoicingFrom.annual, 84)
-  assert.equal(marketing.billingDefault, 'annual')
-  assert.match(marketing.annualSaveLabel, /30%/)
-  const enquiries = marketing.pricingPlans.find((p) => p.id === 'enquiries')
-  const both = marketing.pricingPlans.find((p) => p.id === 'both')
-  assert.match(enquiries.annualNote, /30%/)
-  assert.match(both.annualNote, /£84\/year/)
   const pricing = readFileSync(join(root, 'components/marketing/Pricing.tsx'), 'utf8')
-  assert.match(pricing, /'use client'/)
-  assert.match(pricing, /data-billing-toggle/)
-  assert.match(pricing, /useState<Billing>\('annual'\)/)
-  assert.doesNotMatch(pricing, /sessional|dip-in|billingHint/)
-  assert.doesNotMatch(JSON.stringify(marketing), /sessional|dip-in/)
+  assert.doesNotMatch(pricing, /Monthly/)
+  assert.doesNotMatch(pricing, /£28\.99/)
+  assert.doesNotMatch(pricing, /£244/)
   const home = readFileSync(join(root, 'app/page.tsx'), 'utf8')
-  assert.match(home, /pricingAmounts\.enquiries\.annual/)
-  assert.match(home, /pricingAmounts\.bothFrom\.annual/)
   assert.match(home, /P1Y/)
+  assert.doesNotMatch(home, /bothFrom/)
 })
 
 test('homepage uses EmailFlow, dark hero, and dropped old treatments', () => {

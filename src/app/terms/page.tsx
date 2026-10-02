@@ -149,17 +149,21 @@ export default function TermsPage() {
 
             <Section id="subscription" title="5. Subscription and billing">
               <P>Access to Go Dottie requires an active subscription. Current list prices:</P>
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries</p>
                   <p className="text-sm text-gray-500 mb-2">Parent emails, visits, onboarding</p>
                   <p className="text-xl font-bold text-gray-900">{formatGbp(pricingAmounts.enquiries.annual)} a year</p>
                 </div>
-                <div className="p-4 rounded-xl bg-white border-2 border-emerald-200">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Enquiries + invoicing</p>
-                  <p className="text-sm text-gray-500 mb-2">Whole business end, one login</p>
-                  <p className="text-xl font-bold text-gray-900">from {formatGbp(pricingAmounts.bothFrom.monthly)}<span className="text-sm font-normal text-gray-400">/month</span></p>
-                  <p className="text-xs text-gray-500 mt-1">from {formatGbp(pricingAmounts.bothFrom.annual)}/year · save {pricingAmounts.discountPct}%</p>
+                <div className="p-4 rounded-xl bg-white border border-gray-200">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Limited</p>
+                  <p className="text-sm text-gray-500 mb-2">Invoicing for a smaller setting</p>
+                  <p className="text-xl font-bold text-gray-900">£208 a year</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white border border-gray-200">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#123a4a] mb-1">Full</p>
+                  <p className="text-sm text-gray-500 mb-2">Invoicing for a larger setting</p>
+                  <p className="text-xl font-bold text-gray-900">£280 a year</p>
                 </div>
               </div>
               <P>{enquiriesQuotaCopy()} Invoicing add-on child limits: Starter up to 5 children, Professional up to 20. Contact us for larger settings.</P>

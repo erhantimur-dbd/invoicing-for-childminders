@@ -133,7 +133,7 @@ export default async function DashboardPage() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900">A child starting? Add invoicing</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                Same login. Funded vs paid hours, PDFs, Sunday invoices — from £9.99/month.
+                Same login. Funded vs paid hours, PDFs, Sunday invoices. Billed once a year.
               </p>
             </div>
             <ChevronRight className="h-4 w-4 text-amber-500 flex-shrink-0" />

@@ -14,6 +14,7 @@ import SSOButtons from '@/components/SSOButtons'
 import { passwordIsStrong, passwordRequirements } from '@/lib/password-policy.mjs'
 import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
 import { ENQUIRIES_PRICE } from '@/lib/enquiries/types'
+import { PricingCards } from '@/components/marketing/Pricing'
 
 function nextAfterSignup() {
   // Confirm-email + session both land on /subscribe?product=enquiries
@@ -109,8 +110,9 @@ export default function SignupPage() {
   return (
     <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
       <div className="space-y-6">
+        <PricingCards enquiriesHref="#signup-form" />
         <p className="text-sm text-center text-gray-600">
-          Dottie is £{ENQUIRIES_PRICE.annual} a year.
+          Go Dottie is £{ENQUIRIES_PRICE.annual} a year.
         </p>
         <SSOButtons mode="signup" onError={setSsoError} />
         {ssoError && (
@@ -123,7 +125,7 @@ export default function SignupPage() {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-5">
+        <form id="signup-form" onSubmit={handleSignup} className="space-y-5">
           <div className="space-y-1.5">
             <Label htmlFor="fullName" className="text-sm font-semibold text-gray-700">Full name</Label>
             <div className="relative">
