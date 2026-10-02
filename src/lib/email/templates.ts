@@ -258,11 +258,10 @@ export function placeOfferEmail(input: {
   const extra = input.comprehensive
     ? 'You will also see policies and how invoices are paid.'
     : 'It only asks for your details and your child’s details.'
-  const place = input.childName ? `${esc(input.childName)}'s place` : 'their place'
   const content = `
     <h1 class="ink" style="${H}">You have been offered a place${esc(child)}</h1>
     <p class="ink" style="${P}">
-      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form to confirm ${place}.
+      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form to confirm the place.
       ${esc(extra)}
     </p>
     ${buttonGroup([filledButton('Complete signup', input.formUrl)])}

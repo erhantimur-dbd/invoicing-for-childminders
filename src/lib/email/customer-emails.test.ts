@@ -77,6 +77,7 @@ test('payment reminders mention bank transfer only without a pay link', () => {
     formUrl: 'https://www.godottie.cloud/onboard/dummy',
     comprehensive: true,
   })
+  assert.match(offer.html, /a short signup form to confirm the place/)
   assert.match(offer.html, /This link expires in 7 days/)
   assert.doesNotMatch(offer.html, /Invoices show bank transfer details/)
   assert.doesNotMatch(offer.html, /on roll/)

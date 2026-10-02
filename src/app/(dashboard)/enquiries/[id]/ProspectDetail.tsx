@@ -365,12 +365,12 @@ export default function ProspectDetail({
       {prospect.stage === 'accepted' ? (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900 space-y-2">
           <p className="font-semibold">Waiting for the parent to complete signup</p>
-          <p>They have a 7-day link. You can still add them yourself if they are already on roll.</p>
+          <p>They have a 7-day link. You can still add them yourself if they've already started with you.</p>
           <Link
             href={addToInvoicingHref({ invoicingActive, prospectId: prospect.id })}
             className="inline-flex items-center h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium"
           >
-            Already on roll
+            Already started
           </Link>
         </div>
       ) : null}
