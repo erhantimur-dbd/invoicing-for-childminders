@@ -188,23 +188,20 @@ async function sendCronNotificationEmail(
     subject: `✨ ${created.length} draft invoice${created.length !== 1 ? 's' : ''} generated — w/c ${weekLabel}`,
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 16px;color:#111827">
-        <div style="background:#0b1220;color:#ffffff;padding:24px 32px;border-radius:12px;margin-bottom:24px;">
-          <p style="margin:0;font-size:20px;font-weight:700;">Go Dottie</p>
-        </div>
         <h2 style="margin:0 0 4px;font-size:22px">Weekly invoices generated</h2>
         <p style="margin:0 0 24px;color:#6b7280">Hi ${firstName}, here's a summary for w/c ${weekLabel}</p>
 
         <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:8px;overflow:hidden">
           <thead>
-            <tr style="background:#0b1220">
-              <th style="padding:10px 12px;text-align:left;font-size:13px;color:#ffffff">Child</th>
-              <th style="padding:10px 12px;text-align:right;font-size:13px;color:#ffffff">Amount</th>
-              <th style="padding:10px 12px;text-align:left;font-size:13px;color:#ffffff">Notes</th>
+            <tr style="background:#ecfdf5">
+              <th style="padding:10px 12px;text-align:left;font-size:13px;color:#065f46">Child</th>
+              <th style="padding:10px 12px;text-align:right;font-size:13px;color:#065f46">Amount</th>
+              <th style="padding:10px 12px;text-align:left;font-size:13px;color:#065f46">Notes</th>
             </tr>
           </thead>
           <tbody>${createdRows}</tbody>
           <tfoot>
-            <tr style="background:#f3f4f6">
+            <tr style="background:#ecfdf5">
               <td style="padding:10px 12px;font-weight:700">Total</td>
               <td style="padding:10px 12px;text-align:right;font-weight:700;color:#0b1220">£${totalAmount.toFixed(2)}</td>
               <td></td>

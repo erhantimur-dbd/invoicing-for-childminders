@@ -1,4 +1,5 @@
 const BRAND_COLOR = '#0b1220'
+const BRAND_COLOR_DARK = '#047857'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.godottie.cloud'
 const SUPPORT_EMAIL = 'hello@godottie.cloud'
 
@@ -93,7 +94,7 @@ export function welcomeEmail({
   const firstName = name.split(' ')[0]
 
   const content = `
-    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Hi ${firstName}</h1>
+    <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#111827;">Welcome to Go Dottie, ${firstName}</h1>
     <p style="margin:0 0 20px;font-size:15px;color:#6b7280;">Go Dottie, your enquiries assistant.</p>
 
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#374151;">
@@ -101,10 +102,10 @@ export function welcomeEmail({
       You didn't become a childminder to spend Sunday nights writing invoices — that's my job now.
     </p>
 
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;padding:4px;margin:24px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:4px;margin:24px 0;">
       <tr>
         <td style="padding:20px 24px;">
-          <p style="margin:0 0 14px;font-size:14px;font-weight:600;color:#0b1220;text-transform:uppercase;letter-spacing:0.5px;">What's included</p>
+          <p style="margin:0 0 14px;font-size:14px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;">What's included</p>
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
             <tr>
               <td style="padding:5px 0;">
@@ -191,10 +192,10 @@ export function subscriptionConfirmEmail({
       From now on, I'll keep your invoices running like clockwork. No more Sunday admin sessions — that's my job.
     </p>
 
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;margin:24px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin:24px 0;">
       <tr>
         <td style="padding:20px 24px;">
-          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#0b1220;text-transform:uppercase;letter-spacing:0.5px;">Your plan</p>
+          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;">Your plan</p>
           <p style="margin:0;font-size:20px;font-weight:700;color:${BRAND_COLOR};">${planLabel}</p>
         </td>
       </tr>
@@ -225,7 +226,7 @@ export function subscriptionConfirmEmail({
 // ─── Template 4: Payment reminder (parent-facing) ─────────────────────────────
 //
 // Sent by the reminders cron to a parent when an invoice is unpaid past its
-// due date. Framed on behalf of the childminder — the parent has no Go Dottie
+// due date. Framed on behalf of the childminder — the parent has no Dottie
 // account, so keep it transactional and business-like.
 
 export function paymentReminderEmail({
@@ -264,10 +265,10 @@ export function paymentReminderEmail({
       invoice <strong>${esc(invoiceNumber)}</strong> for ${esc(childFirstName)}'s childcare ${dueLine}.
     </p>
 
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${overdue ? '#fef2f2' : '#f3f4f6'};border:1px solid ${overdue ? '#fecaca' : '#e5e7eb'};border-radius:10px;margin:24px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${overdue ? '#fef2f2' : '#fffbeb'};border:1px solid ${overdue ? '#fecaca' : '#fde68a'};border-radius:10px;margin:24px 0;">
       <tr>
         <td style="padding:20px 24px;">
-          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:${overdue ? '#991b1b' : '#0b1220'};text-transform:uppercase;letter-spacing:0.5px;">Amount due</p>
+          <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:${overdue ? '#991b1b' : '#92400e'};text-transform:uppercase;letter-spacing:0.5px;">Amount due</p>
           <p style="margin:0;font-size:24px;font-weight:700;color:#111827;">${amount}</p>
         </td>
       </tr>
@@ -326,7 +327,7 @@ export function paymentReceivedEmail({
       ${esc(childFirstName)}'s childcare. This email is your receipt.
     </p>
 
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;margin:24px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin:24px 0;">
       <tr>
         <td style="padding:20px 24px;">
           <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
