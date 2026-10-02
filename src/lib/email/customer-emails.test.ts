@@ -50,8 +50,36 @@ test('welcome subject and enquiries line', () => {
   assert.match(mail.html, /Offer visits in hours you set/)
   assert.match(mail.html, /Send a signup form when you offer a place/)
   assert.match(mail.html, /Connect your Gmail/)
+  assert.match(mail.html, /href="https:\/\/www\.godottie\.cloud\/enquiries"/)
+  assert.doesNotMatch(mail.html, /subscribe\?product=enquiries/)
   assert.doesNotMatch(textOf(mail), /Start with Enquiries/)
   assert.doesNotMatch(textOf(mail), /\p{Extended_Pictographic}/u)
+})
+
+test('payment reminders mention bank transfer only without a pay link', () => {
+  const withPay = paymentReminderEmail({ ...rem, overdue: false })
+  const withoutPay = paymentReminderEmail({ ...rem, overdue: false, payUrl: null })
+  const overdueWithPay = paymentReminderEmail({ ...rem, overdue: true })
+  const overdueWithoutPay = paymentReminderEmail({ ...rem, overdue: true, payUrl: null })
+  for (const mail of [withPay, overdueWithPay]) {
+    assert.match(mail.html, /Payments go straight to Sam Taylor, not to Go Dottie\./)
+    assert.doesNotMatch(mail.html, /Bank transfer details are on the invoice/)
+  }
+  for (const mail of [withoutPay, overdueWithoutPay]) {
+    assert.match(mail.html, /Bank transfer details are on the invoice/)
+    assert.doesNotMatch(mail.html, /Payments go straight to/)
+    assert.doesNotMatch(mail.html, /Pay now/)
+  }
+  const offer = placeOfferEmail({
+    parentName: 'Jordan Patel',
+    childName: 'Ava',
+    childminderName: 'Sam Taylor',
+    formUrl: 'https://www.godottie.cloud/onboard/dummy',
+    comprehensive: true,
+  })
+  assert.match(offer.html, /This link expires in 7 days/)
+  assert.doesNotMatch(offer.html, /Invoices show bank transfer details/)
+  assert.doesNotMatch(offer.html, /on roll/)
 })
 
 test('subscription confirmation copy', () => {

@@ -52,7 +52,7 @@ export function welcomeEmail({ name }: { name: string }): {
         </td>
       </tr>
     </table>
-    ${buttonGroup([filledButton('Connect your Gmail', `${APP_URL}/subscribe?product=enquiries`)])}
+    ${buttonGroup([filledButton('Connect your Gmail', `${APP_URL}/enquiries`)])}
     <p class="muted" style="${MUTED}">Any questions? Just reply to this email.</p>
     ${accountSignoff()}
   `
@@ -152,8 +152,8 @@ export function paymentReminderEmail({
       </tr>
     </table>
     ${buttons}
-    ${payUrl ? `<p class="muted" style="${MUTED}">Payments go straight to ${who}, not to Go Dottie.</p>` : ''}
-    <p class="muted" style="${MUTED}">Bank transfer details are on the invoice. If you have already paid, you can ignore this email.</p>
+    ${payUrl ? `<p class="muted" style="${MUTED}">Payments go straight to ${who}, not to Go Dottie.</p>` : `<p class="muted" style="${MUTED}">Bank transfer details are on the invoice.</p>`}
+    <p class="muted" style="${MUTED}">If you have already paid, you can ignore this email.</p>
   `
 
   return {
@@ -266,7 +266,7 @@ export function placeOfferEmail(input: {
       ${esc(extra)}
     </p>
     ${buttonGroup([filledButton('Complete signup', input.formUrl)])}
-    <p class="muted" style="${MUTED}">This link expires in 7 days. Invoices show bank transfer details.</p>
+    <p class="muted" style="${MUTED}">This link expires in 7 days.</p>
   `
   return {
     subject: `Place offered${child ? child : ''} — complete signup`,
