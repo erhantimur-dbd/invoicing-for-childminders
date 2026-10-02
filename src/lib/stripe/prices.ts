@@ -64,3 +64,70 @@ export function enquiriesPriceIds(env: NodeJS.ProcessEnv = process.env): string[
   const id = resolveEnquiriesPriceId(env)
   return id ? [id] : []
 }
+
+/** How long a Production Stripe price lookup may be reused. */
+const LOOKUP_CACHE_MS = 60_000
+
+type PaidSignupCache = { key: string; at: number; open: boolean }
+
+let paidSignupCache: PaidSignupCache | null = null
+
+export type PaidSignupLookup = (priceId: string) => Promise<RetrievedEnquiriesPrice>
+
+export function clearPaidSignupCache(): void {
+  paidSignupCache = null
+}
+
+function paidSignupCacheKey(env: EnquiriesPriceEnv, priceId: string): string {
+  const secret = env.STRIPE_SECRET_KEY ?? ''
+  const liveKey = secret.startsWith('sk_live') ? 'sk_live' : 'other'
+  return `${env.VERCEL_ENV}|${priceId}|${liveKey}`
+}
+
+async function retrieveEnquiriesPrice(secretKey: string, priceId: string): Promise<RetrievedEnquiriesPrice> {
+  const Stripe = (await import('stripe')).default
+  const stripe = new Stripe(secretKey)
+  const price = await stripe.prices.retrieve(priceId)
+  return { livemode: price.livemode, active: price.active }
+}
+
+/**
+ * Enquiries checkout is open unless this is Production and the annual price is not live.
+ * Live means `STRIPE_ENQUIRIES_ANNUAL_PRICE_ID` is set, the secret is `sk_live`,
+ * and the retrieved price is livemode and active.
+ * Preview, development, and an unset VERCEL_ENV return true and do not call Stripe.
+ * Production fails closed: a missing env var, a non-live key, an inactive or test
+ * price, or a lookup error all return false. The Stripe lookup is cached.
+ */
+export async function isPaidSignupOpen(
+  env: EnquiriesPriceEnv = process.env,
+  lookup?: PaidSignupLookup,
+): Promise<boolean> {
+  if (env.VERCEL_ENV !== 'production') return true
+
+  const priceId = resolveEnquiriesPriceId(env)
+  const secretKey = env.STRIPE_SECRET_KEY
+  if (!priceId || !secretKey?.startsWith('sk_live')) return false
+
+  const key = paidSignupCacheKey(env, priceId)
+  const now = Date.now()
+  if (paidSignupCache && paidSignupCache.key === key && now - paidSignupCache.at < LOOKUP_CACHE_MS) {
+    return paidSignupCache.open
+  }
+
+  let price: RetrievedEnquiriesPrice = null
+  try {
+    price = lookup ? await lookup(priceId) : await retrieveEnquiriesPrice(secretKey, priceId)
+  } catch {
+    paidSignupCache = { key, at: now, open: false }
+    return false
+  }
+
+  const open = enquiriesProductionPriceRefusal({
+    vercelEnv: 'production',
+    secretKey,
+    price,
+  }) === null
+  paidSignupCache = { key, at: now, open }
+  return open
+}
