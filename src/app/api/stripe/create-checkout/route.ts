@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { log } from '@/lib/log'
 import {
+  ENQUIRIES_CHECKOUT_UNAVAILABLE,
+  enquiriesProductionPriceRefusal,
   resolveEnquiriesPriceId,
   resolveInvoicingPriceId,
   type BillingPlan,
@@ -58,6 +60,15 @@ export async function POST(request: NextRequest) {
     : resolveInvoicingPriceId(tier!, plan)
 
   if (!priceId) {
+    if (product === 'enquiries') {
+      log.error('enquiries_checkout_refused', new Error('missing_price_env'), {
+        reason: 'missing_price_env',
+      })
+      return NextResponse.json(
+        { error: ENQUIRIES_CHECKOUT_UNAVAILABLE, code: 'enquiries_price_unavailable' },
+        { status: 503 },
+      )
+    }
     return NextResponse.json(
       { error: `Price ID for ${product} ${plan} is not configured`, code: 'stripe_not_configured' },
       { status: 503 },
@@ -66,6 +77,40 @@ export async function POST(request: NextRequest) {
 
   const Stripe = (await import('stripe')).default
   const stripe = new Stripe(stripeKey)
+
+  if (product === 'enquiries' && process.env.VERCEL_ENV === 'production') {
+    let retrieved: { livemode: boolean; active: boolean } | null = null
+    try {
+      const price = await stripe.prices.retrieve(priceId)
+      retrieved = { livemode: price.livemode, active: price.active }
+    } catch (err) {
+      log.error('enquiries_checkout_refused', err, {
+        reason: 'price_lookup_failed',
+        price_id: priceId,
+      })
+      return NextResponse.json(
+        { error: ENQUIRIES_CHECKOUT_UNAVAILABLE, code: 'enquiries_price_unavailable' },
+        { status: 503 },
+      )
+    }
+    const reason = enquiriesProductionPriceRefusal({
+      vercelEnv: process.env.VERCEL_ENV,
+      secretKey: stripeKey,
+      price: retrieved,
+    })
+    if (reason) {
+      log.error('enquiries_checkout_refused', new Error(reason), {
+        reason,
+        price_id: priceId,
+        livemode: retrieved.livemode,
+        active: retrieved.active,
+      })
+      return NextResponse.json(
+        { error: ENQUIRIES_CHECKOUT_UNAVAILABLE, code: 'enquiries_price_unavailable' },
+        { status: 503 },
+      )
+    }
+  }
 
   const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin
 
