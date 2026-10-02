@@ -216,6 +216,24 @@ describe('sensitive-topic holdback', () => {
     assert.equal(auto.sends.length, 0)
     assert.equal(auto.result.reason, 'paused')
   })
+
+  const widened: [string, string][] = [
+    ['social services is saved as a draft and Gmail send is never called', 'Social Services have asked me to get in touch about my child.'],
+    ['social worker is saved as a draft and Gmail send is never called', 'Our Social Worker will call you this week.'],
+    ['police is saved as a draft and Gmail send is never called', 'I have already spoken to the Police.'],
+    ['injury is saved as a draft and Gmail send is never called', 'He has injuries on his knee from a fall.'],
+    ['bruise is saved as a draft and Gmail send is never called', 'There is bruising on her arm.'],
+    ['court order is saved as a draft and Gmail send is never called', 'A Court Order is in place for contact.'],
+    ['custody is saved as a draft and Gmail send is never called', 'We are sorting out Custody arrangements.'],
+  ]
+  for (const [name, message] of widened) {
+    it(name, async () => {
+      const auto = await runAuto(message)
+      assert.equal(auto.drafts.length, 1)
+      assert.equal(auto.sends.length, 0)
+      assert.equal(auto.result.sent, 0)
+    })
+  }
 })
 
 describe('auto-send footer', () => {

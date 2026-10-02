@@ -8,7 +8,7 @@
 const RULES = [
   {
     category: 'safeguarding',
-    pattern: /\b(safeguarding|child protection|child-protection|lado|neglect|physical abuse|sexual abuse|emotional abuse|welfare concern)\b/i,
+    pattern: /\b(safeguarding|child protection|child-protection|lado|neglect|physical abuse|sexual abuse|emotional abuse|welfare concern|social services|social worker|police|court order|custody)\b|\b(?:injur|bruis)\w*/i,
   },
   {
     category: 'health',
