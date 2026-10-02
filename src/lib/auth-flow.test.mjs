@@ -179,7 +179,7 @@ test('paid Enquiries checkout sets enquiries_status; success polls status not St
   const webhook = read('app/api/stripe/webhook/route.ts')
   const checkoutCase = webhook.slice(
     webhook.indexOf("checkout.session.completed"),
-    webhook.indexOf("customer.subscription.created"),
+    webhook.indexOf("case 'customer.subscription.created'"),
   )
   assert.match(checkoutCase, /enquiries_status/)
   assert.match(checkoutCase, /payment_status/)
