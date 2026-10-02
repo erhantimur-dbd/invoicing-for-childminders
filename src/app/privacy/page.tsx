@@ -156,7 +156,7 @@ export default function PrivacyPage() {
                 'To display your bank details on invoices you send to parents',
                 'To allow parents to securely access their child\'s invoices (using DOB as verification)',
                 'To process subscription payments via Stripe',
-                'To send service emails, such as payment receipts, via Resend',
+                'To send service emails about your account and payments, via Resend',
                 'To generate draft invoices and parent-enquiry replies using AI assistance (xAI Grok) — see Third-party Processors',
                 'To provide expense tracking and tax-year reports',
                 'To respond to support requests',
