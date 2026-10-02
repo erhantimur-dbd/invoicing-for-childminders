@@ -116,7 +116,7 @@ export default async function DashboardPage() {
               <p className="text-xs text-white/80 mt-0.5">
                 {hasEnquiries
                   ? 'See who has asked for a place, draft a reply, book a visit in your hours.'
-                  : 'Answer new parents while you are with the children. £19/month — invoicing waits until they start.'}
+                  : 'Answer new parents while you are with the children. £160 a year — invoicing waits until they start.'}
               </p>
             </div>
             <ChevronRight className="h-4 w-4 text-white/80 flex-shrink-0" />

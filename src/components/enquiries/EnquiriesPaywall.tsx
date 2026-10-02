@@ -13,8 +13,8 @@ export default function EnquiriesPaywall() {
         <p className="text-gray-600 leading-relaxed mb-6">
           Dottie reads the enquiry, checks start date, days, and 15/30-hour funding, and helps you book a visit in <em>your</em> hours. Same Dottie login you already use for invoices.
         </p>
-        <p className="text-3xl font-extrabold text-gray-900 mb-1">£{ENQUIRIES_PRICE.monthly}<span className="text-base font-semibold text-gray-400">/month</span></p>
-        <p className="text-sm text-gray-400 mb-2">or £{ENQUIRIES_PRICE.annual}/year · cancel anytime · no trial</p>
+        <p className="text-3xl font-extrabold text-gray-900 mb-1">£{ENQUIRIES_PRICE.annual} a year</p>
+        <p className="text-sm text-gray-400 mb-2">Cancel anytime · no trial</p>
         <p className="text-sm text-gray-500 mb-8">{enquiriesQuotaCopy()}</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link

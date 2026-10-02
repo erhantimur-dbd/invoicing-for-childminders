@@ -37,6 +37,9 @@ export async function POST(request: NextRequest) {
     plan = body.plan
     if (body.product === 'enquiries') {
       product = 'enquiries'
+      // Signup is the locked annual price only. A monthly plan in the body
+      // must not select a different Stripe price.
+      plan = 'annual'
     } else {
       if (body.tier !== 'starter' && body.tier !== 'professional') {
         return NextResponse.json(
@@ -51,7 +54,7 @@ export async function POST(request: NextRequest) {
   }
 
   const priceId = product === 'enquiries'
-    ? resolveEnquiriesPriceId(plan)
+    ? resolveEnquiriesPriceId()
     : resolveInvoicingPriceId(tier!, plan)
 
   if (!priceId) {
@@ -90,7 +93,7 @@ export async function POST(request: NextRequest) {
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: {
-      // No trial days. Checkout uses the existing price and charges on signup.
+      // No trial days. Enquiries checkout charges the locked £160/year price.
       metadata,
     },
     ...(existing?.stripe_customer_id

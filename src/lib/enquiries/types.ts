@@ -156,8 +156,7 @@ export type EnquiryMessage = {
   created_at: string
 }
 
+/** Display price for Go Dottie Enquiries. Matches GO_DOTTIE_ENQUIRIES_ANNUAL_GBP. */
 export const ENQUIRIES_PRICE = {
-  monthly: 19,
-  annual: 190,
-  annualMonthly: 15.83,
+  annual: 160,
 } as const

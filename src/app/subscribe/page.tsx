@@ -86,7 +86,7 @@ export default function SubscribePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
           planId === 'enquiries'
-            ? { product: 'enquiries', plan: billing }
+            ? { product: 'enquiries', plan: 'annual' as const }
             : { plan: billing, tier: planId },
         ),
       })
@@ -214,13 +214,9 @@ export default function SubscribePage() {
             <div className="text-xs font-semibold uppercase tracking-widest text-[#123a4a] mb-2">Dottie</div>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-extrabold text-gray-900">
-                £{billing === 'annual' ? ENQUIRIES_PRICE.annual : ENQUIRIES_PRICE.monthly}
+                £{ENQUIRIES_PRICE.annual} a year
               </span>
-              <span className="text-gray-400 text-sm">/{billing === 'annual' ? 'year' : 'month'}</span>
             </div>
-            {billing === 'annual' && (
-              <p className="text-gray-400 text-sm mt-1">Equivalent to £{ENQUIRIES_PRICE.annualMonthly}/month</p>
-            )}
             <p className="text-gray-600 text-sm mt-3 max-w-md">
               Answer new parents, match a listed space, offer a visit in your hours. One extra child pays for years of this.
             </p>

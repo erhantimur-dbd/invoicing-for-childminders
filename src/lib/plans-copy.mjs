@@ -8,7 +8,7 @@ export const noSelfServeTrial =
 
 export function enquiriesPriceSentence() {
   const p = pricingAmounts.enquiries
-  return `Enquiries is ${formatGbp(p.monthly)}/month or ${formatGbp(p.annual)}/year (${pricingAmounts.discountPct}% off annual).`
+  return `Enquiries is ${formatGbp(p.annual)} a year.`
 }
 
 export function invoicingFromSentence() {
@@ -27,7 +27,7 @@ export function howMuchDoesDottieCost() {
 
 export function dashboardEnquiriesPitch() {
   const p = pricingAmounts.enquiries
-  return `Parent emails, knowledge base, visits. ${formatGbp(p.monthly)}/month or ${formatGbp(p.annual)}/year — invoicing is an add-on.`
+  return `Parent emails, knowledge base, visits. ${formatGbp(p.annual)} a year — invoicing is an add-on.`
 }
 
 export function remainingDraftsCopy(used, included, annualGbp, rate = ENQUIRIES_QUOTA.overageGbpPerDraft) {
