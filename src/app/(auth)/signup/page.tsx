@@ -108,7 +108,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8">
+    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/60 border border-gray-100 p-8 w-[min(960px,calc(100vw-3rem))] relative left-1/2 -translate-x-1/2">
       <div className="space-y-6">
         <PricingCards enquiriesHref="#signup-form" />
         <p className="text-sm text-center text-gray-600">
