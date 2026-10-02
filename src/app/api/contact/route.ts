@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { sendEmail } from '@/lib/email/resend'
 import { rateLimit, clientIp } from '@/lib/rate-limit'
 import { log } from '@/lib/log'
 import { escapeHtml } from '@/lib/html-escape.mjs'
-
-// Lazy-init: `new Resend(undefined)` throws and fails `next build` page-data collection.
-function getResend() {
-  const key = process.env.RESEND_API_KEY
-  if (!key) return null
-  return new Resend(key)
-}
 
 // ── Spam keyword filter ────────────────────────────────────────────────────
 const SPAM_PATTERNS = [
@@ -79,23 +72,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  // ── Send email via Resend ───────────────────────────────────────────────
-  const resend = getResend()
-  if (!resend) {
-    return NextResponse.json(
-      { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
-      { status: 500 },
-    )
-  }
-
+  // ── Send email via the Resend chokepoint ────────────────────────────────
   const safeSubject = escapeHtml(subject?.trim() || '(no subject)')
   const safeName = escapeHtml(name.trim())
   const safeEmail = escapeHtml(email.trim())
   const safeMessage = escapeHtml(message.trim())
   const safeFirst = escapeHtml(name.trim().split(' ')[0] || 'there')
 
+  const sendFailed = NextResponse.json(
+    { error: 'Failed to send message. Please email us directly at support@godottie.cloud.' },
+    { status: 500 },
+  )
+
   try {
-    await resend.emails.send({
+    const toSupport = await sendEmail({
       from: 'Dottie Contact Form <hello@godottie.cloud>',
       to: 'support@godottie.cloud',
       replyTo: email.trim(),
@@ -117,9 +107,10 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     })
+    if (!toSupport.success) return sendFailed
 
     // Send confirmation to the sender
-    await resend.emails.send({
+    const autoReply = await sendEmail({
       from: 'Dottie <hello@godottie.cloud>',
       to: email.trim(),
       subject: "Got your message — I'll be in touch soon 👋",
@@ -146,6 +137,7 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     })
+    if (!autoReply.success) return sendFailed
 
     return NextResponse.json({ ok: true })
   } catch (err) {

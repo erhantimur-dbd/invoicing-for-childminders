@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
 import { format } from 'date-fns'
+import { sendEmail } from '@/lib/email/resend'
+import { isProductionEnv } from '@/lib/preview-guard'
 import { decryptField } from '@/lib/crypto'
 import { invoicePayButtonHtml, invoicePayHref } from '@/lib/invoices/pay-link.mjs'
 import { createInvoicePaySig } from '@/lib/invoices/pay-sig.mjs'
@@ -88,12 +89,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No parent email on file' }, { status: 400 })
   }
 
-  const resendKey = process.env.RESEND_API_KEY
-  if (!resendKey || resendKey.startsWith('re_YOUR')) {
-    return NextResponse.json({ error: 'Resend API key not configured' }, { status: 500 })
+  const wouldDeliver = isProductionEnv() || Boolean(process.env.RESEND_TO_OVERRIDE?.trim())
+  if (wouldDeliver) {
+    const resendKey = process.env.RESEND_API_KEY
+    if (!resendKey || resendKey.startsWith('re_YOUR')) {
+      return NextResponse.json({ error: 'Resend API key not configured' }, { status: 500 })
+    }
   }
 
-  const resend = new Resend(resendKey)
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'invoices@resend.dev'
 
   const itemsHtml = items.map((item: any) => `
@@ -177,15 +180,15 @@ export async function POST(request: NextRequest) {
     </html>
   `
 
-  const { error } = await resend.emails.send({
+  const sent = await sendEmail({
     from: fromEmail,
     to: child.parent_email,
     subject: `Invoice ${invoice.invoice_number} from ${profile.full_name} — ${formatGBP(Number(invoice.total))}`,
     html,
   })
 
-  if (error) {
-    console.error('Resend error:', error)
+  if (!sent.success) {
+    console.error('Resend error:', sent.error)
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
   }
 

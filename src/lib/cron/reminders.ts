@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { format } from 'date-fns'
 import { sendEmail } from '@/lib/email/resend'
+import { accountAllowlistGate } from '@/lib/preview-guard'
 import { paymentReminderEmail } from '@/lib/email/templates'
 import { invoicePayHref } from '@/lib/invoices/pay-link.mjs'
 import { createInvoicePaySig } from '@/lib/invoices/pay-sig.mjs'
@@ -41,18 +42,25 @@ type DueReminder = {
  * one interval late.
  */
 export async function sendDueReminders(
-  supabaseAdmin: SupabaseClient
+  supabaseAdmin: SupabaseClient,
+  env: NodeJS.ProcessEnv = process.env,
 ): Promise<{ sent: number; deactivated: number; failed: number }> {
+  const gate = accountAllowlistGate(env)
+  if (!gate.allow) return { sent: 0, deactivated: 0, failed: 0 }
+
   const nowIso = new Date().toISOString()
 
-  const { data, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('reminders')
     .select(
       'id, childminder_id, frequency_days, invoices!inner(id, invoice_number, status, due_date, total, stripe_payment_link, children(first_name, parent_name, parent_email))'
     )
     .eq('is_active', true)
     .lte('next_send_at', nowIso)
-    .limit(MAX_SENDS_PER_RUN)
+
+  if (gate.ids) query = query.in('childminder_id', gate.ids)
+
+  const { data, error } = await query.limit(MAX_SENDS_PER_RUN)
 
   if (error) {
     console.error('[cron/reminders] failed to fetch due reminders:', error.message)
