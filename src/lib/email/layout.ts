@@ -6,14 +6,20 @@ export const INK = '#0b1220'
 export const RULE = '#e5e7eb'
 const SUPPORT_EMAIL = 'hello@godottie.cloud'
 
+/** Production mark host. Never the request host, and never VERCEL_URL. */
+export const PRODUCTION_ORIGIN = 'https://www.godottie.cloud'
+
 /**
- * Absolute https origin for email assets. Uses NEXT_PUBLIC_APP_URL when it
- * is already https, otherwise the public site.
+ * Logo origin from the configured site URL.
+ * Production always uses https://www.godottie.cloud.
+ * Previews may use NEXT_PUBLIC_APP_URL when it is already https.
  */
 export function emailAssetOrigin(): string {
-  const raw = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, '') ?? ''
-  if (/^https:\/\//i.test(raw)) return raw
-  return 'https://www.godottie.cloud'
+  if (process.env.VERCEL_ENV === 'preview') {
+    const raw = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, '') ?? ''
+    if (/^https:\/\//i.test(raw)) return raw
+  }
+  return PRODUCTION_ORIGIN
 }
 
 export function markUrl(): string {
@@ -25,20 +31,22 @@ const DARK = `
   .email-card { background-color:#1f2937 !important; }
   .header { background-color:${NAVY} !important; }
   .header-text { color:#ffffff !important; }
-  .mark { background-color:${NAVY} !important; outline:1px solid rgba(255,255,255,0.65) !important; }
+  .mark { background-color:${NAVY} !important; outline:none !important; }
   .email-card h1, .email-card p, .email-card li, .email-card td, .email-card th, .email-card strong {
     color:#f9fafb !important;
   }
   .email-card .muted, .footer, .footer p, .footer .muted { color:#d1d5db !important; }
-  .footer { background-color:#1f2937 !important; border-top:1px solid ${RULE} !important; }
+  .footer { background-color:#1f2937 !important; border-top:1px solid #374151 !important; }
   .email-card a, .footer a { color:#ffffff !important; text-decoration:underline !important; }
-  .btn-fill { background-color:${NAVY} !important; border:1px solid rgba(255,255,255,0.7) !important; }
-  a.btn-fill-link { color:#ffffff !important; background-color:${NAVY} !important; text-decoration:none !important; }
+  .btn-fill { background-color:#f9fafb !important; border:none !important; }
+  a.btn-fill-link { color:${NAVY} !important; background-color:#f9fafb !important; text-decoration:none !important; }
   .btn-outline { background-color:transparent !important; border:1px solid #ffffff !important; }
   a.btn-outline-link { color:#ffffff !important; background-color:transparent !important; text-decoration:none !important; }
-  .panel { background-color:#111827 !important; border-color:#374151 !important; }
+  .panel { background-color:#111827 !important; border-color:#374151 !important; color:#f9fafb !important; }
+  .panel p, .panel li, .panel td, .panel th, .panel strong { color:#f9fafb !important; }
   .panel-alert { background-color:#3f1d1d !important; border-color:#fecaca !important; }
-  .sheet, .sheet td, .sheet th { background-color:#111827 !important; color:#f9fafb !important; border-color:#374151 !important; }
+  .sheet, .sheet td { background-color:#111827 !important; color:#f9fafb !important; border-color:#374151 !important; }
+  .sheet th { background-color:${NAVY} !important; color:#ffffff !important; border-color:#374151 !important; }
 `
 
 /** Gmail sets data-ogsc / data-ogsb in dark mode instead of only honoring the media query. */
@@ -96,16 +104,24 @@ export function textLink(href: string, label: string): string {
   return `<a class="link" href="${escapeHtml(href)}" style="color:${NAVY};text-decoration:underline;">${escapeHtml(label)}</a>`
 }
 
-export function renderEmail(content: string, audience: 'parent' | 'account' = 'account'): string {
+export function renderEmail(
+  content: string,
+  audience: 'parent' | 'account' = 'account',
+  options?: { markSrc?: string; footerLead?: string },
+): string {
   const year = new Date().getFullYear()
-  const mark = escapeHtml(markUrl())
-  const footer = audience === 'parent'
+  const mark = escapeHtml(options?.markSrc ?? markUrl())
+  const copyright = `<p class="muted" style="margin:8px 0 0;font-size:11px;line-height:1.5;color:#5b6573;text-align:center;">&copy; ${year} Go Dottie. All rights reserved.</p>`
+  const footer = options?.footerLead
+    ? `<p class="muted" style="margin:0;font-size:12px;line-height:1.5;color:#5b6573;text-align:center;">${escapeHtml(options.footerLead)}</p>
+              ${copyright}`
+    : audience === 'parent'
     ? `<p class="muted" style="margin:0;font-size:12px;line-height:1.5;color:#5b6573;text-align:center;">Sent with Go Dottie</p>
-              <p class="muted" style="margin:8px 0 0;font-size:11px;line-height:1.5;color:#5b6573;text-align:center;">&copy; ${year} Go Dottie. All rights reserved.</p>`
+              ${copyright}`
     : `<p class="muted" style="margin:0;font-size:12px;line-height:1.5;color:#5b6573;text-align:center;">
                 Need help? Email us at ${textLink(`mailto:${SUPPORT_EMAIL}`, SUPPORT_EMAIL)}
               </p>
-              <p class="muted" style="margin:8px 0 0;font-size:11px;line-height:1.5;color:#5b6573;text-align:center;">&copy; ${year} Go Dottie. All rights reserved.</p>`
+              ${copyright}`
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -135,7 +151,7 @@ export function renderEmail(content: string, audience: 'parent' | 'account' = 'a
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td width="40" style="width:40px;vertical-align:middle;">
-                    <img class="mark" src="${mark}" width="40" height="40" alt="Go Dottie" style="display:block;width:40px;height:40px;border:0;background-color:${NAVY};outline:1px solid rgba(255,255,255,0.45);border-radius:4px;">
+                    <img class="mark" src="${mark}" width="40" height="40" alt="Go Dottie" style="display:block;width:40px;height:40px;border:0;background-color:${NAVY};outline:none;">
                   </td>
                   <td style="padding-left:12px;vertical-align:middle;">
                     <p class="header-text" style="margin:0;font-size:20px;font-weight:700;line-height:40px;color:#ffffff;letter-spacing:-0.3px;">Go Dottie</p>

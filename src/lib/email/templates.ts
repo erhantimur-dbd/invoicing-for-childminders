@@ -45,14 +45,14 @@ export function welcomeEmail({ name }: { name: string }): {
         <td style="padding:16px 20px;">
           <p class="ink" style="margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#0b1220;">What you can do</p>
           <ul style="margin:0;padding-left:18px;">
-            <li class="ink" style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#0b1220;">Reply to parent enquiries in your own words</li>
-            <li class="ink" style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#0b1220;">Offer visit times you choose</li>
+            <li class="ink" style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#0b1220;">Answer parent enquiries from your Gmail, in your voice</li>
+            <li class="ink" style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#0b1220;">Offer visits in hours you set</li>
             <li class="ink" style="margin:0;font-size:14px;line-height:1.5;color:#0b1220;">Send a signup form when you offer a place</li>
           </ul>
         </td>
       </tr>
     </table>
-    ${buttonGroup([filledButton('Start with Enquiries', `${APP_URL}/subscribe?product=enquiries`)])}
+    ${buttonGroup([filledButton('Connect your Gmail', `${APP_URL}/subscribe?product=enquiries`)])}
     <p class="muted" style="${MUTED}">Any questions? Just reply to this email.</p>
     ${accountSignoff()}
   `
@@ -63,44 +63,13 @@ export function welcomeEmail({ name }: { name: string }): {
   }
 }
 
-// Still sent by the Stripe webhook (customer.subscription.trial_will_end).
-// Kept because that handler still imports it. The customer copy still says
-// "trial"; flagged in the pull request rather than deleted.
-export function trialExpiringEmail({
-  name,
-  daysLeft,
-  trialEnd,
-}: {
-  name: string
-  daysLeft: number
-  trialEnd: string
-}): { subject: string; html: string } {
-  const rawFirst = name.split(' ')[0]
-  const first = esc(rawFirst)
-  const dayWord = daysLeft === 1 ? 'day' : 'days'
-
-  const content = `
-    <h1 class="ink" style="${H}">Hi ${first}</h1>
-    <p class="ink" style="${P}">Your Go Dottie trial ends in ${daysLeft} ${dayWord}, on <strong>${esc(trialEnd)}</strong>.</p>
-    <p class="ink" style="${P}">Annual prices:</p>
-    <table role="presentation" class="panel" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin:0 0 8px;">
-      <tr>
-        <td style="padding:16px 20px;">
-          <p class="ink" style="margin:0 0 6px;font-size:15px;line-height:1.5;color:#0b1220;">Enquiries is £160 a year.</p>
-          <p class="ink" style="margin:0 0 6px;font-size:15px;line-height:1.5;color:#0b1220;">Limited is £208 a year.</p>
-          <p class="ink" style="margin:0;font-size:15px;line-height:1.5;color:#0b1220;">Full is £280 a year.</p>
-        </td>
-      </tr>
-    </table>
-    ${buttonGroup([filledButton('Choose a plan', `${APP_URL}/subscribe?product=enquiries`)])}
-    <p class="muted" style="${MUTED}">Any questions? Just reply to this email.</p>
-    ${accountSignoff()}
-  `
-
-  return {
-    subject: `Your Go Dottie trial ends in ${daysLeft} ${dayWord}`,
-    html: renderEmail(content, 'account'),
+function planStartLabel(startDate?: string): string {
+  const raw = startDate?.trim()
+  const parsed = raw ? new Date(raw) : new Date()
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   }
+  return raw || ''
 }
 
 export function subscriptionConfirmEmail({
@@ -113,17 +82,13 @@ export function subscriptionConfirmEmail({
   startDate?: string
 }): { subject: string; html: string } {
   const rawFirst = name.split(' ')[0]
-  const started = (startDate && startDate.trim()) || new Date().toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  const started = planStartLabel(startDate)
   void plan
 
   const content = `
     <h1 class="ink" style="${H}">Hi ${esc(rawFirst)}</h1>
     <p class="ink" style="${P}">You're on Go Dottie Enquiries, £160 a year.</p>
-    <p class="ink" style="${P}">${esc(started)}</p>
+    <p class="ink" style="${P}">Your plan started on ${esc(started)}.</p>
     <p class="ink" style="${P}">You can manage or cancel any time in Settings.</p>
     ${buttonGroup([filledButton('Open Settings', `${APP_URL}/profile`)])}
     ${accountSignoff()}
@@ -187,7 +152,7 @@ export function paymentReminderEmail({
       </tr>
     </table>
     ${buttons}
-    ${payUrl ? `<p class="muted" style="${MUTED}">Your childminder uses their own Stripe or PayPal.</p>` : ''}
+    ${payUrl ? `<p class="muted" style="${MUTED}">Payments go straight to ${who}, not to Go Dottie.</p>` : ''}
     <p class="muted" style="${MUTED}">Bank transfer details are on the invoice. If you have already paid, you can ignore this email.</p>
   `
 
@@ -264,16 +229,13 @@ export function escalationEmail(input: {
     .filter(Boolean)
     .join(' ')
   const href = `${APP_URL}/enquiries/${encodeURIComponent(input.prospectId)}`
-  const items = (input.reasons.length ? input.reasons : ['Go Dottie was not sure enough to reply.'])
-    .map((reason) => `<li class="ink" style="margin:0 0 6px;font-size:14px;color:#0b1220;line-height:1.5;">${esc(reason)}</li>`)
-    .join('')
+  const categories = (input.reasons.length ? input.reasons : ['something it could not answer'])
+    .map((reason) => reason.replace(/\s*\(safeguarding word list\)/gi, '').replace(/^message mentions\s+/i, '').replace(/[.]+$/, '').trim())
   const hi = input.displayName ? `Hi ${esc(firstName(input.displayName))},` : 'Hi,'
   const content = `
     <h1 class="ink" style="${H}">Go Dottie needs you</h1>
-    <p class="ink" style="${P}">
-      ${hi} ${esc(who)} emailed about a place. Go Dottie could not answer with full confidence, so no reply was sent.
-    </p>
-    <ul style="margin:0 0 8px;padding-left:20px;">${items}</ul>
+    <p class="ink" style="${P}">${hi} ${esc(who)} emailed about a place.</p>
+    ${categories.map((category) => `<p class="ink" style="${P}">It mentions ${esc(category)}, so Go Dottie didn't reply. Please answer this one yourself.</p>`).join('')}
     ${buttonGroup([filledButton('Review this enquiry', href)])}
     <p class="muted" style="${MUTED}">Nothing was sent to the parent.</p>
   `
@@ -294,12 +256,13 @@ export function placeOfferEmail(input: {
   const cm = input.childminderName || 'your childminder'
   const child = input.childName ? ` for ${input.childName}` : ''
   const extra = input.comprehensive
-    ? 'You will also see policies and how invoices are paid (bank transfer).'
+    ? 'You will also see policies and how invoices are paid.'
     : 'It only asks for your details and your child’s details.'
+  const place = input.childName ? `${esc(input.childName)}'s place` : 'their place'
   const content = `
     <h1 class="ink" style="${H}">You have been offered a place${esc(child)}</h1>
     <p class="ink" style="${P}">
-      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form so they can get you on roll.
+      Hi ${esc(parent)}, ${esc(cm)} would like you to complete a short signup form to confirm ${place}.
       ${esc(extra)}
     </p>
     ${buttonGroup([filledButton('Complete signup', input.formUrl)])}

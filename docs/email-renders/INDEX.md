@@ -1,6 +1,6 @@
 # Go Dottie email renders
 
-Light PNGs are 700px wide, full page. Dark PNGs use Playwright `colorScheme: 'dark'` so `prefers-color-scheme: dark` applies. The mark is served from `public/email/go-dottie-mark.png` for the screenshot; the HTML references `https://www.godottie.cloud/email/go-dottie-mark.png`.
+Light PNGs are 700px wide, full page. Dark PNGs use Playwright `colorScheme: 'dark'` so `prefers-color-scheme: dark` applies. Screenshots load `public/email/go-dottie-mark.png` for the mark. Transactional HTML uses the configured site URL, which is `https://www.godottie.cloud/email/go-dottie-mark.png` outside Preview. Auth templates hardcode that same production URL.
 
 Dummy data: Sam Taylor / Ava / Jordan Patel / INV-0042 £120.00. Subscription start date: 2 October 2026.
 
@@ -102,20 +102,6 @@ Dummy data: Sam Taylor / Ava / Jordan Patel / INV-0042 £120.00. Subscription st
 - prices only £160, £208 or £280 (no £244, no monthly): pass
 - parent voice: pass (not a parent email)
 
-## trialExpiringEmail
-
-- Subject: Your Go Dottie trial ends in 3 days
-- Trigger: Stripe webhook customer.subscription.trial_will_end (still referenced in src/app/api/stripe/webhook/route.ts; skipped when metadata.product is enquiries)
-- Files: `trialExpiringEmail.html`, `trialExpiringEmail.png`, `trialExpiringEmail-dark.png`
-- bare Dottie: pass
-- #059669: pass
-- emoji: pass
-- no "trial": fail (still sent by the Stripe trial_will_end webhook, so the function was kept)
-- no "receipt": pass
-- no "we'll remind you before renewal": pass
-- prices only £160, £208 or £280 (no £244, no monthly): pass
-- parent voice: pass (not a parent email)
-
 ## subscriptionConfirmEmail
 
 - Subject: Your Go Dottie plan is confirmed
@@ -161,7 +147,7 @@ Dummy data: Sam Taylor / Ava / Jordan Patel / INV-0042 £120.00. Subscription st
 ## contactAutoReply
 
 - Subject: Got your message
-- Trigger: Contact form POST /api/contact → auto-reply to the sender (from "Go Dottie <hello@godottie.cloud>"). The form has no childminder or setting name, so the body is an acknowledgement and does not sell Go Dottie.
+- Trigger: Contact form POST /api/contact → auto-reply to the sender (from "Go Dottie <hello@godottie.cloud>"). Signed "The Go Dottie team". The form has no childminder or setting name, so the body is an acknowledgement and does not sell Go Dottie.
 - Files: `contactAutoReply.html`, `contactAutoReply.png`, `contactAutoReply-dark.png`
 - bare Dottie: pass
 - #059669: pass

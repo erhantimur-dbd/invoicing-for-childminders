@@ -77,8 +77,8 @@ export function invoiceSendEmail(input: {
     ${input.dueLabel ? `<p class="ink" style="${P}">Payment due by ${escapeHtml(input.dueLabel)}.</p>` : ''}
     ${bankHtml}
     ${buttons}
-    ${input.payUrl ? `<p class="muted" style="${MUTED}">Your childminder uses their own Stripe or PayPal.</p>` : ''}
-    ${input.notes ? `<p class="ink" style="margin:0 0 16px;padding:12px;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;line-height:1.5;color:#0b1220;">${escapeHtml(input.notes)}</p>` : ''}
+    ${input.payUrl ? `<p class="panel" style="margin:0 0 16px;padding:12px;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;line-height:1.5;color:#0b1220;">Payments go straight to ${who}, not to Go Dottie.</p>` : ''}
+    ${input.notes ? `<p class="panel" style="margin:0 0 16px;padding:12px;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;line-height:1.5;color:#0b1220;">${escapeHtml(input.notes)}</p>` : ''}
     <p class="muted" style="margin:0;font-size:12px;line-height:1.5;color:#5b6573;text-align:center;">${contactBits.map((bit) => escapeHtml(bit)).join(' · ')}</p>
   `
 
@@ -122,7 +122,7 @@ export function contactAutoReplyEmail(input: { name: string }): { subject: strin
   `
   return {
     subject: 'Got your message',
-    html: renderEmail(content, 'parent'),
+    html: renderEmail(content, 'parent', { footerLead: 'The Go Dottie team' }),
   }
 }
 
@@ -155,9 +155,9 @@ export function weeklyDraftDigestEmail(input: {
     <table class="sheet" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;">
       <thead>
         <tr>
-          <th class="ink" align="left" style="padding:10px 12px;text-align:left;font-size:13px;color:#0b1220;background-color:#f3f4f6;">Child</th>
-          <th class="ink" align="right" style="padding:10px 12px;text-align:right;font-size:13px;color:#0b1220;background-color:#f3f4f6;">Amount</th>
-          <th class="ink" align="left" style="padding:10px 12px;text-align:left;font-size:13px;color:#0b1220;background-color:#f3f4f6;">Notes</th>
+          <th class="ink" align="left" style="padding:10px 12px;text-align:left;background-color:#0b1220;color:#ffffff;font-size:13px;">Child</th>
+          <th class="ink" align="right" style="padding:10px 12px;text-align:right;background-color:#0b1220;color:#ffffff;font-size:13px;">Amount</th>
+          <th class="ink" align="left" style="padding:10px 12px;text-align:left;background-color:#0b1220;color:#ffffff;font-size:13px;">Notes</th>
         </tr>
       </thead>
       <tbody>${createdRows}</tbody>

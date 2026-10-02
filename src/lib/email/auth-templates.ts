@@ -1,8 +1,11 @@
-import { buttonGroup, filledButton, renderEmail, textLink } from '@/lib/email/layout'
+import { buttonGroup, filledButton, PRODUCTION_ORIGIN, renderEmail, textLink } from '@/lib/email/layout'
+
+const AUTH_MARK = `${PRODUCTION_ORIGIN}/email/go-dottie-mark.png`
 
 const H = 'margin:0 0 12px;font-size:24px;font-weight:700;line-height:1.3;color:#0b1220;'
 const P = 'margin:0 0 16px;font-size:15px;line-height:1.6;color:#0b1220;'
 const MUTED = 'margin:0 0 16px;font-size:14px;line-height:1.6;color:#5b6573;'
+const IGNORE = `<p class="muted" style="${MUTED}">If you didn't ask for this, you can ignore this email.</p>`
 
 function confirmBlock(label: string): string {
   const href = '{{ .ConfirmationURL }}'
@@ -34,7 +37,8 @@ const emails: AuthEmail[] = [
       <h1 class="ink" style="${H}">Confirm your email</h1>
       <p class="ink" style="${P}">Confirm {{ .Email }} to finish creating your Go Dottie account.</p>
       ${confirmBlock('Confirm email')}
-    `, 'account'),
+      ${IGNORE}
+    `, 'account', { markSrc: AUTH_MARK }),
   },
   {
     id: 'magic_link',
@@ -47,7 +51,8 @@ const emails: AuthEmail[] = [
       <h1 class="ink" style="${H}">Sign in</h1>
       <p class="ink" style="${P}">Use this link to sign in to Go Dottie as {{ .Email }}.</p>
       ${confirmBlock('Sign in')}
-    `, 'account'),
+      ${IGNORE}
+    `, 'account', { markSrc: AUTH_MARK }),
   },
   {
     id: 'recovery',
@@ -60,7 +65,8 @@ const emails: AuthEmail[] = [
       <h1 class="ink" style="${H}">Reset your password</h1>
       <p class="ink" style="${P}">Choose a new password for {{ .Email }}.</p>
       ${confirmBlock('Reset password')}
-    `, 'account'),
+      ${IGNORE}
+    `, 'account', { markSrc: AUTH_MARK }),
   },
   {
     id: 'invite',
@@ -73,7 +79,7 @@ const emails: AuthEmail[] = [
       <h1 class="ink" style="${H}">You are invited</h1>
       <p class="ink" style="${P}">You have been invited to join Go Dottie at {{ .SiteURL }}.</p>
       ${confirmBlock('Accept invite')}
-    `, 'account'),
+    `, 'account', { markSrc: AUTH_MARK }),
   },
   {
     id: 'email_change',
@@ -86,7 +92,8 @@ const emails: AuthEmail[] = [
       <h1 class="ink" style="${H}">Confirm your new email</h1>
       <p class="ink" style="${P}">Confirm the change from {{ .Email }} to {{ .NewEmail }}.</p>
       ${confirmBlock('Confirm new email')}
-    `, 'account'),
+      ${IGNORE}
+    `, 'account', { markSrc: AUTH_MARK }),
   },
   {
     id: 'reauthentication',
@@ -106,7 +113,7 @@ const emails: AuthEmail[] = [
         </tr>
       </table>
       <p class="muted" style="${MUTED}">You can also open <a class="link" href="{{ .SiteURL }}" style="color:#0b1220;text-decoration:underline;">{{ .SiteURL }}</a>.</p>
-    `, 'account'),
+    `, 'account', { markSrc: AUTH_MARK }),
   },
 ]
 

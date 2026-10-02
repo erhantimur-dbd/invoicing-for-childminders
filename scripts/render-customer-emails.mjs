@@ -36,10 +36,9 @@ put('welcomeEmail', T.welcomeEmail({ name: 'Sam Taylor' }), 'Childminder signs u
 put('paymentReminderEmail-reminder', T.paymentReminderEmail({ ...rem, overdue: false }), 'Hourly generate-invoices cron → sendDueReminders, invoice status=sent, reminder next_send_at passed', { parent: true, invoice: true })
 put('paymentReminderEmail-overdue', T.paymentReminderEmail({ ...rem, overdue: true }), 'Hourly generate-invoices cron → sendDueReminders, invoice status=overdue', { parent: true, invoice: true })
 put('paymentReceivedEmail', T.paymentReceivedEmail({ parentName: 'Jordan Patel', childFirstName: 'Ava', invoiceNumber: 'INV-0042', total: 120, paidDate: '2 October 2026', childminderName: 'Sam Taylor' }), 'Childminder marks invoice paid', { parent: true, invoice: true })
-put('escalationEmail', T.escalationEmail({ displayName: 'Sam Taylor', parentName: 'Jordan Patel', childName: 'Ava', reasons: ['Parent asked about funded hours for a 2-year-old, which is not in your FAQ.', 'Message mentions a medical condition (safeguarding word list).'], prospectId: 'prospect-123' }), 'Enquiry sync: Go Dottie not confident / safeguarding hold → email to childminder', { parent: false, invoice: false })
+put('escalationEmail', T.escalationEmail({ displayName: 'Sam Taylor', parentName: 'Jordan Patel', childName: 'Ava', reasons: ['a medical condition'], prospectId: 'prospect-123' }), 'Enquiry sync: Go Dottie not confident / safeguarding hold → email to childminder', { parent: false, invoice: false })
 put('placeOfferEmail', T.placeOfferEmail({ parentName: 'Jordan Patel', childName: 'Ava', childminderName: 'Sam Taylor', formUrl: 'https://www.godottie.cloud/onboard/dummy-token', comprehensive: true }), 'Childminder offers a place → parent signup form link', { parent: true, invoice: false })
 put('childOnboardedEmail', T.childOnboardedEmail({ displayName: 'Sam Taylor', childName: 'Ava', parentName: 'Jordan Patel', childId: 'child-123' }), 'Parent completes signup form → email to childminder', { parent: false, invoice: false })
-put('trialExpiringEmail', T.trialExpiringEmail({ name: 'Sam Taylor', daysLeft: 3, trialEnd: '5 October 2026' }), 'Stripe webhook customer.subscription.trial_will_end (still referenced in src/app/api/stripe/webhook/route.ts; skipped when metadata.product is enquiries)', { parent: false, invoice: false, trialException: true })
 put('subscriptionConfirmEmail', T.subscriptionConfirmEmail({ name: 'Sam Taylor', plan: 'enquiries', startDate: '2 October 2026' }), 'Subscription confirmation template. No sender calls it on this branch.', { parent: false, invoice: false })
 put('invoiceSend', invoiceSendEmail({
   invoiceNumber: 'INV-0042',
@@ -66,7 +65,7 @@ put('contactInboxNotice', contactInboxNoticeEmail({
   message: "Hi, I'm a childminder in Leeds with 4 children.\nDo you support 30 funded hours on invoices?\nThanks, Sam",
   ip: '203.0.113.7',
 }), 'Contact form POST /api/contact → support@godottie.cloud (from "Go Dottie contact form <hello@godottie.cloud>")', { parent: false, invoice: false })
-put('contactAutoReply', contactAutoReplyEmail({ name: 'Sam Taylor' }), 'Contact form POST /api/contact → auto-reply to the sender (from "Go Dottie <hello@godottie.cloud>"). The form has no childminder or setting name, so the body is an acknowledgement and does not sell Go Dottie.', { parent: true, invoice: false })
+put('contactAutoReply', contactAutoReplyEmail({ name: 'Sam Taylor' }), 'Contact form POST /api/contact → auto-reply to the sender (from "Go Dottie <hello@godottie.cloud>"). Signed "The Go Dottie team". The form has no childminder or setting name, so the body is an acknowledgement and does not sell Go Dottie.', { parent: false, invoice: false, teamSign: true })
 put('weeklyDraftDigest', weeklyDraftDigestEmail({
   firstName: 'Sam',
   weekLabel: '21 Sept – 27 Sept 2026',
@@ -105,25 +104,28 @@ function rulesFor(email) {
   if (email.parent) {
     const sells = /enquiries assistant|Start with Enquiries|£160 a year/.test(email.html)
     const footer = /Sent with Go Dottie/.test(email.html)
-    const named = email.file === 'contactAutoReply' || /Sam Taylor/.test(email.html)
+    const named = /Sam Taylor/.test(email.html)
     parent = footer && !sells && named
+  }
+  if (email.teamSign) {
+    parent = /The Go Dottie team/.test(email.html) && !/Sent with Go Dottie/.test(email.html)
   }
   return [
     `bare Dottie: ${verdict(bare)}`,
     `#059669: ${verdict(emerald)}`,
     `emoji: ${verdict(emoji)}`,
-    `no "trial": ${verdict(trial)}${email.trialException && !trial ? ' (still sent by the Stripe trial_will_end webhook, so the function was kept)' : ''}`,
+    `no "trial": ${verdict(trial)}`,
     `no "receipt": ${verdict(receipt)}`,
     `no "we'll remind you before renewal": ${verdict(renewal)}`,
     `prices only £160, £208 or £280 (no £244, no monthly): ${verdict(prices)}`,
-    `parent voice: ${email.parent ? verdict(parent) : 'pass (not a parent email)'}`,
+    `parent voice: ${email.parent || email.teamSign ? verdict(parent) : 'pass (not a parent email)'}`,
   ]
 }
 
 const lines = [
   '# Go Dottie email renders',
   '',
-  'Light PNGs are 700px wide, full page. Dark PNGs use Playwright `colorScheme: \'dark\'` so `prefers-color-scheme: dark` applies. The mark is served from `public/email/go-dottie-mark.png` for the screenshot; the HTML references `https://www.godottie.cloud/email/go-dottie-mark.png`.',
+  'Light PNGs are 700px wide, full page. Dark PNGs use Playwright `colorScheme: \'dark\'` so `prefers-color-scheme: dark` applies. Screenshots load `public/email/go-dottie-mark.png` for the mark. Transactional HTML uses the configured site URL, which is `https://www.godottie.cloud/email/go-dottie-mark.png` outside Preview. Auth templates hardcode that same production URL.',
   '',
   'Dummy data: Sam Taylor / Ava / Jordan Patel / INV-0042 £120.00. Subscription start date: 2 October 2026.',
   '',
@@ -143,7 +145,7 @@ writeFileSync(join(outDir, 'INDEX.md'), lines.join('\n'))
 const { chromium } = await import('playwright')
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 700, height: 800 } })
-await page.route('https://www.godottie.cloud/email/go-dottie-mark.png', (route) => route.fulfill({ path: markPath, contentType: 'image/png' }))
+await page.route('**/email/go-dottie-mark.png', (route) => route.fulfill({ path: markPath, contentType: 'image/png' }))
 
 for (const email of emails) {
   await page.emulateMedia({ colorScheme: 'light' })

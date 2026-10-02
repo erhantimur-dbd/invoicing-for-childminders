@@ -1,6 +1,6 @@
 # Supabase Auth email templates
 
-Paste each file into **Authentication → Emails → Templates** in the Supabase dashboard. Platform applies these by hand after design and copy review. Do not add them to `supabase/config.toml`.
+Paste each file into **Authentication → Emails → Templates** in the Supabase dashboard. Platform pastes them only after #29 is promoted and `https://www.godottie.cloud/email/go-dottie-mark.png` returns 200 `image/png` (check with curl). Do not add them to `supabase/config.toml`. The mark URL in these files is hardcoded to that address. There is no storage bucket and no placeholder to replace.
 
 Sender name for every template: **Go Dottie**
 
