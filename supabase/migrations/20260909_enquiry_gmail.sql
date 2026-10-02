@@ -36,6 +36,22 @@ create table if not exists public.enquiry_gmail_accounts (
   updated_at timestamptz not null default now()
 );
 
+-- Table may already exist from an earlier create without this column.
+-- Backfill to now() so mail already in the inbox is before connected_at
+-- and is classified but never auto-sent.
+alter table public.enquiry_gmail_accounts
+  add column if not exists connected_at timestamptz;
+
+update public.enquiry_gmail_accounts
+set connected_at = now()
+where connected_at is null;
+
+alter table public.enquiry_gmail_accounts
+  alter column connected_at set default now();
+
+alter table public.enquiry_gmail_accounts
+  alter column connected_at set not null;
+
 alter table public.enquiry_gmail_accounts enable row level security;
 
 do $$
