@@ -8,6 +8,7 @@ import {
   type AgentChild,
 } from '@/lib/agent/invoice-agent'
 import { persistInvoices } from '@/lib/agent/create-invoices'
+import { isPaidAnthropicAllowed } from '@/lib/ai/preview-paid-apis'
 
 export async function GET(request: NextRequest) {
   // Verify cron secret — Vercel sends this automatically; also checked manually
@@ -100,9 +101,9 @@ export async function GET(request: NextRequest) {
       children.map(c => [c.id, `${c.first_name} ${c.last_name}`])
     )
 
-    // Run agent
+    // Fallback when the key is missing or paid Anthropic is closed outside production.
     let decisions
-    if (process.env.ANTHROPIC_API_KEY) {
+    if (process.env.ANTHROPIC_API_KEY && isPaidAnthropicAllowed()) {
       try {
         decisions = await runInvoiceAgent(children, weekDates, bankHolidays)
       } catch {

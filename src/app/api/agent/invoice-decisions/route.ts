@@ -8,6 +8,7 @@ import {
   getPreviousWeekDates,
   type AgentChild,
 } from '@/lib/agent/invoice-agent'
+import { isPaidAnthropicAllowed } from '@/lib/ai/preview-paid-apis'
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,9 +84,9 @@ export async function POST(request: NextRequest) {
     // Fetch bank holidays
     const bankHolidays = await fetchUKBankHolidays()
 
-    // Run agent (with fallback if ANTHROPIC_API_KEY missing)
+    // Fallback when the key is missing or paid Anthropic is closed outside production.
     let decisions
-    if (process.env.ANTHROPIC_API_KEY) {
+    if (process.env.ANTHROPIC_API_KEY && isPaidAnthropicAllowed()) {
       try {
         decisions = await runInvoiceAgent(children, weekDates, bankHolidays)
       } catch (agentError) {
