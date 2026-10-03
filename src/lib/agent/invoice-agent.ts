@@ -4,6 +4,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { isPaidAnthropicAllowed } from '@/lib/ai/preview-paid-apis'
 import { buildLineItemsForDay, formatDateLabel } from '@/lib/funded-hours'
 
 export type ScheduleDay = { day: string; type: 'full' | 'half' }
@@ -90,6 +91,10 @@ export async function runInvoiceAgent(
   weekDates: string[],
   bankHolidays: string[]
 ): Promise<AgentDecision[]> {
+  if (!isPaidAnthropicAllowed()) {
+    return buildFallbackDecisions(children, weekDates, bankHolidays)
+  }
+
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const tools: Anthropic.Tool[] = [

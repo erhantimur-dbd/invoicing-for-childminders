@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { isPaidAnthropicAllowed } from '@/lib/ai/preview-paid-apis'
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +9,10 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+    }
+
+    if (!isPaidAnthropicAllowed()) {
+      return NextResponse.json({ error: 'preview_paid_apis_disabled' }, { status: 403 })
     }
 
     if (!process.env.ANTHROPIC_API_KEY) {
