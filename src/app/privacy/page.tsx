@@ -166,7 +166,7 @@ export default function PrivacyPage() {
 
             <Section id="gmail-enquiries" title="4. Parent enquiries">
               <P>
-                Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so new parent emails are ingested. Automatic send is off unless you turn it on. Dottie does not sync your whole personal mailbox as a product — she looks for new parent enquiry mail.
+                Dottie Enquiries drafts polite visit letters to parents who have asked for a childcare place. You can paste a message, or connect Gmail so classified parent emails are ingested. Auto-send is the default: she replies on the real Gmail thread. You can switch to Draft &amp; approve, or pause her. Receipts, newsletters, and other non-enquiry mail are never stored.
               </P>
 
               <div className="space-y-4">
@@ -181,8 +181,8 @@ export default function PrivacyPage() {
                 <div className="p-4 rounded-xl bg-white border border-gray-200">
                   <p className="font-semibold text-gray-800 mb-2">How sending works</p>
                   <Ul items={[
-                    <>Dottie drafts a visit letter in your voice. <strong>Automatic send is off until you turn it on</strong> in Your answers. With it off, you copy the draft into Gmail yourself.</>,
-                    <>If you connect Gmail, you can disconnect it at any time. Connecting Calendar lets Dottie write the visit you confirm onto your Google Calendar.</>,
+                    <>Dottie drafts a visit letter in your voice. <strong>Auto-send is the default</strong> for classified parent emails, sent from your Gmail on the same thread. Draft &amp; approve waits for you to tap Approve. Pause stops reading Gmail, drafting, and sending.</>,
+                    <>If you connect Gmail, you can disconnect it at any time. Gmail connect asks only to read and send mail. Visit times you confirm are saved in Dottie. Google Calendar sync is off unless it is turned on separately.</>,
                   ]} />
                 </div>
 
@@ -271,8 +271,8 @@ export default function PrivacyPage() {
                     link: 'https://resend.com/legal/privacy-policy',
                   },
                   {
-                    name: 'Google (Gmail and Calendar)',
-                    role: 'If you connect Gmail, we read new parent-enquiry messages and can send a reply from your Gmail when automatic send is on. If you connect Calendar, we create or update the visit you confirm. We do not use your mailbox for advertising.',
+                    name: 'Google (Gmail)',
+                    role: 'If you connect Gmail, we read classified parent-enquiry messages and can send a reply from your Gmail on that thread. Non-enquiry mail is not stored. We do not request Google Calendar access with this connection, and we do not use your mailbox for advertising.',
                     location: 'USA (Standard Contractual Clauses apply)',
                     link: 'https://policies.google.com/privacy',
                   },

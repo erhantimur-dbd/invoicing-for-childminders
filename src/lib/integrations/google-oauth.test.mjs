@@ -2,16 +2,17 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { GOOGLE_SCOPES, googleAuthUrl } from './google-oauth.mjs'
 
-test('Google consent asks for inbox, send, and calendar — not login SSO', () => {
-  assert.ok(GOOGLE_SCOPES.some((s) => s.includes('gmail.readonly')))
-  assert.ok(GOOGLE_SCOPES.some((s) => s.includes('gmail.send')))
-  assert.ok(GOOGLE_SCOPES.some((s) => s.includes('calendar.events')))
+test('leftover Google client does not request Gmail or Calendar scopes', () => {
+  const joined = GOOGLE_SCOPES.join(' ')
+  assert.doesNotMatch(joined, /gmail\.readonly/)
+  assert.doesNotMatch(joined, /gmail\.send/)
+  assert.doesNotMatch(joined, /calendar\.events/)
   const url = googleAuthUrl({
     clientId: 'cid',
-    redirectUri: 'https://www.godottie.cloud/api/integrations/google/callback',
+    redirectUri: 'https://www.godottie.cloud/api/enquiries/gmail/callback',
     state: 'abc',
   })
-  assert.match(url, /access_type=offline/)
-  assert.match(url, /prompt=consent/)
-  assert.match(url, /integrations%2Fgoogle%2Fcallback/)
+  assert.doesNotMatch(url, /calendar\.events/)
+  assert.doesNotMatch(url, /gmail\.readonly/)
+  assert.match(url, /enquiries%2Fgmail%2Fcallback/)
 })

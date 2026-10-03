@@ -114,13 +114,16 @@ test('monthly cap and bursts do not invoke the model', async () => {
 })
 
 test('draft HTTP handler consults runEnquiryDraft before draftEnquiryReply', () => {
-  const src = readFileSync(join(root, 'app/api/enquiries/draft/route.ts'), 'utf8')
-  const post = src.slice(src.indexOf('export async function POST'))
-  assert.match(post, /runEnquiryDraft/)
-  assert.match(post, /failOpen: false/)
-  assert.match(post, /burstPerHour/)
-  assert.match(post, /burstPerDay/)
-  assert.ok(post.indexOf('runEnquiryDraft') < post.indexOf('draftEnquiryReply'))
+  const route = readFileSync(join(root, 'app/api/enquiries/draft/route.ts'), 'utf8')
+  const post = route.slice(route.indexOf('export async function POST'))
+  assert.match(post, /createEnquiryDraft/)
+  const src = readFileSync(join(root, 'lib/enquiries/create-draft.ts'), 'utf8')
+  const fn = src.slice(src.indexOf('export async function createEnquiryDraft'))
+  assert.match(fn, /runEnquiryDraft/)
+  assert.match(fn, /failOpen: false/)
+  assert.match(fn, /burstPerHour/)
+  assert.match(fn, /burstPerDay/)
+  assert.ok(fn.indexOf('runEnquiryDraft') < fn.indexOf('draftEnquiryReply'))
 })
 
 test('cost-per-email write-up exists with Grok 4.6 prices and the shipped quota', () => {
@@ -154,7 +157,7 @@ test('childminder-facing copy uses the same quota constants', () => {
   assert.equal(copy, marketing.enquiriesQuotaLine)
   assert.match(copy, new RegExp(String(ENQUIRIES_QUOTA.includedDraftsPerMonth)))
   assert.match(copy, /£0\.15/)
-  assert.match(copy, /Automatic send is off until you turn it on/)
+  assert.match(copy, /Auto-send is the default for classified parent enquiries/)
   const paywall = readFileSync(join(root, 'components/enquiries/EnquiriesPaywall.tsx'), 'utf8')
   assert.match(paywall, /enquiriesQuotaCopy/)
   const pricing = readFileSync(join(root, 'components/marketing/Pricing.tsx'), 'utf8')

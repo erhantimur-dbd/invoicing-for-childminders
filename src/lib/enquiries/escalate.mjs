@@ -1,3 +1,4 @@
+import { classifyHoldback } from './auto-send-holdback.mjs'
 import { matchingVacancies } from './letter-template.mjs'
 import { nextVisitSlots, parseRequestedWeekdays } from './visit-policy.mjs'
 
@@ -12,6 +13,9 @@ export const ESCALATE_LABELS = {
   no_visit_windows: 'You have a space but no visiting hours, so Dottie cannot offer a visit.',
   facts_from_model: 'Some details were guessed from messy wording. Check before you send.',
   parent_name_unknown: 'Dottie does not have the parent’s name for certain.',
+  safeguarding: 'They mentioned safeguarding — you should reply.',
+  complaint: 'They mentioned a complaint — you should reply.',
+  payment_dispute: 'They mentioned a payment dispute — you should reply.',
 }
 
 const EXTRA_NEEDS = /\b(sen|allerg(?:y|ies|ic)|medical|autism|adhd|disabilit|special needs?|epipen|inhaler|nut-free|wheelchair)\b/i
@@ -54,6 +58,12 @@ export function decideHumanEscalation(input) {
   if (EXTRA_NEEDS.test(msg) || EXTRA_NEEDS.test(String(prospect.sen_notes || ''))) {
     reasons.push('extra_needs')
   }
+  const held = classifyHoldback(msg, '')
+  if (held.decision === 'hold' && typeof held.category === 'string') {
+    if (held.category === 'health') reasons.push('extra_needs')
+    else if (held.category === 'payment') reasons.push('payment_dispute')
+    else reasons.push(held.category)
+  }
 
   const requested = parseRequestedWeekdays(prospect.days_needed)
   if (!requested.length) reasons.push('days_unknown')
@@ -90,7 +100,7 @@ export function decideHumanEscalation(input) {
 
   if (!prospect.parent_name) reasons.push('parent_name_unknown')
 
-  const unique = [...new Set(reasons)]
+  const unique = [...new Set(reasons.filter((r) => typeof r === 'string'))]
   return {
     confident: unique.length === 0,
     reasons: unique,

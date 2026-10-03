@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { assertCanSendPlaceOffer, closeLostPatch, closeWonPatch } from '@/lib/enquiries/close-enquiry.mjs'
 import { createOnboardToken, placeOfferUrl } from '@/lib/enquiries/onboard-token.mjs'
 import { cancelVisitEvent } from '@/lib/integrations/google-calendar'
+import { googleCalendarVisitsEnabled } from '@/lib/integrations/google-calendar-flag'
 import { log } from '@/lib/log'
 
 export async function POST(request: Request) {
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   if (!prospect) return NextResponse.json({ error: 'Parent not found.' }, { status: 404 })
 
   if (body.outcome === 'lost') {
-    if (prospect.calendar_event_id) {
+    if (googleCalendarVisitsEnabled() && prospect.calendar_event_id) {
       const { data: conn } = await supabase
         .from('enquiry_connections')
         .select('refresh_token_enc, status')

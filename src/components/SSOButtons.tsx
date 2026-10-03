@@ -1,8 +1,16 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { getSupabasePublicEnv } from '@/lib/supabase/env'
 import { authCallbackRedirect, parseBilling, subscribeNext } from '@/lib/billing-query.mjs'
+import {
+  SOCIAL_AUTH_REDIRECT_GRACE_MS,
+  startSocialAuth,
+  socialAuthRedirectBlockedMessage,
+  type SocialProvider,
+} from '@/lib/auth/social-oauth'
 
 type Props = {
   mode: 'login' | 'signup'
@@ -20,22 +28,40 @@ export default function SSOButtons({ mode, onError }: Props) {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [appleLoading, setAppleLoading] = useState(false)
 
-  async function startOAuth(provider: 'google' | 'apple') {
+  function fail(message: string) {
+    onError?.(message)
+    if (!onError) toast.error(message)
+    setGoogleLoading(false)
+    setAppleLoading(false)
+  }
+
+  async function startOAuth(provider: SocialProvider) {
     if (provider === 'google') setGoogleLoading(true)
     else setAppleLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
+    const result = await startSocialAuth({
       provider,
-      options: {
-        redirectTo: authCallbackRedirect(window.location.origin, oauthNext(mode)),
+      origin: window.location.origin,
+      hasPublicEnv: getSupabasePublicEnv() !== null,
+      redirectTo: authCallbackRedirect(window.location.origin, oauthNext(mode)),
+      signIn: async ({ provider: nextProvider, redirectTo }) => {
+        const supabase = createClient()
+        return supabase.auth.signInWithOAuth({
+          provider: nextProvider,
+          options: {
+            redirectTo,
+            skipBrowserRedirect: true,
+          },
+        })
       },
     })
-    if (error) {
-      console.error(`${provider} OAuth error:`, error)
-      onError?.(error.message)
-      setGoogleLoading(false)
-      setAppleLoading(false)
+    if (!result.ok) {
+      fail(result.message)
+      return
     }
+    window.location.assign(result.url)
+    window.setTimeout(() => {
+      fail(socialAuthRedirectBlockedMessage(provider))
+    }, SOCIAL_AUTH_REDIRECT_GRACE_MS)
   }
 
   async function handleGoogle() {
@@ -78,13 +104,15 @@ export default function SSOButtons({ mode, onError }: Props) {
   )
 
   const actionText = mode === 'signup' ? 'Sign up' : 'Continue'
+  const busy = googleLoading || appleLoading
 
   return (
     <div className="space-y-3">
       <button
         type="button"
-        onClick={handleGoogle}
-        disabled={googleLoading || appleLoading}
+        onClick={() => void handleGoogle()}
+        disabled={busy}
+        aria-busy={googleLoading}
         className="w-full h-12 flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
       >
         {googleLoading ? spinnerDark : googleIcon}
@@ -92,8 +120,9 @@ export default function SSOButtons({ mode, onError }: Props) {
       </button>
       <button
         type="button"
-        onClick={handleApple}
-        disabled={googleLoading || appleLoading}
+        onClick={() => void handleApple()}
+        disabled={busy}
+        aria-busy={appleLoading}
         className="w-full h-12 flex items-center justify-center gap-3 bg-gray-950 border border-gray-950 rounded-xl text-sm font-semibold text-white hover:bg-gray-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
       >
         {appleLoading ? spinnerWhite : appleIcon}

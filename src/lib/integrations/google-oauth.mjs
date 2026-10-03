@@ -2,12 +2,12 @@ export const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 export const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 export const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
+// Gmail connect lives at /api/enquiries/gmail and requests only
+// gmail.readonly + gmail.send. This client is the leftover token helper
+// for an optional Calendar visit flag. It must not ask for mailbox or calendar scopes.
 export const GOOGLE_SCOPES = [
   'openid',
   'email',
-  'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/calendar.events',
 ]
 
 export function googleOAuthClient() {
@@ -17,7 +17,7 @@ export function googleOAuthClient() {
 }
 
 export function googleRedirectUri(origin) {
-  return `${origin}/api/integrations/google/callback`
+  return `${origin}/api/enquiries/gmail/callback`
 }
 
 export function googleAuthUrl({ clientId, redirectUri, state }) {
