@@ -20,11 +20,26 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setSessionReady(true)
-      }
+    let active = true
+
+    // The code is exchanged on the server, so the recovery session already
+    // exists here. PASSWORD_RECOVERY only fires for the client hash flow.
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (active && session) setSessionReady(true)
+      })
+      .catch(() => {})
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return
+      if (event === 'PASSWORD_RECOVERY' || session) setSessionReady(true)
     })
+
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
