@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { homepageAuthCallbackRedirect } from '@/lib/auth-callback'
 
 // Routes that require no authentication
 const PUBLIC_ROUTES = [
@@ -70,6 +71,13 @@ function isSubscriptionExempt(pathname: string): boolean {
 }
 
 export async function proxy(request: NextRequest) {
+  // Auth emails that miss the redirect allowlist land on the Site URL.
+  // Forward them before the logged-in `/` → /dashboard redirect drops the code.
+  const authCallbackUrl = homepageAuthCallbackRedirect(request.nextUrl.href)
+  if (authCallbackUrl) {
+    return NextResponse.redirect(authCallbackUrl)
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
