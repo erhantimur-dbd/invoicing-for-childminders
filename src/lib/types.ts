@@ -131,6 +131,7 @@ export type Expense = {
   category: string
   amount: number
   notes: string | null
+  /** Object path in the `receipts` bucket. Older rows may still hold an https signed URL. */
   receipt_url: string | null
   merchant_name: string | null
   ai_extracted: boolean | null
