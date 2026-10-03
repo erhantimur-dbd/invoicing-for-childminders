@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useCallback, useState, useTransition } from 'react'
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { Search, X, SlidersHorizontal } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
@@ -24,6 +24,39 @@ export default function InvoiceSearchBar() {
   const month = searchParams.get('month') ?? ''
   const year = searchParams.get('year') ?? ''
 
+  const [query, setQuery] = useState(q)
+  const [syncedQ, setSyncedQ] = useState(q)
+  const [pushedQ, setPushedQ] = useState<string | null>(null)
+  const [externalQVersion, setExternalQVersion] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // URL `q` changed. Ignore the value we just debounced so a newer keystroke
+  // is not replaced; otherwise this is Clear or history navigation.
+  if (q !== syncedQ) {
+    setSyncedQ(q)
+    if (pushedQ === q) {
+      setPushedQ(null)
+    } else {
+      setQuery(q)
+      setPushedQ(null)
+      setExternalQVersion(version => version + 1)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (externalQVersion === 0) return
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+  }, [externalQVersion])
+
   const updateParam = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString())
@@ -41,7 +74,25 @@ export default function InvoiceSearchBar() {
     [router, pathname, searchParams]
   )
 
+  const clearTimer = () => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+  }
+
+  const publishQuery = (value: string) => {
+    setPushedQ(value)
+    updateParam('q', value)
+  }
+
   const clearAll = useCallback(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+    setQuery('')
+    setPushedQ('')
     startTransition(() => {
       router.push(pathname)
     })
@@ -52,24 +103,30 @@ export default function InvoiceSearchBar() {
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        {/* Main search input */}
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             type="text"
             placeholder="Search by invoice number or child name…"
-            defaultValue={q}
+            value={query}
             onChange={e => {
               const val = e.target.value
-              // Debounce: only push after short pause
-              clearTimeout((window as any)._invoiceSearchTimer)
-              ;(window as any)._invoiceSearchTimer = setTimeout(() => updateParam('q', val), 350)
+              setQuery(val)
+              clearTimer()
+              timerRef.current = setTimeout(() => {
+                timerRef.current = null
+                publishQuery(val)
+              }, 350)
             }}
             className="pl-9 h-10 rounded-xl border-gray-200 text-sm focus:ring-emerald-500 focus:border-emerald-500"
           />
           {q && (
             <button
-              onClick={() => updateParam('q', '')}
+              onClick={() => {
+                clearTimer()
+                setQuery('')
+                publishQuery('')
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X className="h-3.5 w-3.5" />
@@ -77,7 +134,6 @@ export default function InvoiceSearchBar() {
           )}
         </div>
 
-        {/* Filter toggle */}
         <button
           onClick={() => setShowFilters(v => !v)}
           className={`flex items-center gap-1.5 px-3 h-10 rounded-xl border text-sm font-medium transition-colors ${
@@ -95,7 +151,6 @@ export default function InvoiceSearchBar() {
           )}
         </button>
 
-        {/* Clear all */}
         {hasActiveSearch && (
           <button
             onClick={clearAll}
@@ -107,10 +162,8 @@ export default function InvoiceSearchBar() {
         )}
       </div>
 
-      {/* Expanded filters */}
       {showFilters && (
         <div className="flex gap-2 flex-wrap">
-          {/* Month picker */}
           <select
             value={month}
             onChange={e => updateParam('month', e.target.value)}
@@ -122,7 +175,6 @@ export default function InvoiceSearchBar() {
             ))}
           </select>
 
-          {/* Year picker */}
           <select
             value={year}
             onChange={e => updateParam('year', e.target.value)}
@@ -136,7 +188,6 @@ export default function InvoiceSearchBar() {
         </div>
       )}
 
-      {/* Active search summary */}
       {isPending && (
         <p className="text-xs text-gray-400">Searching…</p>
       )}
