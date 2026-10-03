@@ -2,18 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Users, FileText, BarChart3, Settings, Receipt, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
-
-const navItems = [
-  { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
-  { href: '/children', label: 'Children', icon: Users },
-  { href: '/invoices', label: 'Invoices', icon: FileText },
-  { href: '/expenses', label: 'Expenses', icon: Receipt },
-  { href: '/reports', label: 'Reports', icon: BarChart3 },
-  { href: '/profile', label: 'Settings', icon: Settings },
-]
+import { isNavItemActive, navItems } from '@/components/nav-items'
 
 export default function SideNav({ name }: { name?: string }) {
   const pathname = usePathname()
@@ -43,10 +35,7 @@ export default function SideNav({ name }: { name?: string }) {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon }) => {
-          const active =
-            pathname === href ||
-            (href !== '/dashboard' && pathname.startsWith(href + '/')) ||
-            (href === '/dashboard' && pathname === '/dashboard')
+          const active = isNavItemActive(pathname, href)
           return (
             <Link
               key={href}
