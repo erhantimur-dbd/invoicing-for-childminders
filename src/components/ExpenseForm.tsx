@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { Loader2, Receipt, Camera, Sparkles } from 'lucide-react'
 import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_EMOJI, type Expense } from '@/lib/types'
+import { receiptValueToPersist } from '@/lib/receipt-storage'
 import ReceiptUploader from './ReceiptUploader'
 
 type Props = {
@@ -49,8 +50,8 @@ export default function ExpenseForm({ mode, expense }: Props) {
   const [amount, setAmount] = useState(expense?.amount?.toString() || '')
   const [notes, setNotes] = useState(expense?.notes || '')
 
-  // Receipt + AI state
-  const [receiptUrl, setReceiptUrl] = useState<string | null>(expense?.receipt_url ?? null)
+  // Receipt + AI state. receipt_url holds a storage path (legacy rows may still be a signed URL).
+  const [receiptStored, setReceiptStored] = useState<string | null>(expense?.receipt_url ?? null)
   const [merchantName, setMerchantName] = useState(expense?.merchant_name || '')
   const [aiExtracted, setAiExtracted] = useState(false)
   const [extracting, setExtracting] = useState(false)
@@ -126,7 +127,7 @@ export default function ExpenseForm({ mode, expense }: Props) {
       category,
       amount: Number(amount),
       notes: notes || null,
-      receipt_url: receiptUrl || null,
+      receipt_url: receiptValueToPersist(receiptStored),
       merchant_name: merchantName || null,
       ai_extracted: aiExtracted,
       updated_at: new Date().toISOString(),
@@ -167,8 +168,8 @@ export default function ExpenseForm({ mode, expense }: Props) {
         <CardContent>
           <ReceiptUploader
             userId={userId}
-            existingUrl={receiptUrl}
-            onUpload={url => setReceiptUrl(url || null)}
+            storedReceipt={receiptStored}
+            onUpload={value => setReceiptStored(value || null)}
             onExtracting={() => setExtracting(true)}
             onExtracted={handleExtracted}
           />
