@@ -4,6 +4,7 @@ import { enquiriesActive } from '@/lib/enquiries/access'
 import { isGmailPollingAllowed } from '@/lib/enquiries/pause'
 import { syncEnquiryGmail } from '@/lib/enquiries/gmail/sync'
 import { log } from '@/lib/log'
+import { accountAllowlistGate } from '@/lib/preview-guard'
 
 /**
  * Soft Launch poll path. Gmail push / GCP Pub/Sub is not required to ship.
@@ -20,6 +21,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const gate = accountAllowlistGate()
+  if (!gate.allow) {
+    log.warn('cron_skipped_non_production', { path: '/api/cron/sync-enquiries', skipped: 'allowlist empty' })
+    return NextResponse.json({ skipped: 'allowlist empty' })
+  }
+
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!serviceRoleKey) {
     return NextResponse.json({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured' }, { status: 500 })
@@ -29,7 +36,9 @@ export async function GET(request: NextRequest) {
     auth: { persistSession: false },
   })
 
-  const { data: accounts, error } = await admin.from('enquiry_gmail_accounts').select('user_id, last_sync_at')
+  let accountsQuery = admin.from('enquiry_gmail_accounts').select('user_id, last_sync_at')
+  if (gate.ids) accountsQuery = accountsQuery.in('user_id', gate.ids)
+  const { data: accounts, error } = await accountsQuery
   if (error) {
     log.error('enquiry_gmail_cron_list_failed', error)
     return NextResponse.json({ error: 'Could not list Gmail accounts.' }, { status: 500 })

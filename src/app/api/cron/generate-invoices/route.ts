@@ -10,6 +10,9 @@ import {
 import { persistInvoices } from '@/lib/agent/create-invoices'
 import { markOverdueInvoices } from '@/lib/cron/overdue'
 import { sendDueReminders } from '@/lib/cron/reminders'
+import { sendEmail } from '@/lib/email/resend'
+import { log } from '@/lib/log'
+import { accountAllowlistGate } from '@/lib/preview-guard'
 
 export async function GET(request: NextRequest) {
   // Verify cron secret — Vercel sends this as Authorization: Bearer <CRON_SECRET>.
@@ -22,6 +25,12 @@ export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const gate = accountAllowlistGate()
+  if (!gate.allow) {
+    log.warn('cron_skipped_non_production', { path: '/api/cron/generate-invoices', skipped: 'allowlist empty' })
+    return NextResponse.json({ skipped: 'allowlist empty' })
   }
 
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -45,10 +54,13 @@ export async function GET(request: NextRequest) {
   const bankHolidays = await fetchUKBankHolidays()
 
   // Get all childminders with onboarding completed
-  const { data: profiles, error: profileError } = await supabaseAdmin
+  let profileQuery = supabaseAdmin
     .from('profiles')
     .select('id, full_name, email, invoice_frequency, invoice_day, invoice_hour, invoice_last_generated_at')
     .eq('onboarding_completed', true)
+  if (gate.ids) profileQuery = profileQuery.in('id', gate.ids)
+
+  const { data: profiles, error: profileError } = await profileQuery
 
   if (profileError || !profiles?.length) {
     return NextResponse.json({ message: 'No eligible childminders', week: weekStart, overdue, reminders })
@@ -163,8 +175,6 @@ async function sendCronNotificationEmail(
   weekStart: string,
   weekEnd: string
 ) {
-  const { Resend } = await import('resend')
-  const resend = new Resend(process.env.RESEND_API_KEY)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.godottie.cloud'
 
   const weekLabel = `${new Date(weekStart + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(weekEnd + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
@@ -182,7 +192,7 @@ async function sendCronNotificationEmail(
        </ul>`
     : ''
 
-  await resend.emails.send({
+  await sendEmail({
     from: process.env.RESEND_FROM_EMAIL || 'Dottie <invoices@godottie.cloud>',
     to: profile.email,
     subject: `✨ ${created.length} draft invoice${created.length !== 1 ? 's' : ''} generated — w/c ${weekLabel}`,

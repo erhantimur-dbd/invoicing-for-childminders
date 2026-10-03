@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { log } from '@/lib/log'
+import { accountAllowlistGate, stripeEventProfileId } from '@/lib/preview-guard'
 import { accountCanCharge, stripeClient } from '@/lib/stripe/connect'
 
 function createServiceClient() {
@@ -40,7 +41,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Webhook error: ${message}` }, { status: 400 })
   }
 
+  // Preview shares the live database. Do not write subscription, invoice, or
+  // profile rows unless this event belongs to CRON_USER_ALLOWLIST.
+  const gate = accountAllowlistGate()
+  if (!gate.allow) {
+    log.warn('stripe_webhook_skipped', {
+      event_id: event.id,
+      event_type: event.type,
+      skipped: 'allowlist empty',
+    })
+    return NextResponse.json({ skipped: 'allowlist empty' })
+  }
+
   const supabase = createServiceClient()
+
+  if (gate.ids) {
+    let profileId: string | null = null
+    try {
+      profileId = await stripeEventProfileId(supabase as unknown as Parameters<typeof stripeEventProfileId>[0], {
+        type: event.type,
+        data: { object: event.data.object as unknown as Record<string, unknown> },
+      })
+    } catch (err) {
+      log.error('stripe_webhook_profile_lookup_failed', err, { event_id: event.id, event_type: event.type })
+      return NextResponse.json({ skipped: 'not allowlisted' })
+    }
+    if (!profileId || !gate.ids.includes(profileId)) {
+      log.warn('stripe_webhook_skipped', {
+        event_id: event.id,
+        event_type: event.type,
+        skipped: 'not allowlisted',
+      })
+      return NextResponse.json({ skipped: 'not allowlisted' })
+    }
+  }
+
 
   // Idempotency: Stripe retries failed deliveries with the same event.id.
   // We claim it via insert-with-unique-constraint; a duplicate is a no-op.
