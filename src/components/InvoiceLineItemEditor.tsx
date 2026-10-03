@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,9 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import {
-  Pencil, Trash2, Plus, Check, X, Loader2,
-  CalendarDays, UtensilsCrossed, Baby, Landmark,
-  Car, Ticket, ShoppingBag, MoreHorizontal
+  Pencil, Trash2, Plus, Check, X, Loader2, CalendarDays,
 } from 'lucide-react'
 
 type LineItem = {
@@ -19,20 +17,23 @@ type LineItem = {
   quantity: number
   unit_price: number
   amount: number
-  item_type?: string
 }
 
 const CUSTOM_CATEGORIES = [
-  { key: 'outing',    label: 'Outing',          icon: Ticket,           emoji: '🎡', defaultDesc: 'Outing' },
-  { key: 'group',     label: 'Toddler group',    icon: Baby,             emoji: '👶', defaultDesc: 'Toddler group' },
-  { key: 'food',      label: 'Food & drink',     icon: UtensilsCrossed,  emoji: '🍎', defaultDesc: 'Food & drink' },
-  { key: 'nappies',   label: 'Nappies',          icon: ShoppingBag,      emoji: '🧷', defaultDesc: 'Nappies & consumables' },
-  { key: 'travel',    label: 'Travel',           icon: Car,              emoji: '🚗', defaultDesc: 'Travel' },
-  { key: 'custom',    label: 'Other',            icon: MoreHorizontal,   emoji: '✏️', defaultDesc: '' },
+  { key: 'outing',  label: 'Outing',        emoji: '🎡', defaultDesc: 'Outing' },
+  { key: 'group',   label: 'Toddler group', emoji: '👶', defaultDesc: 'Toddler group' },
+  { key: 'food',    label: 'Food & drink',  emoji: '🍎', defaultDesc: 'Food & drink' },
+  { key: 'nappies', label: 'Nappies',       emoji: '🧷', defaultDesc: 'Nappies & consumables' },
+  { key: 'travel',  label: 'Travel',        emoji: '🚗', defaultDesc: 'Travel' },
+  { key: 'custom',  label: 'Other',         emoji: '✏️', defaultDesc: '' },
 ]
 
 function formatGBP(amount: number) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
+}
+
+function lineFingerprint(rows: LineItem[]) {
+  return JSON.stringify(rows.map(item => [item.description, item.quantity, item.unit_price, item.amount]))
 }
 
 export default function InvoiceLineItemEditor({
@@ -50,6 +51,10 @@ export default function InvoiceLineItemEditor({
 }) {
   const supabase = createClient()
   const [items, setItems] = useState<LineItem[]>(initialItems.map(i => ({ ...i })))
+  // Row ids currently stored for this invoice. A failed insert never touches this.
+  const dbIdsRef = useRef<string[]>(initialItems.map(item => item.id))
+  // Last insert that reached the database, so a retry does not write another copy.
+  const lastWriteRef = useRef<{ fingerprint: string; rows: LineItem[] } | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editBuf, setEditBuf] = useState<Partial<LineItem>>({})
   const [saving, setSaving] = useState(false)
@@ -110,7 +115,6 @@ export default function InvoiceLineItemEditor({
       quantity: 1,
       unit_price: rate,
       amount: rate,
-      item_type: isHalf ? 'half_day' : 'care_day',
     }
     setItems(prev => [...prev, newItem])
     setAddingDay(false)
@@ -131,7 +135,6 @@ export default function InvoiceLineItemEditor({
       quantity: qty,
       unit_price: price,
       amount: qty * price,
-      item_type: customCategory || 'custom',
     }
     setItems(prev => [...prev, newItem])
     setAddingCustom(false)
@@ -145,32 +148,72 @@ export default function InvoiceLineItemEditor({
   async function handleSave() {
     setSaving(true)
 
-    // Delete all existing items then re-insert
-    const { error: delErr } = await supabase
-      .from('invoice_line_items')
-      .delete()
-      .eq('invoice_id', invoiceId)
+    // Insert replacement rows before deleting the previous ids. A failed insert
+    // returns immediately, so the existing line items and invoice total stay put.
+    const fingerprint = lineFingerprint(items)
+    const cached = lastWriteRef.current?.fingerprint === fingerprint
+      ? lastWriteRef.current.rows
+      : null
 
-    if (delErr) { toast.error('Failed to save'); setSaving(false); return }
+    let insertedRows: LineItem[]
+    let insertedThisAttempt = false
 
-    // Insert all current items
-    const rows = items.map(i => ({
-      invoice_id: invoiceId,
-      description: i.description,
-      quantity: i.quantity,
-      unit_price: i.unit_price,
-      amount: i.amount,
-      // item_type column may not exist yet — omit if not supported
-    }))
+    if (cached) {
+      insertedRows = cached
+    } else if (items.length === 0) {
+      insertedRows = []
+    } else {
+      const rows = items.map(item => ({
+        invoice_id: invoiceId,
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        amount: item.amount,
+      }))
 
-    const { data: inserted, error: insErr } = await supabase
-      .from('invoice_line_items')
-      .insert(rows)
-      .select()
+      const { data: inserted, error: insErr } = await supabase
+        .from('invoice_line_items')
+        .insert(rows)
+        .select()
 
-    if (insErr) { toast.error('Failed to save items'); setSaving(false); return }
+      if (insErr || !inserted) { toast.error('Failed to save items'); setSaving(false); return }
+      insertedRows = inserted
+      insertedThisAttempt = true
+    }
 
-    // Update invoice total
+    const insertedIds = new Set(insertedRows.map(row => row.id))
+    const staleIds = dbIdsRef.current.filter(id => !insertedIds.has(id))
+
+    if (staleIds.length > 0) {
+      const { error: delErr } = await supabase
+        .from('invoice_line_items')
+        .delete()
+        .in('id', staleIds)
+        .eq('invoice_id', invoiceId)
+
+      if (delErr) {
+        // Remove the rows just inserted so a failed save does not leave duplicates.
+        if (insertedThisAttempt) {
+          const { error: rollbackErr } = await supabase
+            .from('invoice_line_items')
+            .delete()
+            .in('id', insertedRows.map(row => row.id))
+            .eq('invoice_id', invoiceId)
+
+          if (!rollbackErr) { toast.error('Failed to save'); setSaving(false); return }
+        }
+
+        dbIdsRef.current = [...new Set([...dbIdsRef.current, ...insertedRows.map(row => row.id)])]
+        lastWriteRef.current = { fingerprint, rows: insertedRows }
+        toast.error('Failed to save')
+        setSaving(false)
+        return
+      }
+    }
+
+    dbIdsRef.current = insertedRows.map(row => row.id)
+    lastWriteRef.current = { fingerprint, rows: insertedRows }
+
     const newTotal = items.reduce((s, i) => s + Number(i.amount), 0)
     const { error: totErr } = await supabase
       .from('invoices')
@@ -181,7 +224,7 @@ export default function InvoiceLineItemEditor({
 
     toast.success('Invoice updated')
     setSaving(false)
-    onSaved(inserted || items, newTotal)
+    onSaved(insertedRows, newTotal)
   }
 
   return (
